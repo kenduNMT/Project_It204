@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .sidebar {
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #dee2e6;
+            padding-top: 1rem;
+        }
+        .sidebar .nav-link {
+            color: #333;
+            font-weight: 500;
+        }
+        .sidebar .nav-link.active {
+            background: #e9ecef;
+            border-radius: 0.5rem;
+        }
+        .stat-card {
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+            padding: 1.5rem;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .chart-box, .transactions, .customers {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+            height: 100%;
+        }
+        .profile-section {
+            font-size: 0.9rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-md-block sidebar">
+            <div class="text-center mb-4">
+                <h5 class="fw-bold text-primary">My Company</h5>
+            </div>
+            <ul class="nav flex-column px-3">
+                <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user me-2"></i> Candidate</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-microchip me-2"></i> Technology</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
+            </ul>
+            <div class="text-center mt-5 profile-section">
+                <img src="https://via.placeholder.com/40" class="rounded-circle mb-2">
+                <div>Jenny Wilson</div>
+                <div class="text-muted">jen.wilson@example.com</div>
+                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3"><div class="stat-card"><div>Total Revenue</div><div class="stat-value text-success">$12,426 <small>+36%</small></div></div></div>
+                <div class="col-md-3"><div class="stat-card"><div>Total Product</div><div class="stat-value text-danger">1,500 <small>-14%</small></div></div></div>
+                <div class="col-md-3"><div class="stat-card"><div>Total Invoice</div><div class="stat-value text-success">84,382 <small>+36%</small></div></div></div>
+                <div class="col-md-3"><div class="stat-card"><div>Total Users</div><div class="stat-value text-success">33,493 <small>+36%</small></div></div></div>
+            </div>
+
+            <!-- Graph + Sources -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                    <div class="chart-box">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h6>Sales Report</h6>
+                            <div><button class="btn btn-sm btn-outline-secondary">Export PDF</button></div>
+                        </div>
+                        <img src="https://via.placeholder.com/700x200?text=Sales+Chart" class="img-fluid">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="chart-box">
+                        <h6>Traffic Sources (7 days)</h6>
+                        <ul class="list-unstyled mt-3">
+                            <li class="mb-2">Direct <span class="float-end fw-bold">1,432,382</span></li>
+                            <li class="mb-2">Referral <span class="float-end fw-bold">87,974</span></li>
+                            <li class="mb-2">Social Media <span class="float-end fw-bold">45,211</span></li>
+                            <li>Twitter <span class="float-end fw-bold">21,893</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions + Customers -->
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="transactions">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Transactions</h6>
+                            <a href="#" class="text-primary">See All</a>
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><span class="badge bg-success me-2">Completed</span>Visa card **** 4831</span>
+                                <span>$182.94</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><span class="badge bg-success me-2">Completed</span>Mastercard **** 6442</span>
+                                <span>$99.00</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><span class="badge bg-warning text-dark me-2">Pending</span>Account **** 882</span>
+                                <span>$249.94</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><span class="badge bg-danger me-2">Canceled</span>Amex card **** 6664</span>
+                                <span>$199.24</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="customers">
+                        <h6>Recent Customers</h6>
+                        <ul class="list-unstyled mt-3">
+                            <li class="d-flex justify-content-between mb-2">
+                                <span>Jenny Wilson</span><span>$11,234</span>
+                            </li>
+                            <li class="d-flex justify-content-between mb-2">
+                                <span>Devon Lane</span><span>$11,159</span>
+                            </li>
+                            <li class="d-flex justify-content-between mb-2">
+                                <span>Jane Cooper</span><span>$10,483</span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span>Dianne Russell</span><span>$9,804</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

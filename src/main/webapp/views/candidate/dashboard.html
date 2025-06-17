@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Ứng viên</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            margin: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            border: none;
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .welcome-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .action-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #667eea !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-briefcase"></i> JobPortal</a>
+        <div class="navbar-nav ms-auto">
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle"></i> <span th:text="${candidate.name}">Tên ứng viên</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{/candidate/profile}"><i class="fas fa-user"></i> Thông tin cá nhân</a></li>
+                    <li><a class="dropdown-item" th:href="@{/candidate/change-password}"><i class="fas fa-key"></i> Đổi mật khẩu</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" th:href="@{/auth/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <div class="p-3 text-center">
+                    <h6 class="text-white" th:text="${candidate.name}">Tên ứng viên</h6>
+                    <small class="text-white-50" th:text="${candidate.email}">email@example.com</small>
+                </div>
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link active" th:href="@{/candidate/dashboard}">
+                        <i class="fas fa-tachometer-alt me-2"></i> Trang chủ
+                    </a>
+                    <a class="nav-link" th:href="@{/candidate/profile}">
+                        <i class="fas fa-user me-2"></i> Thông tin cá nhân
+                    </a>
+                    <a class="nav-link" th:href="@{/candidate/jobs}">
+                        <i class="fas fa-search me-2"></i> Tìm việc làm
+                    </a>
+                    <a class="nav-link" th:href="@{/candidate/applications}">
+                        <i class="fas fa-file-alt me-2"></i> Đơn ứng tuyển
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <!-- Welcome Card -->
+                <div class="welcome-card p-4 mb-4">
+                    <h2 class="mb-3">Chào mừng trở lại!</h2>
+                    <p class="mb-0">Chúc bạn một ngày làm việc hiệu quả và tìm được công việc mơ ước.</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card stats-card text-center p-4">
+                            <div class="card-body">
+                                <i class="fas fa-file-alt fa-3x mb-3"></i>
+                                <h3 class="card-title" th:text="${totalApplications}">0</h3>
+                                <p class="card-text">Tổng đơn ứng tuyển</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card stats-card text-center p-4">
+                            <div class="card-body">
+                                <i class="fas fa-clock fa-3x mb-3"></i>
+                                <h3 class="card-title" th:text="${pendingApplications}">0</h3>
+                                <p class="card-text">Đang chờ xử lý</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card stats-card text-center p-4">
+                            <div class="card-body">
+                                <i class="fas fa-check-circle fa-3x mb-3"></i>
+                                <h3 class="card-title" th:text="${acceptedApplications}">0</h3>
+                                <p class="card-text">Được chấp nhận</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Hành động nhanh</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/candidate/jobs}" class="btn action-btn">
+                                        <i class="fas fa-search me-2"></i>Tìm việc làm mới
+                                    </a>
+                                    <a th:href="@{/candidate/profile/edit}" class="btn action-btn">
+                                        <i class="fas fa-edit me-2"></i>Cập nhật hồ sơ
+                                    </a>
+                                    <a th:href="@{/candidate/applications}" class="btn action-btn">
+                                        <i class="fas fa-file-alt me-2"></i>Xem đơn ứng tuyển
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin hồ sơ</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong>Tên:</strong> <span th:text="${candidate.name}">Tên ứng viên</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Email:</strong> <span th:text="${candidate.email}">email@example.com</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Số điện thoại:</strong>
+                                    <span th:text="${candidate.phone != null ? candidate.phone : 'Chưa cập nhật'}">Chưa cập nhật</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Kinh nghiệm:</strong>
+                                    <span th:text="${candidate.experience != null ? candidate.experience + ' năm' : 'Chưa cập nhật'}">Chưa cập nhật</span>
+                                </div>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+                                </div>
+                                <small class="text-muted">Độ hoàn thiện hồ sơ: 60%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Hoạt động gần đây</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-light text-center">
+                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                            <p class="mb-0">Chưa có hoạt động nào gần đây</p>
+                            <small class="text-muted">Hãy bắt đầu tìm kiếm và ứng tuyển công việc!</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chỉnh sửa thông tin - Ứng viên</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .sidebar {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .sidebar .nav-link {
+      color: rgba(255,255,255,0.8);
+      padding: 12px 20px;
+      margin: 5px 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background: rgba(255,255,255,0.2);
+      transform: translateX(5px);
+    }
+    .form-card {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .btn-save {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      color: white;
+    }
+    .btn-cancel {
+      background: #6c757d;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+      color: white;
+    }
+    .navbar-brand {
+      font-weight: bold;
+      color: #667eea !important;
+    }
+    .form-floating label {
+      color: #6c757d;
+    }
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    .header-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#"><i class="fas fa-briefcase"></i> JobPortal</a>
+    <div class="navbar-nav ms-auto">
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle"></i> <span th:text="${candidate.name}">Tên ứng viên</span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" th:href="@{/candidate/profile}"><i class="fas fa-user"></i> Thông tin cá nhân</a></li>
+          <li><a class="dropdown-item" th:href="@{/candidate/change-password}"><i class="fas fa-key"></i> Đổi mật khẩu</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" th:href="@{/auth/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 col-lg-2 px-0">
+      <div class="sidebar">
+        <div class="p-3 text-center">
+          <h6 class="text-white" th:text="${candidate.name}">Tên ứng viên</h6>
+          <small class="text-white-50" th:text="${candidate.email}">email@example.com</small>
+        </div>
+        <nav class="nav nav-pills flex-column">
+          <a class="nav-link" th:href="@{/candidate/dashboard}">
+            <i class="fas fa-tachometer-alt me-2"></i> Trang chủ
+          </a>
+          <a class="nav-link active" th:href="@{/candidate/profile}">
+            <i class="fas fa-user me-2"></i> Thông tin cá nhân
+          </a>
+          <a class="nav-link" th:href="@{/candidate/jobs}">
+            <i class="fas fa-search me-2"></i> Tìm việc làm
+          </a>
+          <a class="nav-link" th:href="@{/candidate/applications}">
+            <i class="fas fa-file-alt me-2"></i> Đơn ứng tuyển
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9 col-lg-10">
+      <div class="p-4">
+        <!-- Header -->
+        <div class="header-card p-4 mb-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2><i class="fas fa-edit me-3"></i>Chỉnh sửa thông tin cá nhân</h2>
+              <p class="mb-0">Cập nhật thông tin để hoàn thiện hồ sơ của bạn</p>
+            </div>
+            <div class="col-md-4 text-end">
+              <a th:href="@{/candidate/profile}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Form -->
+        <form th:action="@{/candidate/profile/update}" th:object="${candidate}" method="post">
+          <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6 mb-4">
+              <div class="card form-card">
+                <div class="card-header bg-primary text-white">
+                  <h5 class="mb-0"><i class="fas fa-user me-2"></i>Thông tin cơ bản</h5>
+                </div>
+                <div class="card-body">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="name"
+                           th:field="*{name}" placeholder="Họ và tên">
+                    <label for="name">Họ và tên *</label>
+                    <div th:if="${#fields.hasErrors('name')}" class="text-danger small mt-1">
+                      <span th:errors="*{name}"></span>
+                    </div>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="email"
+                           th:field="*{email}" readonly placeholder="Email">
+                    <label for="email">Email (không thể thay đổi)</label>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <input type="tel" class="form-control" id="phone"
+                           th:field="*{phone}" placeholder="Số điện thoại">
+                    <label for="phone">Số điện thoại</label>
+                    <div th:if="${#fields.hasErrors('phone')}" class="text-danger small mt-1">
+                      <span th:errors="*{phone}"></span>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="gender" class="form-label">Giới tính</label>
+                    <select class="form-select" id="gender" th:field="*{gender}">
+                      <option value="">-- Chọn giới tính --</option>
+                      <option value="Nam">Nam</option>
+                      <option value="Nữ">Nữ</option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('gender')}" class="text-danger small mt-1">
+                      <span th:errors="*{gender}"></span>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="dob" class="form-label">Ngày sinh</label>
+                    <input type="date" class="form-control" id="dob" th:field="*{dob}">
+                    <div th:if="${#fields.hasErrors('dob')}" class="text-danger small mt-1">
+                      <span th:errors="*{dob}"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Professional Information -->
+            <div class="col-md-6 mb-4">
+              <div class="card form-card">
+                <div class="card-header bg-success text-white">
+                  <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Thông tin nghề nghiệp</h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="experience" class="form-label">Số năm kinh nghiệm</label>
+                    <input type="number" class="form-control" id="experience"
+                           th:field="*{experience}" min="0" max="50" placeholder="Ví dụ: 2">
+                    <div class="form-text">Nhập số năm kinh nghiệm làm việc</div>
+                    <div th:if="${#fields.hasErrors('experience')}" class="text-danger small mt-1">
+                      <span th:errors="*{experience}"></span>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả bản thân</label>
+                    <textarea class="form-control" id="description" rows="8"
+                              th:field="*{description}"
+                              placeholder="Hãy viết một vài dòng giới thiệu về bản thân, kỹ năng, sở thích và mục tiêu nghề nghiệp của bạn..."></textarea>
+                    <div class="form-text">Mô tả chi tiết sẽ giúp nhà tuyển dụng hiểu rõ hơn về bạn</div>
+                    <div th:if="${#fields.hasErrors('description')}" class="text-danger small mt-1">
+                      <span th:errors="*{description}"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Messages -->
+          <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+            <h6><i class="fas fa-exclamation-circle me-2"></i>Vui lòng kiểm tra lại thông tin:</h6>
+            <ul class="mb-0">
+              <li th:each="error : ${#fields.allErrors()}" th:text="${error}">Error message</li>
+            </ul>
+          </div>
+
+          <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i><span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="card form-card">
+            <div class="card-body text-center">
+              <button type="submit" class="btn btn-save btn-lg me-3">
+                <i class="fas fa-save me-2"></i>Lưu thay đổi
+              </button>
+              <a th:href="@{/candidate/profile}" class="btn btn-cancel btn-lg">
+                <i class="fas fa-times me-2"></i>Hủy bỏ
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Form validation
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    if (!name) {
+      e.preventDefault();
+      alert('Vui lòng nhập họ và tên');
+      document.getElementById('name').focus();
+      return false;
+    }
+  });
+
+  // Character counter for description
+  const description = document.getElementById('description');
+  if (description) {
+    description.addEventListener('input', function() {
+      const maxLength = 1000;
+      const currentLength = this.value.length;
+
+      let counter = document.getElementById('char-counter');
+      if (!counter) {
+        counter = document.createElement('div');
+        counter.id = 'char-counter';
+        counter.className = 'form-text text-end';
+        this.parentNode.appendChild(counter);
+      }
+
+      counter.textContent = currentLength + '/' + maxLength + ' ký tự';
+      counter.style.color = currentLength > maxLength ? '#dc3545' : '#6c757d';
+    });
+  }
+</script>
+</body>
+</html>

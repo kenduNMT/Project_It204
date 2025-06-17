@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Tuyển dụng</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        .role-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: #333;
+        }
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .role-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .candidate-icon {
+            color: #28a745;
+        }
+        .company-icon {
+            color: #007bff;
+        }
+        .btn-role {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-candidate {
+            background: #28a745;
+            color: white;
+            border: 2px solid #28a745;
+        }
+        .btn-candidate:hover {
+            background: transparent;
+            color: #28a745;
+        }
+        .btn-company {
+            background: #007bff;
+            color: white;
+            border: 2px solid #007bff;
+        }
+        .btn-company:hover {
+            background: transparent;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+<div class="hero-section">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-12 mb-5">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-briefcase me-3"></i>
+                    Hệ thống Tuyển dụng
+                </h1>
+                <p class="lead">Kết nối ứng viên và nhà tuyển dụng một cách hiệu quả</p>
+            </div>
+
+            <div class="col-md-6">
+                <div class="role-card">
+                    <div class="role-icon candidate-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="mb-3">Ứng viên</h3>
+                    <p class="mb-4">
+                        Tìm kiếm cơ hội nghề nghiệp phù hợp,
+                        nộp đơn ứng tuyển và theo dõi trạng thái hồ sơ
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="/auth/login" class="btn btn-role btn-candidate">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Đăng nhập
+                        </a>
+                        <a href="/auth/register" class="btn btn-outline-success">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Đăng ký mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="role-card">
+                    <div class="role-icon company-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3 class="mb-3">Nhà tuyển dụng</h3>
+                    <p class="mb-4">
+                        Đăng tin tuyển dụng, quản lý ứng viên
+                        và tìm kiếm nhân tài phù hợp
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-role btn-company">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Đăng nhập
+                        </a>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fas fa-building me-2"></i>
+                            Đăng ký công ty
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-search fa-2x me-3"></i>
+                            <div>
+                                <h5 class="mb-1">Tìm kiếm dễ dàng</h5>
+                                <small>Hệ thống tìm kiếm thông minh</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-handshake fa-2x me-3"></i>
+                            <div>
+                                <h5 class="mb-1">Kết nối hiệu quả</h5>
+                                <small>Liên kết ứng viên và nhà tuyển dụng</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-chart-line fa-2x me-3"></i>
+                            <div>
+                                <h5 class="mb-1">Theo dõi tiến trình</h5>
+                                <small>Quản lý trạng thái ứng tuyển</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

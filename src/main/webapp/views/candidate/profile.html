@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân - Ứng viên</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            margin: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+        .profile-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .info-card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-edit {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #667eea !important;
+        }
+        .info-row {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .info-value {
+            color: #333;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-briefcase"></i> JobPortal</a>
+        <div class="navbar-nav ms-auto">
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle"></i> <span th:text="${candidate.name}">Tên ứng viên</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{/candidate/profile}"><i class="fas fa-user"></i> Thông tin cá nhân</a></li>
+                    <li><a class="dropdown-item" th:href="@{/candidate/change-password}"><i class="fas fa-key"></i> Đổi mật khẩu</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" th:href="@{/auth/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <div class="p-3 text-center">
+                    <h6 class="text-white" th:text="${candidate.name}">Tên ứng viên</h6>
+                    <small class="text-white-50" th:text="${candidate.email}">email@example.com</small>
+                </div>
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link" th:href="@{/candidate/dashboard}">
+                        <i class="fas fa-tachometer-alt me-2"></i> Trang chủ
+                    </a>
+                    <a class="nav-link active" th:href="@{/candidate/profile}">
+                        <i class="fas fa-user me-2"></i> Thông tin cá nhân
+                    </a>
+                    <a class="nav-link" th:href="@{/candidate/jobs}">
+                        <i class="fas fa-search me-2"></i> Tìm việc làm
+                    </a>
+                    <a class="nav-link" th:href="@{/candidate/applications}">
+                        <i class="fas fa-file-alt me-2"></i> Đơn ứng tuyển
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i><span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i><span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Profile Information -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card info-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Thông tin cơ bản</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Họ và tên:</div>
+                                        <div class="col-7 info-value" th:text="${candidate.name}">Tên ứng viên</div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Email:</div>
+                                        <div class="col-7 info-value" th:text="${candidate.email}">email@example.com</div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Số điện thoại:</div>
+                                        <div class="col-7 info-value">
+                                                <span th:if="${candidate.phone != null and !#strings.isEmpty(candidate.phone)}"
+                                                      th:text="${candidate.phone}">Số điện thoại</span>
+                                            <span th:if="${candidate.phone == null or #strings.isEmpty(candidate.phone)}"
+                                                  class="text-muted">Chưa cập nhật</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Giới tính:</div>
+                                        <div class="col-7 info-value">
+                                                <span th:if="${candidate.gender != null and !#strings.isEmpty(candidate.gender)}"
+                                                      th:text="${candidate.gender}">Giới tính</span>
+                                            <span th:if="${candidate.gender == null or #strings.isEmpty(candidate.gender)}"
+                                                  class="text-muted">Chưa cập nhật</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Ngày sinh:</div>
+                                        <div class="col-7 info-value">
+                                                <span th:if="${candidate.dob != null}"
+                                                      th:text="${#temporals.format(candidate.dob, 'dd/MM/yyyy')}">Ngày sinh</span>
+                                            <span th:if="${candidate.dob == null}"
+                                                  class="text-muted">Chưa cập nhật</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card info-card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Thông tin nghề nghiệp</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Kinh nghiệm:</div>
+                                        <div class="col-7 info-value">
+                                                <span th:if="${candidate.experience != null}"
+                                                      th:text="${candidate.experience + ' năm'}">Kinh nghiệm</span>
+                                            <span th:if="${candidate.experience == null}"
+                                                  class="text-muted">Chưa cập nhật</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Trạng thái:</div>
+                                        <div class="col-7 info-value">
+                                            <span class="badge bg-success" th:if="${candidate.status == 'active'}">Đang hoạt động</span>
+                                            <span class="badge bg-secondary" th:if="${candidate.status != 'active'}">Không hoạt động</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Ngày đăng ký:</div>
+                                        <div class="col-7 info-value">
+                                                <span th:if="${candidate.createdAt != null}"
+                                                      th:text="${#temporals.format(candidate.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày đăng ký</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="row">
+                                        <div class="col-5 info-label">Cập nhật lần cuối:</div>
+                                        <div class="col-7 info-value">
+                                                <span th:if="${candidate.updatedAt != null}"
+                                                      th:text="${#temporals.format(candidate.updatedAt, 'dd/MM/yyyy HH:mm')}">Ngày cập nhật</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="card info-card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-file-text me-2"></i>Mô tả bản thân</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${candidate.description != null and !#strings.isEmpty(candidate.description)}">
+                            <p th:text="${candidate.description}" class="mb-0"></p>
+                        </div>
+                        <div th:if="${candidate.description == null or #strings.isEmpty(candidate.description)}">
+                            <p class="text-muted mb-0">Chưa có mô tả về bản thân. Hãy cập nhật để tăng cơ hội được nhà tuyển dụng chú ý!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-4 text-center">
+                    <a th:href="@{/candidate/profile/edit}" class="btn btn-edit btn-lg me-3">
+                        <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin
+                    </a>
+                    <a th:href="@{/candidate/change-password}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

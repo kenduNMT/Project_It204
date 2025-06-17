@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Hệ thống Tuyển dụng</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .register-body {
+            padding: 2rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .input-group-text {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-right: none;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: #28a745;
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak {
+            background-color: #dc3545;
+        }
+
+        .strength-medium {
+            background-color: #ffc107;
+        }
+
+        .strength-strong {
+            background-color: #28a745;
+        }
+
+        .input-error {
+            border-color: red !important;
+        }
+
+        .input-error::placeholder {
+            color: red !important;
+        }
+
+        .error-message-inline {
+            font-size: 0.875rem;
+            color: red;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        input.input-error + .error-message-inline {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="register-card">
+                <div class="register-header">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Đăng ký tài khoản
+                    </h2>
+                    <p class="mb-0 mt-2">Tạo tài khoản ứng viên mới</p>
+                </div>
+
+                <div class="register-body">
+                    <!-- Hiển thị thông báo lỗi -->
+                    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <form th:action="@{/auth/register}" th:object="${registrationDTO}" method="post" id="registerForm">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="name" class="form-label">Họ và tên <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+                  <span class="input-group-text">
+    <i class="fas fa-user"></i>
+</span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="name"
+                                           th:field="*{name}"
+                                           placeholder="Nhập họ và tên của bạn"
+                                           required>
+                                </div>
+                                <div class="form-text text-danger" th:if="${#fields.hasErrors('name')}"
+                                     th:errors="*{name}"></div>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <div class="input-group">
+        <span class="input-group-text">
+            <i class="fas fa-envelope"></i>
+        </span>
+                                    <input type="email"
+                                           class="form-control"
+                                           id="email"
+                                           th:field="*{email}"
+                                           placeholder="Nhập địa chỉ email"
+                                           required>
+                                </div>
+                                <div class="form-text text-danger" th:if="${#fields.hasErrors('email')}"
+                                     th:errors="*{email}"></div>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="password" class="form-label">Mật khẩu <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+        <span class="input-group-text">
+            <i class="fas fa-lock"></i>
+        </span>
+                                    <input type="password"
+                                           class="form-control"
+                                           id="password"
+                                           th:field="*{password}"
+                                           placeholder="Tạo mật khẩu"
+                                           required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text text-danger" th:if="${#fields.hasErrors('password')}"
+                                     th:errors="*{password}"></div>
+                                <div id="passwordStrength" class="password-strength"></div>
+                            </div>
+
+                            <div class="col-md-12 mb-4">
+                                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+        <span class="input-group-text">
+            <i class="fas fa-lock"></i>
+        </span>
+                                    <input type="password"
+                                           class="form-control"
+                                           id="confirmPassword"
+                                           th:field="*{confirmPassword}"
+                                           placeholder="Nhập lại mật khẩu"
+                                           required>
+                                </div>
+                                <div class="form-text text-danger" th:if="${#fields.hasErrors('confirmPassword')}"
+                                     th:errors="*{confirmPassword}"></div>
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-register">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Đăng ký tài khoản
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="mb-2">Đã có tài khoản?</p>
+                        <a href="/auth/login" class="btn btn-outline-success">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Đăng nhập
+                        </a>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>
+                            Về trang chủ
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function (alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+
+    // Password strength indicator
+    document.getElementById('password').addEventListener('input', function () {
+        const strengthBar = document.getElementById('passwordStrength');
+        const value = this.value;
+
+        if (value.length === 0) {
+            strengthBar.className = 'password-strength';
+        } else if (value.length < 6 || !/[A-Z]/.test(value) || !/\d/.test(value)) {
+            strengthBar.className = 'password-strength strength-weak';
+        } else if (value.length < 10) {
+            strengthBar.className = 'password-strength strength-medium';
+        } else {
+            strengthBar.className = 'password-strength strength-strong';
+        }
+    });
+</script>
+</body>
+</html>
