@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${action == 'add'} ? 'Thêm Công nghệ' : 'Sửa Công nghệ'">Form Công nghệ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+    .sidebar {
+      height: 100vh;
+      background: white;
+      border-right: 1px solid #dee2e6;
+      padding-top: 1rem;
+    }
+    .sidebar .nav-link {
+      color: #333;
+      font-weight: 500;
+    }
+    .sidebar .nav-link.active {
+      background: #e9ecef;
+      border-radius: 0.5rem;
+    }
+    .content-card {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.03);
+    }
+    .profile-section {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+    }
+    .invalid-feedback {
+      display: block;
+    }
+    .name-check {
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    .name-available {
+      color: #28a745;
+    }
+    .name-taken {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav class="col-md-2 d-md-block sidebar">
+      <div class="text-center mb-4">
+        <h5 class="fw-bold text-primary">My Company</h5>
+      </div>
+      <ul class="nav flex-column px-3">
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/candidate-list}"><i class="fas fa-user me-2"></i> Candidate</a></li>
+        <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology-list}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
+        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
+        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
+      </ul>
+      <div class="text-center mt-5 profile-section">
+        <div>Admin</div>
+        <div class="text-muted">admin@gmail.com</div>
+        <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-sign-out-alt"></i> Log out</a>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a th:href="@{/views/admin/technology}">Công nghệ</a></li>
+              <li class="breadcrumb-item active" th:text="${action == 'add'} ? 'Thêm mới' : 'Chỉnh sửa'"></li>
+            </ol>
+          </nav>
+          <h2><i class="fas fa-microchip me-2"></i><span th:text="${action == 'add'} ? 'Thêm Công nghệ' : 'Sửa Công nghệ'"></span></h2>
+        </div>
+        <a th:href="@{/views/admin/technology}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-2"></i>Quay lại
+        </a>
+      </div>
+
+      <!-- Form -->
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="content-card">
+
+            <!-- Form Thêm -->
+            <form th:if="${action == 'add'}"
+                  th:action="@{/admin/technology/add}"
+                  th:object="${technology}"
+                  method="post"
+                  novalidate>
+
+              <div th:replace="~{::formContent}"></div>
+
+            </form>
+
+            <!-- Form Chỉnh sửa -->
+            <form th:if="${action != 'add'}"
+                  th:action="@{/admin/technology/edit/{id}(id=${technology.id})}"
+                  th:object="${technology}"
+                  method="post"
+                  novalidate>
+
+              <div th:replace="~{::formContent}"></div>
+
+            </form>
+
+            <!-- Nội dung dùng chung cho cả 2 form -->
+            <th:block th:fragment="formContent">
+              <div class="mb-4">
+                <label for="name" class="form-label">
+                  Tên Công nghệ <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                       id="name"
+                       th:field="*{name}"
+                       placeholder="Nhập tên công nghệ (VD: JavaScript, Java, Python...)"
+                       autocomplete="off">
+
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+
+                <div id="nameCheck" class="name-check" style="display: none;">
+                  <i class="fas fa-spinner fa-spin me-1"></i>Đang kiểm tra...
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <div class="form-text">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Nhập tên công nghệ mà bạn muốn quản lý. Ví dụ: JavaScript, Java, Python, React, Angular, etc.
+                </div>
+              </div>
+
+              <hr class="my-4">
+
+              <div class="d-flex justify-content-end gap-2">
+                <a th:href="@{/views/admin/technology}" class="btn btn-secondary">
+                  <i class="fas fa-times me-2"></i>Hủy
+                </a>
+                <button type="submit" class="btn btn-danger" id="submitBtn">
+                  <i class="fas fa-save me-2"></i>
+                  <span th:text="${action == 'add'} ? 'Thêm mới' : 'Cập nhật'"></span>
+                </button>
+              </div>
+            </th:block>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+  let nameCheckTimeout;
+  const nameInput = document.getElementById('name');
+  const nameCheck = document.getElementById('nameCheck');
+  const submitBtn = document.getElementById('submitBtn');
+  const originalName = nameInput.value;
+  const isEdit = document.querySelector('form').action.includes('/edit/');
+  const techId = isEdit ? document.querySelector('form').action.split('/').pop() : null;
+
+  nameInput.addEventListener('input', function() {
+    const name = this.value.trim();
+
+    // Clear previous timeout
+    clearTimeout(nameCheckTimeout);
+
+    // Hide previous check result
+    nameCheck.style.display = 'none';
+
+    // Remove previous classes
+    nameInput.classList.remove('is-valid', 'is-invalid');
+
+    if (name.length < 2) {
+      return;
+    }
+
+    // Skip check if name hasn't changed in edit mode
+    if (isEdit && name.toLowerCase() === originalName.toLowerCase()) {
+      return;
+    }
+
+    // Show checking status
+    nameCheck.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang kiểm tra...';
+    nameCheck.style.display = 'block';
+
+    // Check name availability after delay
+    nameCheckTimeout = setTimeout(() => {
+      checkNameAvailability(name);
+    }, 500);
+  });
+
+  function checkNameAvailability(name) {
+    const url = isEdit
+            ? `/admin/technology/check-name?name=${encodeURIComponent(name)}&id=${techId}`
+            : `/admin/technology/check-name?name=${encodeURIComponent(name)}`;
+
+    fetch(url)
+            .then(response => response.json())
+            .then(exists => {
+              if (exists) {
+                nameCheck.innerHTML = '<i class="fas fa-times me-1"></i>Tên công nghệ đã tồn tại';
+                nameCheck.className = 'name-check name-taken';
+                nameInput.classList.add('is-invalid');
+                nameInput.classList.remove('is-valid');
+                submitBtn.disabled = true;
+              } else {
+                nameCheck.innerHTML = '<i class="fas fa-check me-1"></i>Tên công nghệ có thể sử dụng';
+                nameCheck.className = 'name-check name-available';
+                nameInput.classList.add('is-valid');
+                nameInput.classList.remove('is-invalid');
+                submitBtn.disabled = false;
+              }
+              nameCheck.style.display = 'block';
+            })
+            .catch(error => {
+              console.error('Error checking name:', error);
+              nameCheck.style.display = 'none';
+            });
+  }
+
+  // Validate form before submit
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const name = nameInput.value.trim();
+
+    if (name.length < 2) {
+      e.preventDefault();
+      nameInput.classList.add('is-invalid');
+      return false;
+    }
+
+    if (nameInput.classList.contains('is-invalid')) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // Auto focus on name input
+  nameInput.focus();
+</script>
+</body>
+</html>

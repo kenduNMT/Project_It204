@@ -1,10 +1,1150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm việc làm - Ứng viên</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
 
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #667eea !important;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .job-card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .job-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .salary-badge {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-weight: 500;
+        }
+
+        .urgent-badge {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-weight: 500;
+        }
+
+        .search-card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-apply {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .btn-save {
+            background: #ffc107;
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+            color: #000;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .job-tags .badge {
+            margin: 2px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+        }
+
+        .pagination .page-link {
+            border-radius: 10px;
+            margin: 0 2px;
+            border: none;
+            color: #667eea;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .job-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .location-badge {
+            background: #6c757d;
+            color: white;
+            border-radius: 15px;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+        }
+
+        .experience-badge {
+            background: #17a2b8;
+            color: white;
+            border-radius: 15px;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+        }
+
+        .filter-badge {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            margin: 2px;
+        }
+
+        .filter-badge.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .saved-job {
+            position: relative;
+        }
+
+        .saved-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ffc107;
+        }
+
+        .quick-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-briefcase"></i> JobPortal</a>
+        <div class="navbar-nav ms-auto">
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle"></i> <span
+                        th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{/candidate/profile}"><i class="fas fa-user"></i> Thông tin
+                        cá nhân</a></li>
+                    <li><a class="dropdown-item" th:href="@{/candidate/change-password}"><i class="fas fa-key"></i> Đổi
+                        mật khẩu</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" th:href="@{/auth/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            <div class="sidebar">
+                <div class="p-3 text-center">
+                    <img src="https://via.placeholder.com/80x80/ffffff/667eea?text=Avatar"
+                         class="rounded-circle mb-2" alt="Avatar">
+                    <h6 class="text-white" th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</h6>
+                    <small class="text-white-50" th:text="${session.candidateEmail ?: 'email@example.com'}">email@example.com</small>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats mx-3 text-white">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="mb-0">15</h6>
+                            <small>Đã lưu</small>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="mb-0">8</h6>
+                            <small>Đã ứng tuyển</small>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link" th:href="@{/candidate/dashboard}">
+                        <i class="fas fa-tachometer-alt me-2"></i> Trang chủ
+                    </a>
+                    <a class="nav-link" th:href="@{/candidate/profile}">
+                        <i class="fas fa-user me-2"></i> Thông tin cá nhân
+                    </a>
+                    <a class="nav-link active" th:href="@{/candidate/jobs}">
+                        <i class="fas fa-search me-2"></i> Tìm việc làm
+                    </a>
+                    <a class="nav-link" th:href="@{/candidate/applications}">
+                        <i class="fas fa-file-alt me-2"></i> Đơn ứng tuyển
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSavedJobs()">
+                        <i class="fas fa-heart me-2"></i> Việc làm đã lưu
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <!-- Header -->
+                <div class="header-card p-4 mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2><i class="fas fa-search me-3"></i>Tìm việc làm</h2>
+                            <p class="mb-0">Khám phá các cơ hội nghề nghiệp phù hợp với bạn</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                                <span class="badge bg-light text-dark fs-6">
+                                    <i class="fas fa-briefcase me-2"></i><span id="jobCount">125</span> việc làm
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Filter Section -->
+                <div class="search-card card p-4 mb-4">
+                    <form id="jobSearchForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label"><i class="fas fa-search me-2"></i>Từ khóa</label>
+                                <input type="text" class="form-control" id="keyword"
+                                       placeholder="Nhập vị trí, công ty...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label"><i class="fas fa-map-marker-alt me-2"></i>Địa điểm</label>
+                                <select class="form-select" id="location">
+                                    <option value="">Tất cả địa điểm</option>
+                                    <option value="hanoi">Hà Nội</option>
+                                    <option value="hcm">TP. Hồ Chí Minh</option>
+                                    <option value="danang">Đà Nẵng</option>
+                                    <option value="haiphong">Hải Phòng</option>
+                                    <option value="cantho">Cần Thơ</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label"><i class="fas fa-building me-2"></i>Ngành nghề</label>
+                                <select class="form-select" id="category">
+                                    <option value="">Tất cả ngành nghề</option>
+                                    <option value="it">Công nghệ thông tin</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="finance">Tài chính - Kế toán</option>
+                                    <option value="hr">Nhân sự</option>
+                                    <option value="sales">Kinh doanh - Bán hàng</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-2"></i>Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Advanced Filters -->
+                    <div class="filter-section mt-3">
+                        <h6 class="mb-3"><i class="fas fa-filter me-2"></i>Bộ lọc nâng cao</h6>
+
+                        <!-- Salary Range -->
+                        <div class="mb-3">
+                            <label class="form-label">Mức lương</label>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="salary" id="salary1" value="0-10">
+                                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary1">Dưới 10
+                                    triệu</label>
+
+                                <input type="radio" class="btn-check" name="salary" id="salary2" value="10-20">
+                                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary2">10-20
+                                    triệu</label>
+
+                                <input type="radio" class="btn-check" name="salary" id="salary3" value="20-30">
+                                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary3">20-30
+                                    triệu</label>
+
+                                <input type="radio" class="btn-check" name="salary" id="salary4" value="30+">
+                                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary4">Trên 30
+                                    triệu</label>
+                            </div>
+                        </div>
+
+                        <!-- Experience Level -->
+                        <div class="mb-3">
+                            <label class="form-label">Kinh nghiệm</label>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="experience" id="exp1" value="0">
+                                <label class="btn btn-outline-info btn-sm filter-badge" for="exp1">Chưa có kinh
+                                    nghiệm</label>
+
+                                <input type="radio" class="btn-check" name="experience" id="exp2" value="1-2">
+                                <label class="btn btn-outline-info btn-sm filter-badge" for="exp2">1-2 năm</label>
+
+                                <input type="radio" class="btn-check" name="experience" id="exp3" value="3-5">
+                                <label class="btn btn-outline-info btn-sm filter-badge" for="exp3">3-5 năm</label>
+
+                                <input type="radio" class="btn-check" name="experience" id="exp4" value="5+">
+                                <label class="btn btn-outline-info btn-sm filter-badge" for="exp4">Trên 5 năm</label>
+                            </div>
+                        </div>
+
+                        <!-- Job Type -->
+                        <div class="mb-3">
+                            <label class="form-label">Loại hình công việc</label>
+                            <div class="btn-group" role="group">
+                                <input type="checkbox" class="btn-check" id="fulltime" value="fulltime">
+                                <label class="btn btn-outline-success btn-sm filter-badge" for="fulltime">Toàn thời
+                                    gian</label>
+
+                                <input type="checkbox" class="btn-check" id="parttime" value="parttime">
+                                <label class="btn btn-outline-success btn-sm filter-badge" for="parttime">Bán thời
+                                    gian</label>
+
+                                <input type="checkbox" class="btn-check" id="remote" value="remote">
+                                <label class="btn btn-outline-success btn-sm filter-badge" for="remote">Làm việc từ
+                                    xa</label>
+
+                                <input type="checkbox" class="btn-check" id="internship" value="internship">
+                                <label class="btn btn-outline-success btn-sm filter-badge" for="internship">Thực
+                                    tập</label>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-secondary btn-sm me-2"
+                                    onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="applyFilters()">
+                                <i class="fas fa-check me-1"></i>Áp dụng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sort and View Options -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="text-muted">Hiển thị <strong id="showingCount">1-20</strong> trong <strong
+                                id="totalCount">125</strong> kết quả</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <label class="form-label me-2 mb-0">Sắp xếp:</label>
+                        <select class="form-select form-select-sm" id="sortBy" style="width: auto;">
+                            <option value="newest">Mới nhất</option>
+                            <option value="salary-high">Lương cao nhất</option>
+                            <option value="salary-low">Lương thấp nhất</option>
+                            <option value="company">Theo công ty</option>
+                            <option value="deadline">Gần hết hạn</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Job List -->
+                <div id="jobList">
+                    <!-- Job Card 1 -->
+                    <div class="job-card card">
+                        <div class="job-header p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/60x60/007bff/ffffff?text=TG"
+                                             class="company-logo me-3" alt="Logo">
+                                        <div>
+                                            <h5 class="mb-1">Senior Java Developer</h5>
+                                            <h6 class="text-muted mb-0">TechGlobal Solutions</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="salary-badge">25-35 triệu VNĐ</div>
+                                    <div class="urgent-badge mt-1">Tuyển gấp</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="job-meta mb-3">
+                                <span class="location-badge me-2"><i
+                                        class="fas fa-map-marker-alt me-1"></i>Hà Nội</span>
+                                <span class="experience-badge me-2"><i class="fas fa-briefcase me-1"></i>3-5 năm</span>
+                                <span class="text-muted"><i class="fas fa-clock me-1"></i>Đăng 2 ngày trước</span>
+                            </div>
+                            <p class="card-text">Tìm kiếm Senior Java Developer có kinh nghiệm với Spring Boot,
+                                Microservices, và các công nghệ cloud hiện đại. Môi trường làm việc năng động với nhiều
+                                cơ hội phát triển.</p>
+                            <div class="job-tags mb-3">
+                                <span class="badge bg-primary">Java</span>
+                                <span class="badge bg-primary">Spring Boot</span>
+                                <span class="badge bg-primary">MySQL</span>
+                                <span class="badge bg-primary">AWS</span>
+                                <span class="badge bg-primary">Docker</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>Hạn nộp: 30/06/2025
+                                </small>
+                                <div>
+                                    <button class="btn btn-save btn-sm me-2" onclick="saveJob(1)">
+                                        <i class="fas fa-heart me-1"></i>Lưu
+                                    </button>
+                                    <button class="btn btn-apply btn-sm" onclick="applyJob(1)">
+                                        <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Card 2 -->
+                    <div class="job-card card">
+                        <div class="job-header p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/60x60/28a745/ffffff?text=FPT"
+                                             class="company-logo me-3" alt="Logo">
+                                        <div>
+                                            <h5 class="mb-1">Frontend Developer (React/Vue)</h5>
+                                            <h6 class="text-muted mb-0">FPT Software</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="salary-badge">18-25 triệu VNĐ</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="job-meta mb-3">
+                                <span class="location-badge me-2"><i
+                                        class="fas fa-map-marker-alt me-1"></i>TP. HCM</span>
+                                <span class="experience-badge me-2"><i class="fas fa-briefcase me-1"></i>2-3 năm</span>
+                                <span class="text-muted"><i class="fas fa-clock me-1"></i>Đăng 1 ngày trước</span>
+                            </div>
+                            <p class="card-text">Cần tuyển Frontend Developer có kinh nghiệm với React hoặc Vue.js. Tham
+                                gia phát triển các dự án web app quy mô lớn cho khách hàng quốc tế.</p>
+                            <div class="job-tags mb-3">
+                                <span class="badge bg-info">React</span>
+                                <span class="badge bg-info">Vue.js</span>
+                                <span class="badge bg-info">JavaScript</span>
+                                <span class="badge bg-info">CSS3</span>
+                                <span class="badge bg-info">HTML5</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>Hạn nộp: 25/06/2025
+                                </small>
+                                <div>
+                                    <button class="btn btn-save btn-sm me-2" onclick="saveJob(2)">
+                                        <i class="fas fa-heart me-1"></i>Lưu
+                                    </button>
+                                    <button class="btn btn-apply btn-sm" onclick="applyJob(2)">
+                                        <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Card 3 -->
+                    <div class="job-card card saved-job">
+                        <i class="fas fa-heart saved-indicator"></i>
+                        <div class="job-header p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/60x60/dc3545/ffffff?text=VNG"
+                                             class="company-logo me-3" alt="Logo">
+                                        <div>
+                                            <h5 class="mb-1">Digital Marketing Manager</h5>
+                                            <h6 class="text-muted mb-0">VNG Corporation</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="salary-badge">20-30 triệu VNĐ</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="job-meta mb-3">
+                                <span class="location-badge me-2"><i
+                                        class="fas fa-map-marker-alt me-1"></i>TP. HCM</span>
+                                <span class="experience-badge me-2"><i class="fas fa-briefcase me-1"></i>3-5 năm</span>
+                                <span class="text-muted"><i class="fas fa-clock me-1"></i>Đăng 3 ngày trước</span>
+                            </div>
+                            <p class="card-text">Tìm kiếm Digital Marketing Manager để phát triển và thực hiện các chiến
+                                lược marketing số cho các sản phẩm game và ứng dụng của VNG.</p>
+                            <div class="job-tags mb-3">
+                                <span class="badge bg-warning text-dark">Digital Marketing</span>
+                                <span class="badge bg-warning text-dark">Google Ads</span>
+                                <span class="badge bg-warning text-dark">Facebook Ads</span>
+                                <span class="badge bg-warning text-dark">SEO/SEM</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>Hạn nộp: 28/06/2025
+                                </small>
+                                <div>
+                                    <button class="btn btn-save btn-sm me-2" onclick="unsaveJob(3)"
+                                            style="background: #e0a800;">
+                                        <i class="fas fa-heart me-1"></i>Đã lưu
+                                    </button>
+                                    <button class="btn btn-apply btn-sm" onclick="applyJob(3)">
+                                        <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Card 4 -->
+                    <div class="job-card card">
+                        <div class="job-header p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/60x60/6c757d/ffffff?text=MB"
+                                             class="company-logo me-3" alt="Logo">
+                                        <div>
+                                            <h5 class="mb-1">Business Analyst</h5>
+                                            <h6 class="text-muted mb-0">MB Bank</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="salary-badge">15-22 triệu VNĐ</div>
+                                    <div class="urgent-badge mt-1">HOT</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="job-meta mb-3">
+                                <span class="location-badge me-2"><i
+                                        class="fas fa-map-marker-alt me-1"></i>Hà Nội</span>
+                                <span class="experience-badge me-2"><i class="fas fa-briefcase me-1"></i>2-4 năm</span>
+                                <span class="text-muted"><i class="fas fa-clock me-1"></i>Đăng 4 ngày trước</span>
+                            </div>
+                            <p class="card-text">Tìm kiếm Business Analyst có khả năng phân tích quy trình nghiệp vụ,
+                                thiết kế hệ thống và làm việc trực tiếp với các phòng ban để tối ưu hóa hoạt động.</p>
+                            <div class="job-tags mb-3">
+                                <span class="badge bg-secondary">Business Analysis</span>
+                                <span class="badge bg-secondary">SQL</span>
+                                <span class="badge bg-secondary">Excel</span>
+                                <span class="badge bg-secondary">Process Mapping</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>Hạn nộp: 02/07/2025
+                                </small>
+                                <div>
+                                    <button class="btn btn-save btn-sm me-2" onclick="saveJob(4)">
+                                        <i class="fas fa-heart me-1"></i>Lưu
+                                    </button>
+                                    <button class="btn btn-apply btn-sm" onclick="applyJob(4)">
+                                        <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Card 5 -->
+                    <div class="job-card card">
+                        <div class="job-header p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/60x60/17a2b8/ffffff?text=VTP"
+                                             class="company-logo me-3" alt="Logo">
+                                        <div>
+                                            <h5 class="mb-1">DevOps Engineer</h5>
+                                            <h6 class="text-muted mb-0">Viettel Post</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="salary-badge">22-28 triệu VNĐ</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="job-meta mb-3">
+                                <span class="location-badge me-2"><i
+                                        class="fas fa-map-marker-alt me-1"></i>Hà Nội</span>
+                                <span class="experience-badge me-2"><i class="fas fa-briefcase me-1"></i>2-4 năm</span>
+                                <span class="text-muted"><i class="fas fa-clock me-1"></i>Đăng 5 ngày trước</span>
+                            </div>
+                            <p class="card-text">Cần tuyển DevOps Engineer có kinh nghiệm với Docker, Kubernetes, CI/CD.
+                                Tham gia xây dựng và vận hành hạ tầng cloud cho các dự án lớn.</p>
+                            <div class="job-tags mb-3">
+                                <span class="badge bg-dark">Docker</span>
+                                <span class="badge bg-dark">Kubernetes</span>
+                                <span class="badge bg-dark">Jenkins</span>
+                                <span class="badge bg-dark">AWS</span>
+                                <span class="badge bg-dark">Linux</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>Hạn nộp: 05/07/2025
+                                </small>
+                                <div>
+                                    <button class="btn btn-save btn-sm me-2" onclick="saveJob(5)">
+                                        <i class="fas fa-heart me-1"></i>Lưu
+                                    </button>
+                                    <button class="btn btn-apply btn-sm" onclick="applyJob(5)">
+                                        <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Card 6 -->
+                    <div class="job-card card">
+                        <div class="job-header p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/60x60/ffc107/000000?text=SHB"
+                                             class="company-logo me-3" alt="Logo">
+                                        <div>
+                                            <h5 class="mb-1">UI/UX Designer</h5>
+                                            <h6 class="text-muted mb-0">SHB Bank</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="salary-badge">16-24 triệu VNĐ</div>
+                                    <div class="urgent-badge mt-1">Remote OK</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="job-meta mb-3">
+                                <span class="location-badge me-2"><i
+                                        class="fas fa-map-marker-alt me-1"></i>Remote/HN</span>
+                                <span class="experience-badge me-2"><i class="fas fa-briefcase me-1"></i>1-3 năm</span>
+                                <span class="text-muted"><i class="fas fa-clock me-1"></i>Đăng 1 tuần trước</span>
+                            </div>
+                            <p class="card-text">Thiết kế giao diện người dùng cho các ứng dụng mobile banking và web.
+                                Yêu cầu có kinh nghiệm với Figma, Adobe XD và hiểu biết về UX Research.</p>
+                            <div class="job-tags mb-3">
+                                <span class="badge bg-danger">Figma</span>
+                                <span class="badge bg-danger">Adobe XD</span>
+                                <span class="badge bg-danger">Sketch</span>
+                                <span class="badge bg-danger">Prototyping</span>
+                                <span class="badge bg-danger">User Research</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>Hạn nộp: 10/07/2025
+                                </small>
+                                <div>
+                                    <button class="btn btn-save btn-sm me-2" onclick="saveJob(6)">
+                                        <i class="fas fa-heart me-1"></i>Lưu
+                                    </button>
+                                    <button class="btn btn-apply btn-sm" onclick="applyJob(6)">
+                                        <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Job pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">4</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">5</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Quick Apply Modal -->
+                <div class="modal fade" id="quickApplyModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-paper-plane me-2"></i>Ứng tuyển nhanh
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="jobApplyInfo" class="mb-4">
+                                    <!-- Job info will be populated here -->
+                                </div>
+
+                                <form id="quickApplyForm">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Họ và tên *</label>
+                                            <input type="text" class="form-control" id="applicantName" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Email *</label>
+                                            <input type="email" class="form-control" id="applicantEmail" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Số điện thoại *</label>
+                                            <input type="tel" class="form-control" id="applicantPhone" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Mức lương mong muốn</label>
+                                            <input type="text" class="form-control" id="expectedSalary"
+                                                   placeholder="VD: 20-25 triệu">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">CV của bạn *</label>
+                                            <input type="file" class="form-control" id="cvFile" accept=".pdf,.doc,.docx"
+                                                   required>
+                                            <small class="text-muted">Chấp nhận file PDF, DOC, DOCX (tối đa 5MB)</small>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Thư giới thiệu</label>
+                                            <textarea class="form-control" id="coverLetter" rows="4"
+                                                      placeholder="Giới thiệu ngắn gọn về bản thân và lý do ứng tuyển vị trí này..."></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" onclick="submitApplication()">
+                                    <i class="fas fa-paper-plane me-1"></i>Gửi đơn ứng tuyển
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Detail Modal -->
+                <div class="modal fade" id="jobDetailModal" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="jobDetailTitle">Chi tiết công việc</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" id="jobDetailContent">
+                                <!-- Job detail content will be populated here -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-save me-2" onclick="saveJobFromModal()">
+                                    <i class="fas fa-heart me-1"></i>Lưu việc làm
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="applyJobFromModal()">
+                                    <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Job data
+    const jobs = [
+        {
+            id: 1,
+            title: "Senior Java Developer",
+            company: "TechGlobal Solutions",
+            salary: "25-35 triệu VNĐ",
+            location: "Hà Nội",
+            experience: "3-5 năm",
+            posted: "2 ngày trước",
+            deadline: "30/06/2025",
+            description: "Tìm kiếm Senior Java Developer có kinh nghiệm với Spring Boot, Microservices, và các công nghệ cloud hiện đại. Môi trường làm việc năng động với nhiều cơ hội phát triển.",
+            requirements: [
+                "Có ít nhất 3 năm kinh nghiệm với Java",
+                "Thành thạo Spring Boot, Spring MVC",
+                "Kinh nghiệm với Microservices architecture",
+                "Biết sử dụng MySQL, MongoDB",
+                "Có kinh nghiệm với AWS, Docker"
+            ],
+            benefits: [
+                "Lương thưởng cạnh tranh 13-16 tháng",
+                "Bảo hiểm sức khỏe cao cấp",
+                "Du lịch công ty hàng năm",
+                "Đào tạo và phát triển nghề nghiệp",
+                "Môi trường làm việc hiện đại"
+            ]
+        },
+        {
+            id: 2,
+            title: "Frontend Developer (React/Vue)",
+            company: "FPT Software",
+            salary: "18-25 triệu VNĐ",
+            location: "TP. HCM",
+            experience: "2-3 năm",
+            posted: "1 ngày trước",
+            deadline: "25/06/2025",
+            description: "Cần tuyển Frontend Developer có kinh nghiệm với React hoặc Vue.js. Tham gia phát triển các dự án web app quy mô lớn cho khách hàng quốc tế.",
+            requirements: [
+                "Có kinh nghiệm 2+ năm với React hoặc Vue.js",
+                "Thành thạo HTML5, CSS3, JavaScript ES6+",
+                "Biết sử dụng Redux, Vuex",
+                "Có kinh nghiệm với REST API",
+                "Ưu tiên có kinh nghiệm TypeScript"
+            ],
+            benefits: [
+                "Lương 13-15 tháng + bonus dự án",
+                "Chế độ remote flexible",
+                "Đào tạo công nghệ mới",
+                "Team building định kỳ",
+                "Cơ hội làm việc với khách hàng quốc tế"
+            ]
+        }
+    ];
+
+    let currentJobId = null;
+    let savedJobs = [3]; // Job IDs that are saved
+
+    // Search and filter functions
+    document.getElementById('jobSearchForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        performSearch();
+    });
+
+    function performSearch() {
+        const keyword = document.getElementById('keyword').value;
+        const location = document.getElementById('location').value;
+        const category = document.getElementById('category').value;
+
+        console.log('Searching with:', {keyword, location, category});
+        // TODO: Implement actual search logic
+
+        // Update job count (mock)
+        updateJobCount(Math.floor(Math.random() * 200) + 50);
+    }
+
+    function applyFilters() {
+        const salary = document.querySelector('input[name="salary"]:checked')?.value;
+        const experience = document.querySelector('input[name="experience"]:checked')?.value;
+        const jobTypes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+        console.log('Applying filters:', {salary, experience, jobTypes});
+        // TODO: Implement filter logic
+
+        // Update display
+        updateJobCount(Math.floor(Math.random() * 150) + 25);
+    }
+
+    function clearFilters() {
+        // Clear all radio buttons and checkboxes
+        document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+
+        // Clear form fields
+        document.getElementById('keyword').value = '';
+        document.getElementById('location').selectedIndex = 0;
+        document.getElementById('category').selectedIndex = 0;
+
+        // Reset job count
+        updateJobCount(125);
+    }
+
+    function updateJobCount(count) {
+        document.getElementById('jobCount').textContent = count;
+        document.getElementById('totalCount').textContent = count;
+        document.getElementById('showingCount').textContent = `1-${Math.min(20, count)}`;
+    }
+
+    // Sort functionality
+    document.getElementById('sortBy').addEventListener('change', function () {
+        const sortValue = this.value;
+        console.log('Sorting by:', sortValue);
+        // TODO: Implement sorting logic
+    });
+
+    // Job actions
+    function saveJob(jobId) {
+        if (savedJobs.includes(jobId)) {
+            return; // Already saved
+        }
+
+        savedJobs.push(jobId);
+
+        // Update button
+        const saveBtn = event.target.closest('button');
+        saveBtn.style.background = '#e0a800';
+        saveBtn.innerHTML = '<i class="fas fa-heart me-1"></i>Đã lưu';
+        saveBtn.setAttribute('onclick', `unsaveJob(${jobId})`);
+
+        // Add saved indicator
+        const jobCard = saveBtn.closest('.job-card');
+        if (!jobCard.classList.contains('saved-job')) {
+            jobCard.classList.add('saved-job');
+            const indicator = document.createElement('i');
+            indicator.className = 'fas fa-heart saved-indicator';
+            jobCard.appendChild(indicator);
+        }
+
+        // Show success message
+        showToast('Đã lưu việc làm thành công!', 'success');
+    }
+
+    function unsaveJob(jobId) {
+        const index = savedJobs.indexOf(jobId);
+        if (index > -1) {
+            savedJobs.splice(index, 1);
+        }
+
+        // Update button
+        const saveBtn = event.target.closest('button');
+        saveBtn.style.background = '#ffc107';
+        saveBtn.innerHTML = '<i class="fas fa-heart me-1"></i>Lưu';
+        saveBtn.setAttribute('onclick', `saveJob(${jobId})`);
+
+        // Remove saved indicator
+        const jobCard = saveBtn.closest('.job-card');
+        jobCard.classList.remove('saved-job');
+        const indicator = jobCard.querySelector('.saved-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+
+        showToast('Đã bỏ lưu việc làm', 'info');
+    }
+
+    function applyJob(jobId) {
+        currentJobId = jobId;
+
+        // Find job data
+        const job = jobs.find(j => j.id === jobId) || {
+            id: jobId,
+            title: "Vị trí công việc",
+            company: "Công ty",
+            salary: "Thỏa thuận"
+        };
+
+        // Populate job info in modal
+        document.getElementById('jobApplyInfo').innerHTML = `
+                <div class="border rounded p-3 bg-light">
+                    <h6 class="mb-1">${job.title}</h6>
+                    <p class="mb-1 text-muted">${job.company}</p>
+                    <span class="badge bg-success">${job.salary}</span>
+                </div>
+            `;
+
+        // Pre-fill candidate info if available
+        const candidateName = document.querySelector('[th\\:text*="candidateName"]')?.textContent || '';
+        const candidateEmail = document.querySelector('[th\\:text*="candidateEmail"]')?.textContent || '';
+
+        if (candidateName && candidateName !== 'Ứng viên') {
+            document.getElementById('applicantName').value = candidateName;
+        }
+        if (candidateEmail && candidateEmail !== 'email@example.com') {
+            document.getElementById('applicantEmail').value = candidateEmail;
+        }
+
+        // Show modal
+        new bootstrap.Modal(document.getElementById('quickApplyModal')).show();
+    }
+
+    function submitApplication() {
+        const form = document.getElementById('quickApplyForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Get form data
+        const formData = new FormData();
+        formData.append('jobId', currentJobId);
+        formData.append('name', document.getElementById('applicantName').value);
+        formData.append('email', document.getElementById('applicantEmail').value);
+        formData.append('phone', document.getElementById('applicantPhone').value);
+        formData.append('expectedSalary', document.getElementById('expectedSalary').value);
+        formData.append('coverLetter', document.getElementById('coverLetter').value);
+
+        const cvFile = document.getElementById('cvFile').files[0];
+        if (cvFile) {
+            formData.append('cv', cvFile);
+        }
+
+        // TODO: Submit to server
+        console.log('Submitting application for job:', currentJobId);
+
+        // Close modal and show success
+        bootstrap.Modal.getInstance(document.getElementById('quickApplyModal')).hide();
+        showToast('Đã gửi đơn ứng tuyển thành công!', 'success');
+
+        // Reset form
+        form.reset();
+    }
+
+    function showSavedJobs() {
+        // Filter jobs to show only saved ones
+        console.log('Showing saved jobs:', savedJobs);
+        // TODO: Implement saved jobs filtering
+        showToast('Tính năng đang được phát triển', 'info');
+    }
+
+    function showToast(message, type = 'info') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+        // Add to page
+        let toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toastContainer';
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            document.body.appendChild(toastContainer);
+        }
+
+        toastContainer.appendChild(toast);
+
+        // Show toast
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+
+        // Remove from DOM after hidden
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
+    }
+
+    // Job card click to show details (optional)
+    document.querySelectorAll('.job-card h5').forEach(title => {
+        title.style.cursor = 'pointer';
+        title.addEventListener('click', function () {
+            const jobCard = this.closest('.job-card');
+            // Extract job ID or get from data attribute
+            // showJobDetail(jobId);
+        });
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function () {
+        // Set current user info in sidebar if available
+        updateQuickStats();
+    });
+
+    function updateQuickStats() {
+        // TODO: Update with real data from server
+        document.querySelector('.quick-stats .col-6:first-child h6').textContent = savedJobs.length;
+    }
+</script>
 </body>
 </html>

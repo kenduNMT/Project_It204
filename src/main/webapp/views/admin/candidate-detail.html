@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết Candidate - Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+    .sidebar {
+      height: 100vh;
+      background: white;
+      border-right: 1px solid #dee2e6;
+      padding-top: 1rem;
+      position: fixed;
+      width: 250px;
+    }
+    .sidebar .nav-link {
+      color: #333;
+      font-weight: 500;
+      padding: 12px 20px;
+    }
+    .sidebar .nav-link.active {
+      background: #e9ecef;
+      border-radius: 0.5rem;
+      margin: 0 10px;
+    }
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+    }
+    .content-header {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.03);
+    }
+    .detail-card {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.03);
+    }
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: white;
+      font-weight: bold;
+      margin: 0 auto 20px;
+    }
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status-inactive {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .info-row {
+      padding: 15px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    .info-value {
+      color: #333;
+      font-size: 16px;
+    }
+    .profile-section {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .action-buttons .btn {
+      margin-right: 10px;
+      padding: 8px 20px;
+    }
+    .back-button {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="text-center mb-4">
+      <h5 class="fw-bold text-primary">My Company</h5>
+    </div>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/admin/dashboard}">
+          <i class="fas fa-chart-line me-2"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" th:href="@{/admin/candidate-list}">
+          <i class="fas fa-user me-2"></i> Candidate
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-microchip me-2"></i> Technology
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-briefcase me-2"></i> Recruitment
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-file-alt me-2"></i> Applications
+        </a>
+      </li>
+    </ul>
+    <div class="text-center mt-5 profile-section px-3">
+      <div th:text="${admin.name}">Admin</div>
+      <div class="text-muted" th:text="${admin.email}">admin@gmail.com</div>
+      <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
+        <i class="fas fa-sign-out-alt"></i> Log out
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Back Button -->
+    <div class="back-button">
+      <a th:href="@{/admin/candidate-list}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div class="content-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h4 class="mb-1">Chi tiết Candidate</h4>
+          <p class="text-muted mb-0">Thông tin chi tiết của candidate</p>
+        </div>
+        </div>
+      </div>
+
+    <!-- Candidate Details -->
+    <div class="detail-card">
+      <div class="row">
+        <!-- Profile Section -->
+        <div class="col-md-4 text-center">
+          <div class="profile-avatar"
+               th:text="${candidate.name != null ? candidate.name.substring(0,1).toUpperCase() : 'N'}">
+            N
+          </div>
+          <h4 th:text="${candidate.name}">Nguyễn Văn A</h4>
+          <p class="text-muted" th:text="${candidate.email}">nguyen@example.com</p>
+          <span class="status-badge"
+                th:classappend="${candidate.status == 'ACTIVE'} ? 'status-active' : 'status-inactive'"
+                th:text="${candidate.status == 'ACTIVE'} ? 'Đang hoạt động' : 'Không hoạt động'">
+                        Đang hoạt động
+                    </span>
+        </div>
+
+        <!-- Information Section -->
+        <div class="col-md-8">
+          <h5 class="mb-4">Thông tin cá nhân</h5>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="info-row">
+                <div class="info-label">Số điện thoại</div>
+                <div class="info-value" th:text="${candidate.phone ?: 'Chưa cập nhật'}">0987654321</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">Giới tính</div>
+                <div class="info-value" th:text="${candidate.gender == 'Male' ? 'Nam' : (candidate.gender == 'Female' ? 'Nữ' : 'Chưa cập nhật')}">Nam</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">Ngày sinh</div>
+                <div class="info-value" th:text="${candidate.dob != null ? #temporals.format(candidate.dob, 'dd/MM/yyyy') : 'Chưa cập nhật'}">01/01/1990</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="info-row">
+                <div class="info-label">Kinh nghiệm</div>
+                <div class="info-value" th:text="${candidate.experience != null ? candidate.experience + ' năm' : 'Chưa cập nhật'}">2 năm</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">Ngày đăng ký</div>
+                <div class="info-value" th:text="${candidate.createdAt != null ? #temporals.format(candidate.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">25/10/2024 14:30</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">Cập nhật lần cuối</div>
+                <div class="info-value" th:text="${candidate.updatedAt != null ? #temporals.format(candidate.updatedAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}">26/10/2024 10:15</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Section -->
+      <div class="row mt-4" th:if="${candidate.description != null and !candidate.description.isEmpty()}">
+        <div class="col-12">
+          <h5 class="mb-3">Mô tả bản thân</h5>
+          <div class="bg-light p-3 rounded">
+            <p class="mb-0" th:text="${candidate.description}">Tôi là một developer có 2 năm kinh nghiệm trong lĩnh vực phát triển web...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Info -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <h5 class="mb-3">Thông tin bổ sung</h5>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="card border-0 bg-light">
+                <div class="card-body text-center">
+                  <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                  <h6>Tuổi</h6>
+                  <p class="mb-0" th:text="${candidate.dob != null ? (#temporals.year(#temporals.createNow()) - #temporals.year(candidate.dob)) + ' tuổi' : 'N/A'}">34 tuổi</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 bg-light">
+                <div class="card-body text-center">
+                  <i class="fas fa-briefcase fa-2x text-success mb-2"></i>
+                  <h6>Kinh nghiệm</h6>
+                  <p class="mb-0" th:text="${candidate.experience != null ? candidate.experience + ' năm' : 'Fresher'}">2 năm</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 bg-light">
+                <div class="card-body text-center">
+                  <i class="fas fa-user-check fa-2x text-info mb-2"></i>
+                  <h6>Trạng thái</h6>
+                  <p class="mb-0" th:text="${candidate.status == 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}">Hoạt động</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xác nhận xóa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có chắc chắn muốn xóa candidate <strong id="candidateName"></strong>?</p>
+        <p class="text-muted">Hành động này không thể hoàn tác.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <form id="deleteForm" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-danger">Xóa</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+  function confirmDelete(candidateId, candidateName) {
+    document.getElementById('candidateName').textContent = candidateName;
+    document.getElementById('deleteForm').action = '/admin/candidates/' + candidateId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+  }
+
+  function toggleStatus(candidateId) {
+    if (confirm('Bạn có chắc chắn muốn thay đổi trạng thái của candidate này?')) {
+      fetch('/admin/candidates/' + candidateId + '/toggle-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+              .then(response => response.text())
+              .then(result => {
+                if (result === 'success') {
+                  location.reload();
+                } else {
+                  alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+              });
+    }
+  }
+</script>
+</body>
+</html>

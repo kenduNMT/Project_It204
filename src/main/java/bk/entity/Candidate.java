@@ -51,8 +51,9 @@ public class Candidate {
     @Column(name = "gender", length = 10)
     private String gender;
 
-    @Column(name = "status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'active'")
-    private String status = "active | inactive";
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -97,5 +98,9 @@ public class Candidate {
 
     public enum Role {
         ADMIN, CANDIDATE
+    }
+
+    public enum Status {
+        ACTIVE, INACTIVE
     }
 }

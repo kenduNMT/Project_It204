@@ -8,11 +8,14 @@ import bk.exception.EmailAlreadyExistsException;
 import bk.exception.InvalidCredentialsException;
 import bk.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +45,7 @@ public class CandidateServiceImpl implements CandidateService {
         candidate.setDob(registrationDTO.getDob());
         candidate.setDescription(registrationDTO.getDescription());
         candidate.setExperience(registrationDTO.getExperience());
-        candidate.setStatus("ACTIVE");
+        candidate.setStatus(Candidate.Status.valueOf("ACTIVE"));
         candidate.setIsDeleted(false);
 
         return candidateDAO.save(candidate);
@@ -122,5 +125,67 @@ public class CandidateServiceImpl implements CandidateService {
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return candidateDAO.existsByEmail(email);
+    }
+
+    // ===== Management Controller Methods =====
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Candidate> getAllCandidates(Pageable pageable) {
+        return candidateDAO.findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Candidate> searchCandidates(String search, String status, String gender, Pageable pageable) {
+        return candidateDAO.searchCandidates(search, status, gender, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Candidate getCandidateById(Long id) {
+        Optional<Candidate> candidate = candidateDAO.findByIdIncludeDeleted(id);
+        return candidate.orElse(null);
+    }
+
+    @Override
+    public Candidate updateCandidate(Candidate candidate) {
+        candidate.setUpdatedAt(LocalDateTime.now());
+        return candidateDAO.update(candidate);
+    }
+
+    @Override
+    public void deleteCandidate(Long id) {
+        candidateDAO.deleteById(id);
+    }
+
+
+
+    // ===== Legacy methods (keep for backward compatibility) =====
+
+    @Override
+    @Deprecated
+    public List<Candidate> searchCandidates(String search, String status, String gender, java.awt.print.Pageable pageable) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public long countSearchResults(String search, String status, String gender) {
+        return candidateDAO.countByFilter(search, status, gender);
+    }
+
+    @Override
+    public List<Candidate> findAllWithFilter(String status, String gender, java.awt.print.Pageable pageable) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public long countWithFilter(String status, String gender) {
+        return candidateDAO.countByFilter(null, status, gender);
+    }
+
+    @Override
+    public List<Candidate> findAllWithPagination(java.awt.print.Pageable pageable) {
+        return Collections.emptyList();
     }
 }

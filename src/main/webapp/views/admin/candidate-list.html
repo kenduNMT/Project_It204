@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Candidate - Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .sidebar {
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #dee2e6;
+            padding-top: 1rem;
+            position: fixed;
+            width: 250px;
+        }
+        .sidebar .nav-link {
+            color: #333;
+            font-weight: 500;
+            padding: 12px 20px;
+        }
+        .sidebar .nav-link.active {
+            background: #e9ecef;
+            border-radius: 0.5rem;
+            margin: 0 10px;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .content-header {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+        }
+        .filter-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+        }
+        .candidate-table {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .gender-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .gender-male {
+            background: #cce5ff;
+            color: #0056b3;
+        }
+        .gender-female {
+            background: #ffe6f0;
+            color: #d63384;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .profile-section {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .pagination-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center mb-4">
+            <h5 class="fw-bold text-primary">My Company</h5>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/dashboard}">
+                    <i class="fas fa-chart-line me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" th:href="@{/admin/candidate-list}">
+                    <i class="fas fa-user me-2"></i> Candidate
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-microchip me-2"></i> Technology
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-briefcase me-2"></i> Recruitment
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-file-alt me-2"></i> Applications
+                </a>
+            </li>
+        </ul>
+        <div class="text-center mt-5 profile-section px-3">
+            <div th:text="${admin.name}">Admin</div>
+            <div class="text-muted" th:text="${admin.email}">admin@gmail.com</div>
+            <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
+                <i class="fas fa-sign-out-alt"></i> Log out
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="content-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-1">Quản lý Candidate</h4>
+                    <p class="text-muted mb-0">Danh sách và quản lý tất cả candidate trong hệ thống</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-success me-2" onclick="exportCandidates()">
+                        <i class="fas fa-download me-1"></i> Export
+                    </button>
+                    <span class="badge bg-primary fs-6" th:text="'Tổng: ' + ${totalElements}">Tổng: 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-box">
+            <form method="GET" th:action="@{/admin/candidate-list}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" name="search"
+                               th:value="${search}" placeholder="Tên, email, số điện thoại...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" name="status">
+                            <option value="">Tất cả</option>
+                            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Hoạt động</option>
+                            <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Giới tính</label>
+                        <select class="form-select" name="gender">
+                            <option value="">Tất cả</option>
+                            <option value="Male" th:selected="${gender == 'Nam'}">Nam</option>
+                            <option value="Female" th:selected="${gender == 'Nữ'}">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Sắp xếp</label>
+                        <select class="form-select" name="sortBy">
+                            <option value="id" th:selected="${sortBy == 'id'}">ID</option>
+                            <option value="name" th:selected="${sortBy == 'name'}">Tên</option>
+                            <option value="email" th:selected="${sortBy == 'email'}">Email</option>
+                            <option value="createdAt" th:selected="${sortBy == 'createdAt'}">Ngày tạo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Thứ tự</label>
+                        <select class="form-select" name="sortDir">
+                            <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần</option>
+                            <option value="asc" th:selected="${sortDir == 'asc'}">Tăng dần</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-1"></i> Tìm kiếm
+                        </button>
+                        <a th:href="@{/admin/candidate-list}" class="btn btn-outline-secondary">
+                            <i class="fas fa-refresh me-1"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Candidate Table -->
+        <div class="candidate-table">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Giới tính</th>
+                        <th>Kinh nghiệm</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="candidate : ${candidates}">
+                        <td th:text="${candidate.id}">1</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+                                     style="width: 32px; height: 32px; font-size: 14px; color: white;"
+                                     th:text="${candidate.name != null ? candidate.name.substring(0,1).toUpperCase() : 'N'}">
+                                </div>
+                                <span th:text="${candidate.name}">Nguyễn Văn A</span>
+                            </div>
+                        </td>
+                        <td th:text="${candidate.email}">nguyen@example.com</td>
+                        <td th:text="${candidate.phone}">0987654321</td>
+                        <td>
+                            <span class="gender-badge"
+                                  th:classappend="${candidate.gender == 'Nam'} ? 'gender-male' : 'gender-female'"
+                                  th:text="${candidate.gender == 'Nam'} ? 'Nam' : 'Nữ'">Nam</span>
+                        </td>
+                        <td th:text="${candidate.experience != null ? candidate.experience + ' năm' : 'N/A'}">2 năm</td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${candidate.status == 'ACTIVE'} ? 'status-active' : 'status-inactive'"
+                                  th:text="${candidate.status == 'ACTIVE'} ? 'Hoạt động' : 'Không hoạt động'">Hoạt động</span>
+                        </td>
+                        <td th:text="${#temporals.format(candidate.createdAt, 'dd/MM/yyyy')}">25/10/2024</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{'/admin/candidate-list/' + ${candidate.id}}"
+                                   class="btn btn-outline-info btn-sm" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-outline-warning btn-sm toggle-status-btn"
+                                        th:data-id="${candidate.id}"
+                                        th:disabled="${candidate.id == admin.id}"
+                                        title="Thay đổi trạng thái">
+                                    <i class="fas fa-toggle-on" th:if="${candidate.status == 'ACTIVE'}"></i>
+                                    <i class="fas fa-toggle-off" th:if="${candidate.status != 'ACTIVE'}"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm delete-btn"
+                                        th:data-id="${candidate.id}"
+                                        th:data-name="${candidate.name}"
+                                        th:disabled="${candidate.id == admin.id}"
+                                        title="Xóa candidate">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(candidates)}">
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Không tìm thấy candidate nào</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper" th:if="${totalPages > 1}">
+                <div>
+                    <span class="text-muted">
+                        Hiển thị <span th:text="${currentPage * size + 1}">1</span> -
+                        <span th:text="${(currentPage + 1) * size > totalElements ? totalElements : (currentPage + 1) * size}">10</span>
+                        trong tổng số <span th:text="${totalElements}">100</span> kết quả
+                    </span>
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/candidate-list(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:if="${currentPage > 2}">
+                            <a class="page-link" th:href="@{/admin/candidate-list(page=0, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">1</a>
+                        </li>
+                        <li class="page-item disabled" th:if="${currentPage > 3}">
+                            <span class="page-link">...</span>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence((currentPage - 2 >= 0 ? currentPage - 2 : 0), (currentPage + 2 < totalPages ? currentPage + 2 : totalPages - 1))}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/admin/candidate-list(page=${i}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item disabled" th:if="${currentPage + 3 < totalPages}">
+                            <span class="page-link">...</span>
+                        </li>
+                        <li class="page-item" th:if="${currentPage + 2 < totalPages}">
+                            <a class="page-link" th:href="@{/admin/candidate-list(page=${totalPages - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}"
+                               th:text="${totalPages}">10</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/candidate-list(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa candidate <strong id="candidateName"></strong>?</p>
+                <p class="text-muted">Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle delete buttons
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const candidateId = this.dataset.id;
+                const candidateName = this.dataset.name;
+                confirmDelete(candidateId, candidateName);
+            });
+        });
+
+        // Handle toggle status buttons
+        document.querySelectorAll('.toggle-status-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const candidateId = this.dataset.id;
+                toggleStatus(candidateId);
+            });
+        });
+    });
+
+    function confirmDelete(candidateId, candidateName) {
+        document.getElementById('candidateName').textContent = candidateName;
+        document.getElementById('deleteForm').action = '/admin/candidate-list/' + candidateId + '/delete';
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+
+    function toggleStatus(candidateId) {
+        if (confirm('Bạn có chắc chắn muốn thay đổi trạng thái của candidate này?')) {
+            const button = document.querySelector(`[data-id="${candidateId}"].toggle-status-btn`);
+            button.disabled = true;
+            button.classList.add('loading');
+
+            fetch('/admin/candidate-list/' + candidateId + '/toggle-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.text())
+                .then(result => {
+                    if (result === 'success') {
+                        location.reload();
+                    } else if (result === 'cannot_deactivate_self') {
+                        alert('Bạn không thể vô hiệu hóa tài khoản của chính mình!');
+                    } else if (result === 'unauthorized') {
+                        alert('Bạn không có quyền thực hiện hành động này!');
+                        window.location.href = '/auth/login';
+                    } else if (result === 'not_found') {
+                        alert('Không tìm thấy candidate!');
+                    } else {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+        }
+    }
+
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+
+    // Show loading state for form submissions
+    document.getElementById('filterForm').addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang tìm kiếm...';
+    });
+</script>
+</body>
+</html>

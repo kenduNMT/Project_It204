@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết Công nghệ - Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+    .sidebar {
+      height: 100vh;
+      background: white;
+      border-right: 1px solid #dee2e6;
+      padding-top: 1rem;
+    }
+    .sidebar .nav-link {
+      color: #333;
+      font-weight: 500;
+    }
+    .sidebar .nav-link.active {
+      background: #e9ecef;
+      border-radius: 0.5rem;
+    }
+    .content-card {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.03);
+    }
+    .profile-section {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .info-row {
+      padding: 1rem 0;
+      border-bottom: 1px solid #eee;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+    .info-value {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+    .badge-active {
+      background-color: #28a745;
+      font-size: 0.9rem;
+    }
+    .badge-inactive {
+      background-color: #dc3545;
+      font-size: 0.9rem;
+    }
+    .tech-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(45deg, #007bff, #6f42c1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav class="col-md-2 d-md-block sidebar">
+      <div class="text-center mb-4">
+        <h5 class="fw-bold text-primary">My Company</h5>
+      </div>
+      <ul class="nav flex-column px-3">
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/candidate-list}"><i class="fas fa-user me-2"></i> Candidate</a></li>
+        <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology-list}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
+        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
+        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
+      </ul>
+      <div class="text-center mt-5 profile-section">
+        <div>Admin</div>
+        <div class="text-muted">admin@gmail.com</div>
+        <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-sign-out-alt"></i> Log out</a>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a th:href="@{/views/admin/technology}">Công nghệ</a></li>
+              <li class="breadcrumb-item active">Chi tiết</li>
+            </ol>
+          </nav>
+          <h2><i class="fas fa-microchip me-2"></i>Chi tiết Công nghệ</h2>
+        </div>
+        <div>
+          <a th:href="@{/admin/technology/edit/{id}(id=${technology.id})}" class="btn btn-primary me-2">
+            <i class="fas fa-edit me-2"></i>Chỉnh sửa
+          </a>
+          <a th:href="@{/views/admin/technology}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại
+          </a>
+        </div>
+      </div>
+
+      <!-- Technology Details -->
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="content-card">
+            <!-- Technology Header -->
+            <div class="text-center mb-4">
+              <div class="tech-icon mx-auto">
+                <i class="fas fa-code"></i>
+              </div>
+              <h3 class="mb-2" th:text="${technology.name}"></h3>
+              <span class="badge badge-active" th:if="${technology.isActive()}">
+                                <i class="fas fa-check me-1"></i>Hoạt động
+                            </span>
+              <span class="badge badge-inactive" th:unless="${technology.isActive()}">
+                                <i class="fas fa-times me-1"></i>Không hoạt động
+                            </span>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Technology Information -->
+            <div class="info-row">
+              <div class="info-label">
+                <i class="fas fa-hashtag me-2"></i>ID
+              </div>
+              <div class="info-value" th:text="${technology.id}"></div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">
+                <i class="fas fa-tag me-2"></i>Tên Công nghệ
+              </div>
+              <div class="info-value">
+                <strong th:text="${technology.name}"></strong>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">
+                <i class="fas fa-toggle-on me-2"></i>Trạng thái
+              </div>
+              <div class="info-value">
+                                <span class="badge badge-active" th:if="${technology.isActive()}">
+                                    <i class="fas fa-check me-1"></i>Đang hoạt động
+                                </span>
+                <span class="badge badge-inactive" th:unless="${technology.isActive()}">
+                                    <i class="fas fa-times me-1"></i>Đã tạm ngưng
+                                </span>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">
+                <i class="fas fa-info-circle me-2"></i>Mô tả
+              </div>
+              <div class="info-value text-muted">
+                Đây là một công nghệ được sử dụng trong hệ thống tuyển dụng để phân loại và quản lý các kỹ năng của ứng viên.
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-center gap-2">
+              <a th:href="@{/admin/technology/edit/{id}(id=${technology.id})}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+              </a>
+              <button type="button" class="btn btn-danger"
+                      th:attr="onclick=|confirmDelete(${tech.id}, '${tech.name}')|">
+                <i class="fas fa-trash me-2"></i>Xóa
+              </button>
+              <a th:href="@{/views/admin/technology}" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-2"></i>Danh sách
+              </a>
+            </div>
+          </div>
+
+          <!-- Additional Information Card -->
+          <div class="content-card mt-4">
+            <h5 class="mb-3">
+              <i class="fas fa-chart-line me-2"></i>Thống kê sử dụng
+            </h5>
+            <div class="row text-center">
+              <div class="col-md-4">
+                <div class="border rounded p-3">
+                  <div class="h4 text-primary mb-1">0</div>
+                  <div class="text-muted small">Ứng viên sử dụng</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="border rounded p-3">
+                  <div class="h4 text-success mb-1">0</div>
+                  <div class="text-muted small">Vị trí tuyển dụng</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="border rounded p-3">
+                  <div class="h4 text-info mb-1">0</div>
+                  <div class="text-muted small">Đơn ứng tuyển</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xác nhận xóa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có chắc chắn muốn xóa công nghệ <strong id="deleteName"></strong>?</p>
+        <p class="text-muted small">Dữ liệu sẽ được chuyển vào thùng rác và có thể khôi phục lại.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <form id="deleteForm" method="post" style="display: inline;">
+          <button type="submit" class="btn btn-danger">Xóa</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+  function confirmDelete(id, name) {
+    document.getElementById('deleteName').textContent = name;
+    document.getElementById('deleteForm').action = '/admin/technology/delete/' + id;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+  }
+</script>
+</body>
+</html>

@@ -5,6 +5,8 @@ import bk.dto.CandidateRegistrationDTO;
 import bk.entity.Candidate;
 import bk.exception.EmailAlreadyExistsException;
 import bk.exception.InvalidCredentialsException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,4 +70,58 @@ public interface CandidateService {
      * Kiểm tra email đã tồn tại chưa
      */
     boolean existsByEmail(String email);
+
+    // ===== Methods for Management Controller =====
+
+    /**
+     * Lấy tất cả candidates với pagination
+     */
+    Page<Candidate> getAllCandidates(Pageable pageable);
+
+    /**
+     * Tìm kiếm candidates với filter và pagination
+     */
+    Page<Candidate> searchCandidates(String search, String status, String gender, Pageable pageable);
+
+    /**
+     * Lấy candidate theo ID (cho admin)
+     */
+    Candidate getCandidateById(Long id);
+
+    /**
+     * Cập nhật candidate (cho admin)
+     */
+    Candidate updateCandidate(Candidate candidate);
+
+    /**
+     * Xóa candidate (cho admin)
+     */
+    void deleteCandidate(Long id);
+
+    // ===== Legacy methods (deprecated) =====
+    /**
+     * @deprecated Use Page<Candidate> searchCandidates instead
+     */
+    @Deprecated
+    List<Candidate> searchCandidates(String search, String status, String gender, java.awt.print.Pageable pageable);
+
+    /**
+     * Đếm số lượng kết quả tìm kiếm
+     */
+    long countSearchResults(String search, String status, String gender);
+
+    /**
+     * Lấy danh sách candidates với filter và pagination
+     */
+    List<Candidate> findAllWithFilter(String status, String gender, java.awt.print.Pageable pageable);
+
+    /**
+     * Đếm số lượng candidates với filter
+     */
+    long countWithFilter(String status, String gender);
+
+    /**
+     * Lấy danh sách candidates theo page
+     */
+    List<Candidate> findAllWithPagination(java.awt.print.Pageable pageable);
 }
