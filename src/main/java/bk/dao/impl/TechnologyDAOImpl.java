@@ -83,7 +83,6 @@ public class TechnologyDAOImpl implements TechnologyDAO {
             String hql = "FROM Technology t WHERE t.id = :id AND t.isDeleted = false";
             Query<Technology> query = getCurrentSession().createQuery(hql, Technology.class);
             query.setParameter("id", id);
-            query.setMaxResults(1);
             return query.uniqueResultOptional();
         } catch (Exception e) {
             e.printStackTrace();

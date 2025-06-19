@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thùng rác Công nghệ - Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .sidebar {
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #dee2e6;
+            padding-top: 1rem;
+        }
+        .sidebar .nav-link {
+            color: #333;
+            font-weight: 500;
+        }
+        .sidebar .nav-link.active {
+            background: #e9ecef;
+            border-radius: 0.5rem;
+        }
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+        }
+        .profile-section {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .badge-deleted {
+            background-color: #6c757d;
+        }
+        .deleted-item {
+            background-color: #f8f9fa;
+            opacity: 0.8;
+        }
+        .deleted-item:hover {
+            opacity: 1;
+        }
+        .trash-header {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-md-block sidebar">
+            <div class="text-center mb-4">
+                <h5 class="fw-bold text-primary">My Company</h5>
+            </div>
+            <ul class="nav flex-column px-3">
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/candidate-list}"><i class="fas fa-user me-2"></i> Candidate</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology-list}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
+            </ul>
+            <div class="text-center mt-5 profile-section">
+                <div>Admin</div>
+                <div class="text-muted">admin@gmail.com</div>
+                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/admin/technology}">Công nghệ</a></li>
+                            <li class="breadcrumb-item active">Thùng rác</li>
+                        </ol>
+                    </nav>
+                    <h2><i class="fas fa-trash me-2"></i>Thùng rác Công nghệ</h2>
+                </div>
+                <a th:href="@{/admin/technology}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+            </div>
+
+            <!-- Trash Info Header -->
+            <div class="trash-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="mb-1"><i class="fas fa-info-circle me-2"></i>Thông tin thùng rác</h5>
+                        <p class="mb-0">Các công nghệ đã bị xóa sẽ được lưu trữ tại đây. Bạn có thể khôi phục hoặc xóa vĩnh viễn chúng.</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="h4 mb-0" th:text="${totalElements} ?: '0'"></div>
+                        <small>Mục đã xóa</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Deleted Technologies Table -->
+            <div class="content-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Danh sách đã xóa
+                    </h5>
+                    <div th:if="${technologies.hasContent()}" class="text-muted">
+                        <small>
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Dữ liệu sẽ bị xóa vĩnh viễn sau 30 ngày
+                        </small>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên Công nghệ</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày xóa</th>
+                            <th style="width: 200px;">Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${!technologies.hasContent()}">
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="fas fa-trash fa-3x mb-3 text-muted"></i>
+                                <div class="h5">Thùng rác trống</div>
+                                <div>Không có công nghệ nào đã bị xóa</div>
+                                <a th:href="@{/admin/technology}" class="btn btn-primary mt-3">
+                                    <i class="fas fa-plus me-2"></i>Thêm công nghệ mới
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:each="tech, iterStat : ${technologies.content}" class="deleted-item">
+                            <td th:text="${(currentPage * technologies.size) + iterStat.index + 1}"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-code text-muted me-2"></i>
+                                    <div>
+                                        <strong th:text="${tech.name}"></strong>
+                                        <div class="small text-muted">
+                                            <i class="fas fa-trash me-1"></i>Đã xóa
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-deleted">
+                                    <i class="fas fa-ban me-1"></i>Đã xóa
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <!-- Giả sử có trường deletedAt trong entity -->
+                                    <span th:text="${tech.deletedAt != null ? #temporals.format(tech.deletedAt, 'dd/MM/yyyy HH:mm') : 'Không xác định'}"></span>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-success"
+                                            title="Khôi phục"
+                                            th:attr="onclick=|confirmRestore(${tech.id}, '${tech.name}')|">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Xóa vĩnh viễn"
+                                            th:attr="onclick=|confirmPermanentDelete(${tech.id}, '${tech.name}')|">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav th:if="${totalPages > 1}" aria-label="Deleted technology pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/technology/deleted(page=0)}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/technology/deleted(page=${currentPage > 0 ? currentPage - 1 : 0})}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+
+                        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                            <li class="page-item"
+                                th:if="${(i >= currentPage - 2) and (i <= currentPage + 2)}"
+                                th:classappend="${i == currentPage} ? 'active'">
+                                <a class="page-link"
+                                   th:href="@{/admin/technology/deleted(page=${i})}"
+                                   th:text="${i + 1}"></a>
+                            </li>
+                        </th:block>
+
+                        <li class="page-item" th:classappend="${(currentPage == totalPages - 1)} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/technology/deleted(page=${currentPage+1})}">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item"
+                            th:classappend="${(currentPage == totalPages - 1) ? 'disabled' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/technology/deleted(page=${totalPages - 1})}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Info -->
+                <div th:if="${technologies.hasContent()}" class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">
+                        Hiển thị <span th:text="${technologies.numberOfElements}"></span>
+                        trong tổng số <span th:text="${totalElements}"></span> công nghệ đã xóa
+                    </small>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="showBulkActions()">
+                            <i class="fas fa-cogs me-1"></i>Thao tác hàng loạt
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Actions Card (Hidden by default) -->
+            <div class="content-card mt-3" id="bulkActionsCard" style="display: none;">
+                <h6 class="mb-3">
+                    <i class="fas fa-cogs me-2"></i>Thao tác hàng loạt
+                </h6>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Cảnh báo:</strong> Các thao tác này sẽ áp dụng cho tất cả công nghệ đã xóa!
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-success" onclick="confirmBulkRestore()">
+                        <i class="fas fa-undo me-2"></i>Khôi phục tất cả
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkPermanentDelete()">
+                        <i class="fas fa-trash-alt me-2"></i>Xóa vĩnh viễn tất cả
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="hideBulkActions()">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Restore Confirmation Modal -->
+<div class="modal fade" id="restoreModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận khôi phục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-undo fa-3x text-success"></i>
+                </div>
+                <p class="text-center">Bạn có chắc chắn muốn khôi phục công nghệ <strong id="restoreName"></strong>?</p>
+                <p class="text-muted small text-center">Công nghệ sẽ được chuyển về danh sách chính và có thể sử dụng lại.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="restoreForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-undo me-2"></i>Khôi phục
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Permanent Delete Confirmation Modal -->
+<div class="modal fade" id="permanentDeleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Xác nhận xóa vĩnh viễn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                </div>
+                <p class="text-center"><strong>CẢNH BÁO: Hành động này không thể hoàn tác!</strong></p>
+                <p class="text-center">Bạn có chắc chắn muốn xóa vĩnh viễn công nghệ <strong id="permanentDeleteName"></strong>?</p>
+                <p class="text-muted small text-center">Dữ liệu sẽ bị xóa hoàn toàn khỏi hệ thống và không thể khôi phục.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="permanentDeleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-2"></i>Xóa vĩnh viễn
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Confirmation Modal -->
+<div class="modal fade" id="bulkActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkActionTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i id="bulkActionIcon" class="fa-3x"></i>
+                </div>
+                <p class="text-center" id="bulkActionMessage"></p>
+                <p class="text-muted small text-center" id="bulkActionWarning"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="bulkActionConfirm" class="btn"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    function confirmRestore(id, name) {
+        document.getElementById('restoreName').textContent = name;
+        document.getElementById('restoreForm').action = '/admin/technology/restore/' + id;
+        new bootstrap.Modal(document.getElementById('restoreModal')).show();
+    }
+
+    function confirmPermanentDelete(id, name) {
+        document.getElementById('permanentDeleteName').textContent = name;
+        document.getElementById('permanentDeleteForm').action = '/admin/technology/permanent-delete/' + id;
+        new bootstrap.Modal(document.getElementById('permanentDeleteModal')).show();
+    }
+
+    function showBulkActions() {
+        document.getElementById('bulkActionsCard').style.display = 'block';
+        document.getElementById('bulkActionsCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideBulkActions() {
+        document.getElementById('bulkActionsCard').style.display = 'none';
+    }
+
+    function confirmBulkRestore() {
+        const modal = document.getElementById('bulkActionModal');
+        const title = document.getElementById('bulkActionTitle');
+        const icon = document.getElementById('bulkActionIcon');
+        const message = document.getElementById('bulkActionMessage');
+        const warning = document.getElementById('bulkActionWarning');
+        const confirmBtn = document.getElementById('bulkActionConfirm');
+
+        title.textContent = 'Xác nhận khôi phục tất cả';
+        icon.className = 'fas fa-undo fa-3x text-success';
+        message.textContent = 'Bạn có chắc chắn muốn khôi phục TẤT CẢ công nghệ đã xóa?';
+        warning.textContent = 'Tất cả công nghệ sẽ được chuyển về danh sách chính.';
+        confirmBtn.className = 'btn btn-success';
+        confirmBtn.innerHTML = '<i class="fas fa-undo me-2"></i>Khôi phục tất cả';
+        confirmBtn.onclick = () => {
+            // Implement bulk restore logic here
+            alert('Chức năng khôi phục hàng loạt sẽ được triển khai');
+        };
+
+        new bootstrap.Modal(modal).show();
+    }
+
+    function confirmBulkPermanentDelete() {
+        const modal = document.getElementById('bulkActionModal');
+        const title = document.getElementById('bulkActionTitle');
+        const icon = document.getElementById('bulkActionIcon');
+        const message = document.getElementById('bulkActionMessage');
+        const warning = document.getElementById('bulkActionWarning');
+        const confirmBtn = document.getElementById('bulkActionConfirm');
+
+        modal.querySelector('.modal-header').className = 'modal-header bg-danger text-white';
+        title.textContent = 'Xác nhận xóa vĩnh viễn tất cả';
+        icon.className = 'fas fa-exclamation-triangle fa-3x text-danger';
+        message.innerHTML = '<strong>CẢNH BÁO: Hành động này không thể hoàn tác!</strong><br>Bạn có chắc chắn muốn xóa vĩnh viễn TẤT CẢ công nghệ?';
+        warning.textContent = 'Tất cả dữ liệu sẽ bị xóa hoàn toàn khỏi hệ thống.';
+        confirmBtn.className = 'btn btn-danger';
+        confirmBtn.innerHTML = '<i class="fas fa-trash-alt me-2"></i>Xóa vĩnh viễn tất cả';
+        confirmBtn.onclick = () => {
+            // Implement bulk permanent delete logic here
+            alert('Chức năng xóa vĩnh viễn hàng loạt sẽ được triển khai');
+        };
+
+        new bootstrap.Modal(modal).show();
+    }
+
+    // Auto dismiss alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+
+    // Reset modal header class when modal is hidden
+    document.getElementById('bulkActionModal').addEventListener('hidden.bs.modal', function() {
+        this.querySelector('.modal-header').className = 'modal-header';
+    });
+</script>
+</body>
+</html>

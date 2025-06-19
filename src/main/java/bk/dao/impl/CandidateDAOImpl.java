@@ -192,56 +192,61 @@ public class CandidateDAOImpl implements CandidateDAO {
     }
 
     @Override
-    public Page<Candidate> searchCandidates(String search, String status, String gender, Pageable pageable) {
+    public Page<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, Pageable pageable) {
         try {
-            StringBuilder whereClause = new StringBuilder("WHERE 1=1 ");
+            StringBuilder whereClause = new StringBuilder("WHERE c.isDeleted = false ");
 
-            // Build where clause
-            if (search != null && !search.trim().isEmpty()) {
+            if (search != null && !search.isEmpty()) {
                 whereClause.append("AND (LOWER(c.name) LIKE LOWER(:search) ")
                         .append("OR LOWER(c.email) LIKE LOWER(:search) ")
                         .append("OR LOWER(c.phone) LIKE LOWER(:search)) ");
             }
 
-            if (status != null && !status.isEmpty()) {
-                whereClause.append("AND c.status = :status ");
+            if (experience != null && !experience.isEmpty()) {
+                whereClause.append("AND c.experience >= :experience ");
             }
 
             if (gender != null && !gender.isEmpty()) {
                 whereClause.append("AND c.gender = :gender ");
             }
 
+            if (technologyId != null && !technologyId.isEmpty()) {
+                whereClause.append("AND EXISTS (SELECT 1 FROM c.technologies t WHERE t.id = :techId) ");
+            }
+
             // Count query
             String countHql = "SELECT COUNT(c) FROM Candidate c " + whereClause;
             Query<Long> countQuery = getCurrentSession().createQuery(countHql, Long.class);
 
-            // Set parameters for count query
-            setQueryParameters(countQuery, search, status, gender);
-            Long totalElements = countQuery.uniqueResult();
-
             // Data query
-            StringBuilder hql = new StringBuilder("FROM Candidate c " + whereClause + " ORDER BY ");
-            if (pageable.getSort().isSorted()) {
-                pageable.getSort().forEach(order -> {
-                    hql.append("c.")
-                            .append(order.getProperty())
-                            .append(" ")
-                            .append(order.getDirection().name())
-                            .append(", ");
-                });
-                // Xóa dấu phẩy cuối cùng
-                hql.setLength(hql.length() - 2);
-            } else {
-                hql.append("c.createdAt DESC");
+            String hql = "FROM Candidate c " + whereClause + " ORDER BY c.createdAt DESC";
+            Query<Candidate> query = getCurrentSession().createQuery(hql, Candidate.class);
+
+            // Set parameters
+            if (search != null && !search.isEmpty()) {
+                countQuery.setParameter("search", "%" + search + "%");
+                query.setParameter("search", "%" + search + "%");
             }
 
+            if (experience != null && !experience.isEmpty()) {
+                countQuery.setParameter("experience", Integer.parseInt(experience));
+                query.setParameter("experience", Integer.parseInt(experience));
+            }
 
-            Query<Candidate> query = getCurrentSession().createQuery(hql.toString(), Candidate.class);
+            if (gender != null && !gender.isEmpty()) {
+                countQuery.setParameter("gender", gender);
+                query.setParameter("gender", gender);
+            }
+
+            if (technologyId != null && !technologyId.isEmpty()) {
+                countQuery.setParameter("techId", Integer.parseInt(technologyId));
+                query.setParameter("techId", Integer.parseInt(technologyId));
+            }
+
+            Long totalElements = countQuery.uniqueResult();
+
             query.setFirstResult((int) pageable.getOffset());
             query.setMaxResults(pageable.getPageSize());
-
-            // Set parameters for data query
-            setQueryParameters(query, search, status, gender);
 
             List<Candidate> content = query.list();
             return new PageImpl<>(content, pageable, totalElements != null ? totalElements : 0);
@@ -270,7 +275,7 @@ public class CandidateDAOImpl implements CandidateDAO {
                 whereClause.append("AND c.gender = :gender ");
             }
 
-            String countHql = "SELECT COUNT(c) FROM Candidate c " + whereClause.toString();
+            String countHql = "SELECT COUNT(c) FROM Candidate c " + whereClause;
             Query<Long> countQuery = getCurrentSession().createQuery(countHql, Long.class);
 
             setQueryParameters(countQuery, search, status, gender);

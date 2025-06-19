@@ -10,6 +10,7 @@
         body {
             background: #f8f9fa;
         }
+
         .sidebar {
             height: 100vh;
             background: white;
@@ -18,89 +19,162 @@
             position: fixed;
             width: 250px;
         }
+
         .sidebar .nav-link {
             color: #333;
             font-weight: 500;
             padding: 12px 20px;
         }
+
         .sidebar .nav-link.active {
             background: #e9ecef;
             border-radius: 0.5rem;
             margin: 0 10px;
         }
+
         .main-content {
             margin-left: 250px;
             padding: 20px;
         }
+
         .content-header {
             background: white;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
         }
+
         .filter-box {
             background: white;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
         }
+
         .candidate-table {
             background: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
         }
+
         .status-badge {
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 500;
         }
+
         .status-active {
             background: #d4edda;
             color: #155724;
         }
+
         .status-inactive {
             background: #f8d7da;
             color: #721c24;
         }
+
         .gender-badge {
             padding: 4px 8px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 500;
         }
+
         .gender-male {
             background: #cce5ff;
             color: #0056b3;
         }
+
         .gender-female {
             background: #ffe6f0;
             color: #d63384;
         }
+
         .action-buttons .btn {
             margin-right: 5px;
             padding: 4px 8px;
             font-size: 12px;
         }
+
         .profile-section {
             font-size: 0.9rem;
             color: #555;
         }
+
         .table td {
             vertical-align: middle;
         }
+
         .pagination-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 20px;
         }
+
         .loading {
             opacity: 0.6;
             pointer-events: none;
+        }
+
+        .tech-container {
+            min-height: 80px;
+        }
+
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #6c757d;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .tech-remove-btn {
+            background: none;
+            border: none;
+            color: white;
+            margin-left: 4px;
+            padding: 0;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .tech-remove-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tech-add-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tech-select {
+            width: 140px;
+            font-size: 12px;
+        }
+
+        .tech-add-btn {
+            padding: 4px 8px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -123,7 +197,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" th:href="@{/admin/technology}">
                     <i class="fas fa-microchip me-2"></i> Technology
                 </a>
             </li>
@@ -156,12 +230,6 @@
                     <h4 class="mb-1">Quản lý Candidate</h4>
                     <p class="text-muted mb-0">Danh sách và quản lý tất cả candidate trong hệ thống</p>
                 </div>
-                <div>
-                    <button class="btn btn-outline-success me-2" onclick="exportCandidates()">
-                        <i class="fas fa-download me-1"></i> Export
-                    </button>
-                    <span class="badge bg-primary fs-6" th:text="'Tổng: ' + ${totalElements}">Tổng: 0</span>
-                </div>
             </div>
         </div>
 
@@ -174,32 +242,36 @@
                         <input type="text" class="form-control" name="search"
                                th:value="${search}" placeholder="Tên, email, số điện thoại...">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Trạng thái</label>
-                        <select class="form-select" name="status">
+                    <div class="col-md-3">
+                        <label class="form-label">Kinh nghiệm</label>
+                        <select class="form-select" name="experience">
                             <option value="">Tất cả</option>
-                            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Hoạt động</option>
-                            <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">Không hoạt động</option>
+                            <option value="1" th:selected="${experience == '1'}">1 năm</option>
+                            <option value="2" th:selected="${experience == '2'}">2 năm</option>
+                            <option value="3" th:selected="${experience == '3'}">3 năm</option>
+                            <option value="5" th:selected="${experience == '5'}">5+ năm</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">Giới tính</label>
                         <select class="form-select" name="gender">
                             <option value="">Tất cả</option>
-                            <option value="Male" th:selected="${gender == 'Nam'}">Nam</option>
-                            <option value="Female" th:selected="${gender == 'Nữ'}">Nữ</option>
+                            <option value="Nam" th:selected="${gender == 'Nam'}">Nam</option>
+                            <option value="Nữ" th:selected="${gender == 'Nữ'}">Nữ</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Sắp xếp</label>
-                        <select class="form-select" name="sortBy">
-                            <option value="id" th:selected="${sortBy == 'id'}">ID</option>
-                            <option value="name" th:selected="${sortBy == 'name'}">Tên</option>
-                            <option value="email" th:selected="${sortBy == 'email'}">Email</option>
-                            <option value="createdAt" th:selected="${sortBy == 'createdAt'}">Ngày tạo</option>
+                    <div class="col-md-3">
+                        <label class="form-label">Công nghệ</label>
+                        <select class="form-select" name="technology">
+                            <option value="">Tất cả</option>
+                            <option th:each="tech : ${allTechnologies}"
+                                    th:value="${tech.id}"
+                                    th:text="${tech.name}"
+                                    th:selected="${technology != null and technology == tech.id.toString()}">
+                            </option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">Thứ tự</label>
                         <select class="form-select" name="sortDir">
                             <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần</option>
@@ -244,6 +316,7 @@
                         <th>Số điện thoại</th>
                         <th>Giới tính</th>
                         <th>Kinh nghiệm</th>
+                        <th style="width: 300px;">Công nghệ</th>
                         <th>Trạng thái</th>
                         <th>Ngày tạo</th>
                         <th>Thao tác</th>
@@ -270,9 +343,47 @@
                         </td>
                         <td th:text="${candidate.experience != null ? candidate.experience + ' năm' : 'N/A'}">2 năm</td>
                         <td>
+                            <div class="tech-container">
+                                <!-- Technology badges -->
+                                <div class="tech-badges">
+                                    <div th:each="tech : ${candidate.technologies}" class="tech-badge">
+                                        <span th:text="${tech.name}">Java</span>
+                                        <button class="tech-remove-btn"
+                                                type="button"
+                                                th:data-candidate-id="${candidate.id}"
+                                                th:data-tech-id="${tech.id}"
+                                                onclick="removeTechnology(this)"
+                                                title="Xóa công nghệ">
+                                            <i class="fas fa-times" style="font-size: 8px;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Add technology section -->
+                                <div class="tech-add-container">
+                                    <select class="form-select tech-select"
+                                            th:data-candidate-id="${candidate.id}">
+                                        <option value="">Thêm công nghệ</option>
+                                        <option th:each="tech : ${allTechnologies}"
+                                                th:value="${tech.id}"
+                                                th:text="${tech.name}"
+                                                th:disabled="${candidate.technologies.contains(tech)}">
+                                        </option>
+                                    </select>
+                                    <button class="btn btn-success tech-add-btn"
+                                            type="button"
+                                            th:data-candidate-id="${candidate.id}"
+                                            onclick="addTechnology(this)"
+                                            title="Thêm công nghệ">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
                             <span class="status-badge"
-                                  th:classappend="${candidate.status == 'ACTIVE'} ? 'status-active' : 'status-inactive'"
-                                  th:text="${candidate.status == 'ACTIVE'} ? 'Hoạt động' : 'Không hoạt động'">Hoạt động</span>
+                                  th:classappend="${candidate.status.name() == 'ACTIVE'} ? 'status-active' : 'status-inactive'"
+                                  th:text="${candidate.status.name() == 'ACTIVE'} ? 'Hoạt động' : 'Không hoạt động'">Hoạt động</span>
                         </td>
                         <td th:text="${#temporals.format(candidate.createdAt, 'dd/MM/yyyy')}">25/10/2024</td>
                         <td>
@@ -285,8 +396,8 @@
                                         th:data-id="${candidate.id}"
                                         th:disabled="${candidate.id == admin.id}"
                                         title="Thay đổi trạng thái">
-                                    <i class="fas fa-toggle-on" th:if="${candidate.status == 'ACTIVE'}"></i>
-                                    <i class="fas fa-toggle-off" th:if="${candidate.status != 'ACTIVE'}"></i>
+                                    <i class="fas fa-toggle-on" th:if="${candidate.status.name() == 'ACTIVE'}"></i>
+                                    <i class="fas fa-toggle-off" th:if="${candidate.status.name() == 'INACTIVE'}"></i>
                                 </button>
                                 <button class="btn btn-outline-danger btn-sm delete-btn"
                                         th:data-id="${candidate.id}"
@@ -299,7 +410,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(candidates)}">
-                        <td colspan="9" class="text-center py-4">
+                        <td colspan="10" class="text-center py-4">
                             <i class="fas fa-users fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Không tìm thấy candidate nào</p>
                         </td>
@@ -320,13 +431,15 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/candidate-list(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
+                            <a class="page-link"
+                               th:href="@{/admin/candidate-list(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
                                 <i class="fas fa-chevron-left"></i>
                             </a>
                         </li>
 
                         <li class="page-item" th:if="${currentPage > 2}">
-                            <a class="page-link" th:href="@{/admin/candidate-list(page=0, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">1</a>
+                            <a class="page-link"
+                               th:href="@{/admin/candidate-list(page=0, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">1</a>
                         </li>
                         <li class="page-item disabled" th:if="${currentPage > 3}">
                             <span class="page-link">...</span>
@@ -344,12 +457,14 @@
                             <span class="page-link">...</span>
                         </li>
                         <li class="page-item" th:if="${currentPage + 2 < totalPages}">
-                            <a class="page-link" th:href="@{/admin/candidate-list(page=${totalPages - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}"
+                            <a class="page-link"
+                               th:href="@{/admin/candidate-list(page=${totalPages - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}"
                                th:text="${totalPages}">10</a>
                         </li>
 
                         <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/candidate-list(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
+                            <a class="page-link"
+                               th:href="@{/admin/candidate-list(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                         </li>
@@ -384,10 +499,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Handle delete buttons
         document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const candidateId = this.dataset.id;
                 const candidateName = this.dataset.name;
                 confirmDelete(candidateId, candidateName);
@@ -396,7 +511,7 @@
 
         // Handle toggle status buttons
         document.querySelectorAll('.toggle-status-btn').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const candidateId = this.dataset.id;
                 toggleStatus(candidateId);
             });
@@ -449,7 +564,7 @@
     }
 
     // Auto-dismiss alerts after 5 seconds
-    setTimeout(function() {
+    setTimeout(function () {
         const alerts = document.querySelectorAll('.alert');
         alerts.forEach(alert => {
             const bsAlert = new bootstrap.Alert(alert);
@@ -458,11 +573,83 @@
     }, 5000);
 
     // Show loading state for form submissions
-    document.getElementById('filterForm').addEventListener('submit', function() {
+    document.getElementById('filterForm').addEventListener('submit', function () {
         const submitBtn = this.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang tìm kiếm...';
     });
+
+    function addTechnology(button) {
+        const candidateId = button.dataset.candidateId;
+        const select = button.parentElement.querySelector('select');
+        const techId = select.value;
+
+        if (!techId) {
+            alert('Vui lòng chọn công nghệ');
+            return;
+        }
+
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        fetch(`/admin/candidate-list/${candidateId}/add-technology/${techId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi thêm công nghệ');
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            });
+    }
+
+    function removeTechnology(button) {
+        const candidateId = button.dataset.candidateId;
+        const techId = button.dataset.techId;
+
+        if (confirm('Bạn có chắc chắn muốn xóa công nghệ này khỏi candidate?')) {
+            button.disabled = true;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 8px;"></i>';
+
+            fetch(`/admin/candidate-list/${candidateId}/remove-technology/${techId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        throw new Error('Network response was not ok');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi xóa công nghệ');
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                });
+        }
+    }
 </script>
 </body>
 </html>

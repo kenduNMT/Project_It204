@@ -133,4 +133,9 @@ public class TechnologyServiceImpl implements TechnologyService {
         // Lấy tất cả công nghệ, bao gồm cả đã xóa mềm
         return technologyDao.findAll();
     }
+
+    @Override
+    public List<Technology> findAllActive() {
+        return technologyDao.findAllActive();
+    }
 }

@@ -81,7 +81,7 @@ public interface CandidateService {
     /**
      * Tìm kiếm candidates với filter và pagination
      */
-    Page<Candidate> searchCandidates(String search, String status, String gender, Pageable pageable);
+
 
     /**
      * Lấy candidate theo ID (cho admin)
@@ -103,7 +103,7 @@ public interface CandidateService {
      * @deprecated Use Page<Candidate> searchCandidates instead
      */
     @Deprecated
-    List<Candidate> searchCandidates(String search, String status, String gender, java.awt.print.Pageable pageable);
+    List<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, java.awt.print.Pageable pageable);
 
     /**
      * Đếm số lượng kết quả tìm kiếm
@@ -124,4 +124,9 @@ public interface CandidateService {
      * Lấy danh sách candidates theo page
      */
     List<Candidate> findAllWithPagination(java.awt.print.Pageable pageable);
+
+    boolean removeTechnologyFromCandidate(Long candidateId, Integer techId);
+
+    boolean addTechnologyToCandidate(Long candidateId, Integer techId);
+    Page<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, Pageable pageable);
 }

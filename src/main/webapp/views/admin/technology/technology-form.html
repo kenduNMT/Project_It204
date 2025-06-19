@@ -64,7 +64,7 @@
       <ul class="nav flex-column px-3">
         <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" th:href="@{/admin/candidate-list}"><i class="fas fa-user me-2"></i> Candidate</a></li>
-        <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology-list}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
+        <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
       </ul>
@@ -82,13 +82,13 @@
         <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a th:href="@{/views/admin/technology}">Công nghệ</a></li>
+              <li class="breadcrumb-item"><a th:href="@{/admin/technology}">Công nghệ</a></li>
               <li class="breadcrumb-item active" th:text="${action == 'add'} ? 'Thêm mới' : 'Chỉnh sửa'"></li>
             </ol>
           </nav>
           <h2><i class="fas fa-microchip me-2"></i><span th:text="${action == 'add'} ? 'Thêm Công nghệ' : 'Sửa Công nghệ'"></span></h2>
         </div>
-        <a th:href="@{/views/admin/technology}" class="btn btn-outline-secondary">
+        <a th:href="@{/admin/technology}" class="btn btn-outline-secondary">
           <i class="fas fa-arrow-left me-2"></i>Quay lại
         </a>
       </div>
@@ -151,7 +151,7 @@
               <hr class="my-4">
 
               <div class="d-flex justify-content-end gap-2">
-                <a th:href="@{/views/admin/technology}" class="btn btn-secondary">
+                <a th:href="@{/admin/technology}" class="btn btn-secondary">
                   <i class="fas fa-times me-2"></i>Hủy
                 </a>
                 <button type="submit" class="btn btn-danger" id="submitBtn">

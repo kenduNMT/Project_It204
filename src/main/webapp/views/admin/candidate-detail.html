@@ -176,10 +176,8 @@
           <h4 th:text="${candidate.name}">Nguyễn Văn A</h4>
           <p class="text-muted" th:text="${candidate.email}">nguyen@example.com</p>
           <span class="status-badge"
-                th:classappend="${candidate.status == 'ACTIVE'} ? 'status-active' : 'status-inactive'"
-                th:text="${candidate.status == 'ACTIVE'} ? 'Đang hoạt động' : 'Không hoạt động'">
-                        Đang hoạt động
-                    </span>
+                th:classappend="${candidate.status.name() == 'ACTIVE'} ? 'status-active' : 'status-inactive'"
+                th:text="${candidate.status.name() == 'ACTIVE'} ? 'Hoạt động' : 'Không hoạt động'">Hoạt động</span>
         </div>
 
         <!-- Information Section -->
@@ -262,7 +260,7 @@
                 <div class="card-body text-center">
                   <i class="fas fa-user-check fa-2x text-info mb-2"></i>
                   <h6>Trạng thái</h6>
-                  <p class="mb-0" th:text="${candidate.status == 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}">Hoạt động</p>
+                  <p class="mb-0" th:text="${candidate.status.name() == 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}">Hoạt động</p>
                 </div>
               </div>
             </div>

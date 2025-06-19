@@ -9,6 +9,8 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -62,6 +64,14 @@ public class Candidate {
     @Column(name = "dob")
     private LocalDate dob;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "candidate_technology",
+            joinColumns = @JoinColumn(name = "candidate_id"),
+            inverseJoinColumns = @JoinColumn(name = "technology_id")
+    )
+    private Set<Technology> technologies = new HashSet<>();
+
     @Column(name = "is_deleted", columnDefinition = "bit(1) DEFAULT false")
     private Boolean isDeleted = false;
 
@@ -81,6 +91,17 @@ public class Candidate {
         this.email = email;
         this.name = name;
         this.password = password;
+    }
+
+    // Helper methods for technologies
+    public void addTechnology(Technology technology) {
+        this.technologies.add(technology);
+        technology.getCandidates().add(this);
+    }
+
+    public void removeTechnology(Technology technology) {
+        this.technologies.remove(technology);
+        technology.getCandidates().remove(this);
     }
 
     @Override

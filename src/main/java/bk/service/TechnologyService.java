@@ -23,4 +23,5 @@ public interface TechnologyService {
     boolean isNameExists(String name);
     boolean isNameExistsExceptId(String name, Integer id);
     List<Technology> getAllTechnologies();
+    List<Technology> findAllActive();
 }

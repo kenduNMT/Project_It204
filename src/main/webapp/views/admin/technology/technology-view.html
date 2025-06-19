@@ -83,7 +83,7 @@
       <ul class="nav flex-column px-3">
         <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" th:href="@{/admin/candidate-list}"><i class="fas fa-user me-2"></i> Candidate</a></li>
-        <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology-list}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
+        <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
       </ul>
@@ -101,7 +101,7 @@
         <div>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a th:href="@{/views/admin/technology}">Công nghệ</a></li>
+              <li class="breadcrumb-item"><a th:href="@{/admin/technology}">Công nghệ</a></li>
               <li class="breadcrumb-item active">Chi tiết</li>
             </ol>
           </nav>
@@ -111,7 +111,7 @@
           <a th:href="@{/admin/technology/edit/{id}(id=${technology.id})}" class="btn btn-primary me-2">
             <i class="fas fa-edit me-2"></i>Chỉnh sửa
           </a>
-          <a th:href="@{/views/admin/technology}" class="btn btn-outline-secondary">
+          <a th:href="@{/admin/technology}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Quay lại
           </a>
         </div>
@@ -188,7 +188,7 @@
                       th:attr="onclick=|confirmDelete(${tech.id}, '${tech.name}')|">
                 <i class="fas fa-trash me-2"></i>Xóa
               </button>
-              <a th:href="@{/views/admin/technology}" class="btn btn-outline-secondary">
+              <a th:href="@{/admin/technology}" class="btn btn-outline-secondary">
                 <i class="fas fa-list me-2"></i>Danh sách
               </a>
             </div>

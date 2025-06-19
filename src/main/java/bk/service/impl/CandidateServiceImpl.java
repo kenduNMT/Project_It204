@@ -4,9 +4,11 @@ import bk.dao.CandidateDAO;
 import bk.dto.CandidateLoginDTO;
 import bk.dto.CandidateRegistrationDTO;
 import bk.entity.Candidate;
+import bk.entity.Technology;
 import bk.exception.EmailAlreadyExistsException;
 import bk.exception.InvalidCredentialsException;
 import bk.service.CandidateService;
+import bk.service.TechnologyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,8 @@ import java.util.Optional;
 @Service
 @Transactional
 public class CandidateServiceImpl implements CandidateService {
+    @Autowired
+    private TechnologyService technologyService;
 
     @Autowired
     private CandidateDAO candidateDAO;
@@ -137,8 +141,8 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Candidate> searchCandidates(String search, String status, String gender, Pageable pageable) {
-        return candidateDAO.searchCandidates(search, status, gender, pageable);
+    public Page<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, Pageable pageable) {
+        return candidateDAO.searchCandidates(search, experience, gender, technologyId, pageable);
     }
 
     @Override
@@ -159,13 +163,40 @@ public class CandidateServiceImpl implements CandidateService {
         candidateDAO.deleteById(id);
     }
 
+    @Override
+    @Transactional
+    public boolean addTechnologyToCandidate(Long candidateId, Integer techId) {
+        Candidate candidate = candidateDAO.findById(candidateId).orElse(null);
+        Technology technology = technologyService.findById(techId).orElse(null);
+
+        if (candidate != null && technology != null) {
+            candidate.getTechnologies().add(technology);
+            candidateDAO.save(candidate);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean removeTechnologyFromCandidate(Long candidateId, Integer techId) {
+        Candidate candidate = candidateDAO.findById(candidateId).orElse(null);
+        Technology technology = technologyService.findById(techId).orElse(null);
+
+        if (candidate != null && technology != null) {
+            candidate.getTechnologies().remove(technology);
+            candidateDAO.save(candidate);
+            return true;
+        }
+        return false;
+    }
 
 
     // ===== Legacy methods (keep for backward compatibility) =====
 
     @Override
     @Deprecated
-    public List<Candidate> searchCandidates(String search, String status, String gender, java.awt.print.Pageable pageable) {
+    public List<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, java.awt.print.Pageable pageable) {
         return Collections.emptyList();
     }
 
