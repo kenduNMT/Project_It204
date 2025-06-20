@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${isEdit} ? 'Chỉnh sửa Vị trí Tuyển dụng' : 'Thêm Vị trí Tuyển dụng'">Form Vị trí Tuyển dụng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .sidebar {
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #dee2e6;
+            padding-top: 1rem;
+        }
+        .sidebar .nav-link {
+            color: #333;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link.active {
+            background: #e9ecef;
+            border-radius: 0.5rem;
+            color: #007bff;
+        }
+        .sidebar .nav-link:hover {
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.03);
+            padding: 2rem;
+        }
+        .profile-section {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .required {
+            color: #dc3545;
+        }
+        .tech-checkbox {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .tech-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            transition: all 0.2s;
+        }
+        .tech-item:hover {
+            background: #e9ecef;
+        }
+        .tech-item input[type="checkbox"]:checked + label {
+            color: #007bff;
+            font-weight: 500;
+        }
+        .salary-input-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .form-floating {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-md-block sidebar">
+            <div class="text-center mb-4">
+                <h5 class="fw-bold text-primary">My Company</h5>
+            </div>
+            <ul class="nav flex-column px-3">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-chart-line me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/candidate-list}">
+                        <i class="fas fa-user me-2"></i> Candidate
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/technology}">
+                        <i class="fas fa-microchip me-2"></i> Technology
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/recruitment-position}">
+                        <i class="fas fa-briefcase me-2"></i> Recruitment
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/application}">
+                        <i class="fas fa-file-alt me-2"></i> Applications
+                    </a>
+                </li>
+            </ul>
+            <div class="text-center mt-5 profile-section">
+                <div>Admin</div>
+                <div class="text-muted">admin@gmail.com</div>
+                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
+                    <i class="fas fa-sign-out-alt"></i> Log out
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1" th:text="${isEdit} ? 'Chỉnh sửa Vị trí Tuyển dụng' : 'Thêm Vị trí Tuyển dụng'">
+                        Thêm Vị trí Tuyển dụng
+                    </h2>
+                    <p class="text-muted mb-0">Điền thông tin chi tiết về vị trí tuyển dụng</p>
+                </div>
+                <a th:href="@{/admin/recruitment-position}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+
+            <!-- Form -->
+            <div class="form-card">
+                <form th:action="${isEdit} ? @{/admin/recruitment-position/edit/{id}(id=${recruitmentPosition.id})} : @{/admin/recruitment-position/add}"
+                      method="post" th:object="${recruitmentPosition}">
+
+                    <div class="row g-4">
+                        <!-- Position Name -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" th:field="*{name}"
+                                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                       placeholder="Tên vị trí">
+                                <label for="name">Tên vị trí <span class="required">*</span></label>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+                                    Lỗi tên vị trí
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Min Experience -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="minExperience" th:field="*{minExperience}"
+                                       th:classappend="${#fields.hasErrors('minExperience')} ? 'is-invalid' : ''"
+                                       placeholder="Kinh nghiệm tối thiểu" min="0">
+                                <label for="minExperience">Kinh nghiệm tối thiểu (năm) <span class="required">*</span></label>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('minExperience')}" th:errors="*{minExperience}">
+                                    Lỗi kinh nghiệm tối thiểu
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Salary Range -->
+                        <div class="col-12">
+                            <label class="form-label">Mức lương (USD)</label>
+                            <div class="salary-input-group">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="minSalary" th:field="*{minSalary}"
+                                           th:classappend="${#fields.hasErrors('minSalary')} ? 'is-invalid' : ''"
+                                           placeholder="Lương tối thiểu" step="0.01" min="0">
+                                    <label for="minSalary">Lương tối thiểu</label>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('minSalary')}" th:errors="*{minSalary}">
+                                        Lỗi lương tối thiểu
+                                    </div>
+                                </div>
+                                <span class="text-muted">đến</span>
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="maxSalary" th:field="*{maxSalary}"
+                                           th:classappend="${#fields.hasErrors('maxSalary')} ? 'is-invalid' : ''"
+                                           placeholder="Lương tối đa" step="0.01" min="0">
+                                    <label for="maxSalary">Lương tối đa</label>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('maxSalary')}" th:errors="*{maxSalary}">
+                                        Lỗi lương tối đa
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text">Để trống nếu lương thỏa thuận</div>
+                        </div>
+
+                        <!-- Expired Date -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="expiredDate" th:field="*{expiredDate}"
+                                       th:classappend="${#fields.hasErrors('expiredDate')} ? 'is-invalid' : ''"
+                                       placeholder="Ngày hết hạn">
+                                <label for="expiredDate">Ngày hết hạn</label>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('expiredDate')}" th:errors="*{expiredDate}">
+                                    Lỗi ngày hết hạn
+                                </div>
+                            </div>
+                            <div class="form-text">Để trống nếu không giới hạn thời gian</div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" id="description" th:field="*{description}"
+                                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"
+                                          placeholder="Mô tả công việc" style="height: 120px"></textarea>
+                                <label for="description">Mô tả công việc</label>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+                                    Lỗi mô tả công việc
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Technologies -->
+                        <div class="col-12">
+                            <label class="form-label">Công nghệ yêu cầu</label>
+                            <div class="tech-checkbox" th:if="${!#lists.isEmpty(technologies)}">
+                                <div class="tech-item" th:each="tech : ${technologies}">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                               th:id="'tech_' + ${tech.id}"
+                                               name="technologyIds"
+                                               th:value="${tech.id}"
+                                               th:checked="${selectedTechnologyIds != null and #lists.contains(selectedTechnologyIds, tech.id)}">
+                                        <label class="form-check-label" th:for="'tech_' + ${tech.id}" th:text="${tech.name}">
+                                            Technology Name
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(technologies)}" class="text-muted">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Chưa có công nghệ nào. <a th:href="@{/admin/technology}">Thêm công nghệ mới</a>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="col-12">
+                            <hr class="my-4">
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/admin/recruitment-position}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Hủy
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    <span th:text="${isEdit} ? 'Cập nhật' : 'Thêm mới'">Lưu</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Validate salary range
+    document.addEventListener('DOMContentLoaded', function() {
+        const minSalary = document.getElementById('minSalary');
+        const maxSalary = document.getElementById('maxSalary');
+
+        function validateSalaryRange() {
+            const minVal = parseFloat(minSalary.value) || 0;
+            const maxVal = parseFloat(maxSalary.value) || 0;
+
+            if (minVal > 0 && maxVal > 0 && minVal > maxVal) {
+                maxSalary.setCustomValidity('Lương tối đa phải >= lương tối thiểu');
+            } else {
+                maxSalary.setCustomValidity('');
+            }
+        }
+
+        minSalary.addEventListener('input', validateSalaryRange);
+        maxSalary.addEventListener('input', validateSalaryRange);
+    });
+</script>
+</body>
+</html>

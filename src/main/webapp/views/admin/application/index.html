@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Application Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    body {
+        background: #f8f9fa;
+    }
+    .sidebar {
+        height: 100vh;
+        background: white;
+        border-right: 1px solid #dee2e6;
+        padding-top: 1rem;
+    }
+    .sidebar .nav-link {
+        color: #333;
+        font-weight: 500;
+        padding: 0.75rem 1rem;
+        margin: 0.2rem 0;
+    }
+    .sidebar .nav-link.active {
+        background: #e9ecef;
+        border-radius: 0.5rem;
+        color: #007bff;
+    }
+    .sidebar .nav-link:hover {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+</style>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-md-block sidebar">
+            <div class="text-center mb-4">
+                <h5 class="fw-bold text-primary">My Company</h5>
+            </div>
+            <ul class="nav flex-column px-3">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-chart-line me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/candidate-list}">
+                        <i class="fas fa-user me-2"></i> Candidate
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/technology}">
+                        <i class="fas fa-microchip me-2"></i> Technology
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/recruitment-position}">
+                        <i class="fas fa-briefcase me-2"></i> Recruitment
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/application}">
+                        <i class="fas fa-file-alt me-2"></i> Applications
+                    </a>
+                </li>
+            </ul>
+            <div class="text-center mt-5 profile-section">
+                <div>Admin</div>
+                <div class="text-muted">admin@gmail.com</div>
+                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
+                    <i class="fas fa-sign-out-alt"></i> Log out
+                </a>
+            </div>
+        </nav>
+        <!-- Sidebar ... -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <h2>Application</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Candidate Name</th>
+                        <th>Recruitment Name</th>
+                        <th>Created At</th>
+                        <th>Status</th>
+                        <th>Process</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="app, iterStat : ${applications}">
+                        <td th:text="${iterStat.count}">1</td>
+                        <td>
+                            <a href="#" th:text="${app.candidate.name}" data-bs-toggle="modal" data-bs-target="#cvModal" th:attr="data-id=${app.candidate.id}"></a>
+                        </td>
+                        <td>
+                            <a href="#" th:text="${app.recruitmentPosition.name}" data-bs-toggle="modal" data-bs-target="#cvModal" th:attr="data-id=${app.recruitmentPosition.id}"></a>
+                        </td>
+                        <td th:text="${#temporals.format(app.createdAt, 'dd/MM/yyyy')}">10/10/2022</td>
+                        <td>
+                            <span th:text="${app.status}">PENDING</span>
+                        </td>
+                        <td>
+                            <!-- Status badge, color by status -->
+                        </td>
+                        <td>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal" th:attr="data-id=${app.id}"><i class="fas fa-check"></i></button>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#destroyModal" th:attr="data-id=${app.id}"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#interviewModal" th:attr="data-id=${app.id}"><i class="fas fa-calendar"></i></button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Approve Interview Modal -->
+            <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="@{'/admin/application/approve/' + ${selectedAppId}}" method="post" id="approveForm">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="approveModalLabel">Approve Interview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="interviewResult" class="form-label">Interview Result <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="interviewResult" name="interviewResult" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="interviewResultNote" class="form-label">Interview Result Note</label>
+                                    <textarea class="form-control" id="interviewResultNote" name="interviewResultNote" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destroy Interview Modal -->
+            <div class="modal fade" id="destroyModal" tabindex="-1" aria-labelledby="destroyModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="@{'/admin/application/destroy/' + ${selectedAppId}}" method="post" id="destroyForm">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="destroyModalLabel">Destroy Interview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="destroyReason" class="form-label">Destroy Reason <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="destroyReason" name="destroyReason" rows="3" required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview Modal -->
+            <div class="modal fade" id="interviewModal" tabindex="-1" aria-labelledby="interviewModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="@{'/admin/application/interview/' + ${selectedAppId}}" method="post" id="interviewForm">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="interviewModalLabel">Interview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="interviewLink" class="form-label">Interview Link <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="interviewLink" name="interviewLink" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="interviewTime" class="form-label">Interview Time <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="interviewTime" name="interviewTime" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CV Candidate Modal -->
+            <div class="modal fade" id="cvModal" tabindex="-1" aria-labelledby="cvModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cvModalLabel">CV Candidate</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Nội dung CV sẽ được load động bằng JS hoặc Thymeleaf fragment -->
+                            <div id="cvContent">
+                                <p>CV content here...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    // JS để set selectedAppId cho các modal khi click nút
+    let selectedAppId = null;
+    document.querySelectorAll('[data-bs-target="#approveModal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedAppId = this.getAttribute('data-id');
+            document.getElementById('approveForm').setAttribute('action', '/admin/application/approve/' + selectedAppId);
+        });
+    });
+    document.querySelectorAll('[data-bs-target="#destroyModal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedAppId = this.getAttribute('data-id');
+            document.getElementById('destroyForm').setAttribute('action', '/admin/application/destroy/' + selectedAppId);
+        });
+    });
+    document.querySelectorAll('[data-bs-target="#interviewModal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedAppId = this.getAttribute('data-id');
+            document.getElementById('interviewForm').setAttribute('action', '/admin/application/interview/' + selectedAppId);
+        });
+    });
+    // CV modal: load CV content nếu cần
+</script>
+</body>
+</html>
