@@ -15,6 +15,9 @@
             background: white;
             border-right: 1px solid #dee2e6;
             padding-top: 1rem;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
         }
         .sidebar .nav-link {
             color: #333;
@@ -22,6 +25,11 @@
         }
         .sidebar .nav-link.active {
             background: #e9ecef;
+            border-radius: 0.5rem;
+            color: #007bff;
+        }
+        .sidebar .nav-link:hover {
+            background: #f8f9fa;
             border-radius: 0.5rem;
         }
         .content-card {
@@ -43,6 +51,15 @@
         .search-box {
             max-width: 300px;
         }
+        .profile-section {
+            position: absolute;
+            bottom: 2rem;
+            left: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -60,10 +77,12 @@
                 <li class="nav-item"><a class="nav-link" th:href="@{/admin/recruitment-position}"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/admin/application}"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
             </ul>
-            <div class="text-center mt-5 profile-section">
-                <div>Admin</div>
-                <div class="text-muted">admin@gmail.com</div>
-                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            <div class="profile-section text-center">
+                <div class="fw-semibold">Admin</div>
+                <div class="text-muted small">admin@gmail.com</div>
+                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
+                    <i class="fas fa-sign-out-alt me-1"></i> Log out
+                </a>
             </div>
         </nav>
 
@@ -189,7 +208,7 @@
                                 th:if="${(i >= currentPage - 2) and (i <= currentPage + 2)}"
                                 th:classappend="${i == currentPage} ? 'active'">
                                 <a class="page-link"
-                                   th:href="@{/views/admin/technology(page=${i},search=${search})}"
+                                   th:href="@{/admin/technology(page=${i},search=${search})}"
                                    th:text="${i + 1}"></a>
                             </li>
                         </th:block>

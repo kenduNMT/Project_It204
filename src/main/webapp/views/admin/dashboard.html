@@ -15,6 +15,9 @@
             background: white;
             border-right: 1px solid #dee2e6;
             padding-top: 1rem;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
         }
         .sidebar .nav-link {
             color: #333;
@@ -23,7 +26,23 @@
         .sidebar .nav-link.active {
             background: #e9ecef;
             border-radius: 0.5rem;
+            color: #007bff;
         }
+        .sidebar .nav-link:hover {
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+
+        .profile-section {
+            position: absolute;
+            bottom: 2rem;
+            left: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+
         .stat-card {
             border-radius: 10px;
             background: white;

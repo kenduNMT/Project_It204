@@ -128,5 +128,5 @@ public interface CandidateService {
     boolean removeTechnologyFromCandidate(Long candidateId, Integer techId);
 
     boolean addTechnologyToCandidate(Long candidateId, Integer techId);
-    Page<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, Pageable pageable);
+    Page<Candidate> searchCandidates(String search, String experience, String gender, String technology, Pageable pageable);
 }

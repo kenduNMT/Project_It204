@@ -31,14 +31,14 @@ public class CandidateManagementController {
     @GetMapping
     public String listCandidates(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String experience,
             @RequestParam(required = false) String gender,
-            @RequestParam(required = false) String technologyId,
+            @RequestParam(required = false) String technology,
             Model model,
             HttpSession session) {
 
@@ -56,7 +56,7 @@ public class CandidateManagementController {
                 search,
                 experience,
                 gender,
-                technologyId,
+                technology,
                 pageable
         );
 
@@ -73,7 +73,9 @@ public class CandidateManagementController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("search", search);
         model.addAttribute("status", status);
+        model.addAttribute("experience", experience);
         model.addAttribute("gender", gender);
+        model.addAttribute("technology", technology);
         model.addAttribute("admin", loggedInUser);
         model.addAttribute("allTechnologies", allTechnologies);
 

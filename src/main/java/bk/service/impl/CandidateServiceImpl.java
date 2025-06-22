@@ -141,8 +141,8 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, Pageable pageable) {
-        return candidateDAO.searchCandidates(search, experience, gender, technologyId, pageable);
+    public Page<Candidate> searchCandidates(String search, String experience, String gender, String technology, Pageable pageable) {
+        return candidateDAO.searchCandidates(search, experience, gender, technology, pageable);
     }
 
     @Override

@@ -192,25 +192,25 @@ public class CandidateDAOImpl implements CandidateDAO {
     }
 
     @Override
-    public Page<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, Pageable pageable) {
+    public Page<Candidate> searchCandidates(String search, String experience, String gender, String technology, Pageable pageable) {
         try {
             StringBuilder whereClause = new StringBuilder("WHERE c.isDeleted = false ");
 
-            if (search != null && !search.isEmpty()) {
+            if (search != null && !search.trim().isEmpty()) {
                 whereClause.append("AND (LOWER(c.name) LIKE LOWER(:search) ")
                         .append("OR LOWER(c.email) LIKE LOWER(:search) ")
                         .append("OR LOWER(c.phone) LIKE LOWER(:search)) ");
             }
 
-            if (experience != null && !experience.isEmpty()) {
+            if (experience != null && !experience.trim().isEmpty()) {
                 whereClause.append("AND c.experience >= :experience ");
             }
 
-            if (gender != null && !gender.isEmpty()) {
+            if (gender != null && !gender.trim().isEmpty()) {
                 whereClause.append("AND c.gender = :gender ");
             }
 
-            if (technologyId != null && !technologyId.isEmpty()) {
+            if (technology != null && !technology.trim().isEmpty()) {
                 whereClause.append("AND EXISTS (SELECT 1 FROM c.technologies t WHERE t.id = :techId) ");
             }
 
@@ -223,24 +223,34 @@ public class CandidateDAOImpl implements CandidateDAO {
             Query<Candidate> query = getCurrentSession().createQuery(hql, Candidate.class);
 
             // Set parameters
-            if (search != null && !search.isEmpty()) {
-                countQuery.setParameter("search", "%" + search + "%");
-                query.setParameter("search", "%" + search + "%");
+            if (search != null && !search.trim().isEmpty()) {
+                countQuery.setParameter("search", "%" + search.trim() + "%");
+                query.setParameter("search", "%" + search.trim() + "%");
             }
 
-            if (experience != null && !experience.isEmpty()) {
-                countQuery.setParameter("experience", Integer.parseInt(experience));
-                query.setParameter("experience", Integer.parseInt(experience));
+            if (experience != null && !experience.trim().isEmpty()) {
+                try {
+                    int expValue = Integer.parseInt(experience.trim());
+                    countQuery.setParameter("experience", expValue);
+                    query.setParameter("experience", expValue);
+                } catch (NumberFormatException e) {
+                    // Ignore invalid experience value
+                }
             }
 
-            if (gender != null && !gender.isEmpty()) {
-                countQuery.setParameter("gender", gender);
-                query.setParameter("gender", gender);
+            if (gender != null && !gender.trim().isEmpty()) {
+                countQuery.setParameter("gender", gender.trim());
+                query.setParameter("gender", gender.trim());
             }
 
-            if (technologyId != null && !technologyId.isEmpty()) {
-                countQuery.setParameter("techId", Integer.parseInt(technologyId));
-                query.setParameter("techId", Integer.parseInt(technologyId));
+            if (technology != null && !technology.trim().isEmpty()) {
+                try {
+                    int techId = Integer.parseInt(technology.trim());
+                    countQuery.setParameter("techId", techId);
+                    query.setParameter("techId", techId);
+                } catch (NumberFormatException e) {
+                    // Ignore invalid technology ID
+                }
             }
 
             Long totalElements = countQuery.uniqueResult();

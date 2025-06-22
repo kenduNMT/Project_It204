@@ -5,6 +5,7 @@ import bk.dao.TechnologyDAO;
 import bk.entity.RecruitmentPosition;
 import bk.entity.Technology;
 import bk.service.RecruitmentPositionService;
+import bk.utils.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,34 @@ public class RecruitmentPositionServiceImpl implements RecruitmentPositionServic
     @Override
     public List<RecruitmentPosition> findAll() {
         return recruitmentPositionDAO.findAll();
+    }
+
+    @Override
+    public PageResponse<RecruitmentPosition> findAll(int page, int size) {
+        List<RecruitmentPosition> positions = recruitmentPositionDAO.findAll(page, size);
+        long totalElements = recruitmentPositionDAO.countAll();
+        return new PageResponse<>(positions, page, size, totalElements);
+    }
+
+    @Override
+    public PageResponse<RecruitmentPosition> findByName(String name, int page, int size) {
+        List<RecruitmentPosition> positions = recruitmentPositionDAO.findByName(name, page, size);
+        long totalElements = recruitmentPositionDAO.countByName(name);
+        return new PageResponse<>(positions, page, size, totalElements);
+    }
+
+    @Override
+    public PageResponse<RecruitmentPosition> findActivePositions(int page, int size) {
+        List<RecruitmentPosition> positions = recruitmentPositionDAO.findActivePositions(page, size);
+        long totalElements = recruitmentPositionDAO.countActive();
+        return new PageResponse<>(positions, page, size, totalElements);
+    }
+
+    @Override
+    public PageResponse<RecruitmentPosition> findExpiredPositions(int page, int size) {
+        List<RecruitmentPosition> positions = recruitmentPositionDAO.findExpiredPositions(page, size);
+        long totalElements = recruitmentPositionDAO.countAll() - recruitmentPositionDAO.countActive();
+        return new PageResponse<>(positions, page, size, totalElements);
     }
 
     @Override

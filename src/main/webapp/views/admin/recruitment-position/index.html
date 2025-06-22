@@ -15,6 +15,9 @@
             background: white;
             border-right: 1px solid #dee2e6;
             padding-top: 1rem;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
         }
         .sidebar .nav-link {
             color: #333;
@@ -94,6 +97,23 @@
             justify-content: center;
             margin-top: 2rem;
         }
+        .pagination-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .profile-section {
+            position: absolute;
+            bottom: 2rem;
+            left: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -131,12 +151,12 @@
                     </a>
                 </li>
             </ul>
-            <div class="text-center mt-5 profile-section">
-                <div>Admin</div>
-                <div class="text-muted">admin@gmail.com</div>
-                <button class="btn btn-outline-danger btn-sm mt-2" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Log out
-                </button>
+            <div class="profile-section text-center">
+                <div class="fw-semibold">Admin</div>
+                <div class="text-muted small">admin@gmail.com</div>
+                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
+                    <i class="fas fa-sign-out-alt me-1"></i> Log out
+                </a>
             </div>
         </nav>
 
@@ -233,7 +253,7 @@
                 <div th:if="${positions != null and not #lists.isEmpty(positions)}">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4>Danh sách vị trí tuyển dụng</h4>
-                        <span class="badge bg-info">Tổng: [[${#lists.size(positions)}]] vị trí</span>
+                        <span class="badge bg-info">Tổng: [[${totalElements}]] vị trí</span>
                     </div>
 
                     <div class="table-responsive">
@@ -253,7 +273,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="position, iterStat : ${positions}">
-                                <td th:text="${iterStat.count}">1</td>
+                                <td th:text="${currentPage * 10 + iterStat.count}">1</td>
                                 <td>
                                     <div class="fw-bold" th:text="${position.name ?: 'N/A'}">Position Name</div>
                                 </td>
@@ -325,19 +345,80 @@
                         </table>
                     </div>
 
-                    <!-- Pagination -->
+                    <!-- Pagination Info -->
+                    <div class="pagination-info d-flex justify-content-between align-items-center">
+                        <div>
+                            <span th:text="'Hiển thị từ ' + ${currentPage * 10 + 1} + ' đến ' + ${(currentPage + 1) * 10 > totalElements ? totalElements : (currentPage + 1) * 10} + ' trong tổng số ' + ${totalElements} + ' bản ghi'">
+                                Hiển thị từ 1 đến 10 trong tổng số 25 bản ghi
+                            </span>
+                        </div>
+                        <div>
+                            <span th:text="'Trang ' + ${currentPage + 1} + '/' + ${totalPages}">Trang 1/3</span>
+                        </div>
+                    </div>
+
+                    <!-- Pagination Controls -->
                     <div class="pagination-wrapper" th:if="${totalPages > 1}">
-                        <nav>
+                        <nav aria-label="Điều hướng trang">
                             <ul class="pagination">
+                                <!-- First Page -->
                                 <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                    <a class="page-link" th:href="@{${baseUrl} + '?page=' + (${currentPage - 1})}">Trước</a>
+                                    <a class="page-link" th:href="@{${baseUrl} + '?page=0'}" title="Trang đầu">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
                                 </li>
-                                <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
-                                    th:classappend="${currentPage + 1 == i} ? 'active'">
-                                    <a class="page-link" th:href="@{${baseUrl} + '?page=' + (${i - 1})}" th:text="${i}">1</a>
+
+                                <!-- Previous Page -->
+                                <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                                    <a class="page-link" th:href="@{${baseUrl} + '?page=' + ${currentPage - 1}}" title="Trang trước">
+                                        <i class="fas fa-angle-left"></i> Trước
+                                    </a>
                                 </li>
-                                <li class="page-item" th:classappend="${currentPage+1 == totalPages} ? 'disabled'">
-                                    <a class="page-link" th:href="@{${baseUrl} + '?page=' + ${currentPage+1}}">Sau</a>
+
+                                <!-- Page Numbers -->
+                                <th:block th:with="startPage=${currentPage > 2 ? currentPage - 2 : 0},
+                                                   endPage=${currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1}">
+
+                                    <!-- Show first page if not in range -->
+                                    <li class="page-item" th:if="${startPage > 0}">
+                                        <a class="page-link" th:href="@{${baseUrl} + '?page=0'}" th:text="1">1</a>
+                                    </li>
+                                    <li class="page-item disabled" th:if="${startPage > 1}">
+                                        <span class="page-link">...</span>
+                                    </li>
+
+                                    <!-- Page range -->
+                                    <li class="page-item"
+                                        th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                                        th:classappend="${currentPage == i} ? 'active'">
+                                        <a class="page-link"
+                                           th:href="@{${baseUrl} + '?page=' + ${i}}"
+                                           th:text="${i + 1}">1</a>
+                                    </li>
+
+                                    <!-- Show last page if not in range -->
+                                    <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                    <li class="page-item" th:if="${endPage < totalPages - 1}">
+                                        <a class="page-link"
+                                           th:href="@{${baseUrl} + '?page=' + ${totalPages - 1}}"
+                                           th:text="${totalPages}">Last</a>
+                                    </li>
+                                </th:block>
+
+                                <!-- Next Page -->
+                                <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                                    <a class="page-link" th:href="@{${baseUrl} + '?page=' + ${currentPage + 1}}" title="Trang sau">
+                                        Sau <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Last Page -->
+                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                    <a class="page-link" th:href="@{${baseUrl} + '?page=' + ${totalPages - 1}}" title="Trang cuối">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
@@ -428,6 +509,27 @@
     // Initialize page
     document.addEventListener('DOMContentLoaded', function () {
         console.log('Page initialized');
+
+        // Set active filter button based on current filter
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentFilter = urlParams.get('filter') || 'all';
+
+        // Remove active class from all filter buttons
+        document.querySelectorAll('[id$="Filter"]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Add active class to current filter button
+        const activeFilterBtn = document.getElementById(currentFilter + 'Filter');
+        if (activeFilterBtn) {
+            activeFilterBtn.classList.add('active');
+        }
+
+        // Set search input value if search parameter exists
+        const searchParam = urlParams.get('search');
+        if (searchParam) {
+            document.getElementById('searchInput').value = searchParam;
+        }
     });
 
     function showAddModal() {
@@ -438,9 +540,7 @@
     }
 
     function viewPosition(id) {
-        // This should be replaced with an AJAX call to fetch position details from backend
         console.log('View position with id:', id);
-        // For demo purposes, we'll just show the modal with a message
         document.getElementById('viewPositionContent').innerHTML = `
             <div class="text-center py-4">
                 <i class="fas fa-info-circle fa-3x text-primary mb-3"></i>
@@ -457,6 +557,7 @@
 
         new bootstrap.Modal(document.getElementById('viewPositionModal')).show();
     }
+
 
     function editPosition(id) {
         // This should be replaced with an AJAX call to fetch position details from backend

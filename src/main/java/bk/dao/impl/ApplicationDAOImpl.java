@@ -54,4 +54,101 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 .setParameter("status", status)
                 .list();
     }
+
+    // New methods for pagination, filter and search
+    @Override
+    public List<Application> findAllWithPagination(int page, int size) {
+        String hql = "SELECT a FROM Application a " +
+                "LEFT JOIN FETCH a.candidate " +
+                "LEFT JOIN FETCH a.recruitmentPosition " +
+                "ORDER BY a.createdAt DESC";
+        return getSession().createQuery(hql, Application.class)
+                .setFirstResult((page - 1) * size)
+                .setMaxResults(size)
+                .list();
+    }
+
+    @Override
+    public List<Application> findByStatusWithPagination(Application.Status status, int page, int size) {
+        String hql = "SELECT a FROM Application a " +
+                "LEFT JOIN FETCH a.candidate " +
+                "LEFT JOIN FETCH a.recruitmentPosition " +
+                "WHERE a.status = :status " +
+                "ORDER BY a.createdAt DESC";
+        return getSession().createQuery(hql, Application.class)
+                .setParameter("status", status)
+                .setFirstResult((page - 1) * size)
+                .setMaxResults(size)
+                .list();
+    }
+
+    @Override
+    public List<Application> searchWithPagination(String searchTerm, int page, int size) {
+        String hql = "SELECT a FROM Application a " +
+                "LEFT JOIN FETCH a.candidate c " +
+                "LEFT JOIN FETCH a.recruitmentPosition r " +
+                "WHERE LOWER(c.name) LIKE LOWER(:searchTerm) " +
+                "OR LOWER(r.name) LIKE LOWER(:searchTerm) " +
+                "ORDER BY a.createdAt DESC";
+        return getSession().createQuery(hql, Application.class)
+                .setParameter("searchTerm", "%" + searchTerm + "%")
+                .setFirstResult((page - 1) * size)
+                .setMaxResults(size)
+                .list();
+    }
+
+    @Override
+    public List<Application> findByStatusAndSearchWithPagination(Application.Status status, String searchTerm, int page, int size) {
+        String hql = "SELECT a FROM Application a " +
+                "LEFT JOIN FETCH a.candidate c " +
+                "LEFT JOIN FETCH a.recruitmentPosition r " +
+                "WHERE a.status = :status " +
+                "AND (LOWER(c.name) LIKE LOWER(:searchTerm) " +
+                "OR LOWER(r.name) LIKE LOWER(:searchTerm)) " +
+                "ORDER BY a.createdAt DESC";
+        return getSession().createQuery(hql, Application.class)
+                .setParameter("status", status)
+                .setParameter("searchTerm", "%" + searchTerm + "%")
+                .setFirstResult((page - 1) * size)
+                .setMaxResults(size)
+                .list();
+    }
+
+    @Override
+    public long countAll() {
+        return getSession().createQuery("SELECT COUNT(a) FROM Application a", Long.class).uniqueResult();
+    }
+
+    @Override
+    public long countByStatus(Application.Status status) {
+        return getSession().createQuery("SELECT COUNT(a) FROM Application a WHERE a.status = :status", Long.class)
+                .setParameter("status", status)
+                .uniqueResult();
+    }
+
+    @Override
+    public long countBySearch(String searchTerm) {
+        String hql = "SELECT COUNT(a) FROM Application a " +
+                "LEFT JOIN a.candidate c " +
+                "LEFT JOIN a.recruitmentPosition r " +
+                "WHERE LOWER(c.name) LIKE LOWER(:searchTerm) " +
+                "OR LOWER(r.name) LIKE LOWER(:searchTerm)";
+        return getSession().createQuery(hql, Long.class)
+                .setParameter("searchTerm", "%" + searchTerm + "%")
+                .uniqueResult();
+    }
+
+    @Override
+    public long countByStatusAndSearch(Application.Status status, String searchTerm) {
+        String hql = "SELECT COUNT(a) FROM Application a " +
+                "LEFT JOIN a.candidate c " +
+                "LEFT JOIN a.recruitmentPosition r " +
+                "WHERE a.status = :status " +
+                "AND (LOWER(c.name) LIKE LOWER(:searchTerm) " +
+                "OR LOWER(r.name) LIKE LOWER(:searchTerm))";
+        return getSession().createQuery(hql, Long.class)
+                .setParameter("status", status)
+                .setParameter("searchTerm", "%" + searchTerm + "%")
+                .uniqueResult();
+    }
 }

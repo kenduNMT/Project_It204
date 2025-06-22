@@ -44,4 +44,45 @@ public class ApplicationServiceImpl implements ApplicationService {
     public List<Application> findByStatus(Application.Status status) {
         return applicationDAO.findByStatus(status);
     }
+
+    // New methods for pagination, filter and search
+    @Override
+    public List<Application> findAllWithPagination(int page, int size) {
+        return applicationDAO.findAllWithPagination(page, size);
+    }
+
+    @Override
+    public List<Application> findByStatusWithPagination(Application.Status status, int page, int size) {
+        return applicationDAO.findByStatusWithPagination(status, page, size);
+    }
+
+    @Override
+    public List<Application> searchWithPagination(String searchTerm, int page, int size) {
+        return applicationDAO.searchWithPagination(searchTerm, page, size);
+    }
+
+    @Override
+    public List<Application> findByStatusAndSearchWithPagination(Application.Status status, String searchTerm, int page, int size) {
+        return applicationDAO.findByStatusAndSearchWithPagination(status, searchTerm, page, size);
+    }
+
+    @Override
+    public long countAll() {
+        return applicationDAO.countAll();
+    }
+
+    @Override
+    public long countByStatus(Application.Status status) {
+        return applicationDAO.countByStatus(status);
+    }
+
+    @Override
+    public long countBySearch(String searchTerm) {
+        return applicationDAO.countBySearch(searchTerm);
+    }
+
+    @Override
+    public long countByStatusAndSearch(Application.Status status, String searchTerm) {
+        return applicationDAO.countByStatusAndSearch(status, searchTerm);
+    }
 }

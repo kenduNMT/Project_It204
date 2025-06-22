@@ -1,8 +1,10 @@
+
 package bk.controller;
 
 import bk.entity.RecruitmentPosition;
 import bk.entity.Technology;
 import bk.service.RecruitmentPositionService;
+import bk.utils.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,41 +24,56 @@ public class RecruitmentPositionController {
     private RecruitmentPositionService recruitmentPositionService;
 
     @GetMapping
-    public String index(Model model, @RequestParam(value = "search", required = false) String search) {
+    public String index(Model model,
+                        @RequestParam(value = "page", defaultValue = "0") int page,
+                        @RequestParam(value = "size", defaultValue = "5") int size,
+                        @RequestParam(value = "search", required = false) String search,
+                        @RequestParam(value = "filter", required = false) String filter) {
+
         System.out.println("=== DEBUG: Starting index method ===");
+        System.out.println("Page: " + page + ", Size: " + size + ", Search: " + search + ", Filter: " + filter);
 
-        List<RecruitmentPosition> positions;
+        PageResponse<RecruitmentPosition> pageResponse;
+        String baseUrl = "/admin/recruitment-position";
+
+        // Handle different filters and search
         if (search != null && !search.trim().isEmpty()) {
-            System.out.println("Searching with keyword: " + search);
-            positions = recruitmentPositionService.findByName(search.trim());
+            pageResponse = recruitmentPositionService.findByName(search.trim(), page, size);
+            baseUrl += "?search=" + search;
             model.addAttribute("search", search);
+        } else if ("active".equals(filter)) {
+            pageResponse = recruitmentPositionService.findActivePositions(page, size);
+            baseUrl += "?filter=active";
+            model.addAttribute("filter", filter);
+        } else if ("expired".equals(filter)) {
+            pageResponse = recruitmentPositionService.findExpiredPositions(page, size);
+            baseUrl += "?filter=expired";
+            model.addAttribute("filter", filter);
         } else {
-            System.out.println("Getting all positions");
-            positions = recruitmentPositionService.findAll();
+            pageResponse = recruitmentPositionService.findAll(page, size);
+            model.addAttribute("filter", "all");
         }
 
-        System.out.println("Retrieved positions count: " + (positions != null ? positions.size() : 0));
+        System.out.println("Retrieved positions count: " + pageResponse.getContent().size());
+        System.out.println("Total elements: " + pageResponse.getTotalElements());
+        System.out.println("Total pages: " + pageResponse.getTotalPages());
 
-        if (positions != null && !positions.isEmpty()) {
-            System.out.println("First position details:");
-            RecruitmentPosition first = positions.get(0);
-            System.out.println("- ID: " + first.getId());
-            System.out.println("- Name: " + first.getName());
-            System.out.println("- IsDeleted: " + first.getIsDeleted());
-            System.out.println("- CreatedDate: " + first.getCreatedDate());
-            System.out.println("- ExpiredDate: " + first.getExpiredDate());
-            System.out.println("- IsActive: " + first.isActive());
-            System.out.println("- Technologies count: " +
-                    (first.getTechnologies() != null ? first.getTechnologies().size() : 0));
-        }
-
+        // Statistics
         Long totalCount = recruitmentPositionService.countAll();
         Long activeCount = recruitmentPositionService.countActive();
 
         System.out.println("Total count from service: " + totalCount);
         System.out.println("Active count from service: " + activeCount);
 
-        model.addAttribute("positions", positions);
+        // Add attributes to model
+        model.addAttribute("positions", pageResponse.getContent());
+        model.addAttribute("currentPage", pageResponse.getCurrentPage());
+        model.addAttribute("totalPages", pageResponse.getTotalPages());
+        model.addAttribute("totalElements", pageResponse.getTotalElements());
+        model.addAttribute("hasNext", pageResponse.isHasNext());
+        model.addAttribute("hasPrevious", pageResponse.isHasPrevious());
+        model.addAttribute("baseUrl", baseUrl);
+
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("activeCount", activeCount);
 
@@ -189,18 +206,16 @@ public class RecruitmentPositionController {
     }
 
     @GetMapping("/active")
-    public String activePositions(Model model) {
-        List<RecruitmentPosition> positions = recruitmentPositionService.findActivePositions();
-        model.addAttribute("positions", positions);
-        model.addAttribute("pageTitle", "Vị trí đang tuyển dụng");
-        return "admin/recruitment-position/index";
+    public String activePositions(Model model,
+                                  @RequestParam(value = "page", defaultValue = "0") int page,
+                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+        return index(model, page, size, null, "active");
     }
 
     @GetMapping("/expired")
-    public String expiredPositions(Model model) {
-        List<RecruitmentPosition> positions = recruitmentPositionService.findExpiredPositions();
-        model.addAttribute("positions", positions);
-        model.addAttribute("pageTitle", "Vị trí đã hết hạn");
-        return "admin/recruitment-position/index";
+    public String expiredPositions(Model model,
+                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+        return index(model, page, size, null, "expired");
     }
 }

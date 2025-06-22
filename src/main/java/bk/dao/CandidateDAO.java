@@ -23,7 +23,7 @@ public interface CandidateDAO {
     /**
      * Tìm kiếm candidates với filter và pagination
      */
-    Page<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, Pageable pageable);
+    Page<Candidate> searchCandidates(String search, String experience, String gender, String technology, Pageable pageable);
 
     /**
      * Lấy candidate theo ID (bao gồm cả deleted)

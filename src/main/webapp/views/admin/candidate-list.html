@@ -18,6 +18,7 @@
             padding-top: 1rem;
             position: fixed;
             width: 250px;
+            z-index: 1000;
         }
 
         .sidebar .nav-link {
@@ -29,7 +30,21 @@
         .sidebar .nav-link.active {
             background: #e9ecef;
             border-radius: 0.5rem;
-            margin: 0 10px;
+            color: #007bff;
+        }
+        .sidebar .nav-link:hover {
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+
+        .profile-section {
+            position: absolute;
+            bottom: 2rem;
+            left: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
         }
 
         .main-content {
@@ -176,6 +191,40 @@
             padding: 4px 8px;
             font-size: 12px;
         }
+
+        .loading::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 10000;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -212,11 +261,11 @@
                 </a>
             </li>
         </ul>
-        <div class="text-center mt-5 profile-section px-3">
-            <div th:text="${admin.name}">Admin</div>
-            <div class="text-muted" th:text="${admin.email}">admin@gmail.com</div>
+        <div class="profile-section text-center">
+            <div class="fw-semibold">Admin</div>
+            <div class="text-muted small">admin@gmail.com</div>
             <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
-                <i class="fas fa-sign-out-alt"></i> Log out
+                <i class="fas fa-sign-out-alt me-1"></i> Log out
             </a>
         </div>
     </nav>
@@ -244,7 +293,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Kinh nghiệm</label>
-                        <select class="form-select" name="experience">
+                        <select class="form-select" name="experience" onchange="submitFilter()">
                             <option value="">Tất cả</option>
                             <option value="1" th:selected="${experience == '1'}">1 năm</option>
                             <option value="2" th:selected="${experience == '2'}">2 năm</option>
@@ -254,7 +303,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Giới tính</label>
-                        <select class="form-select" name="gender">
+                        <select class="form-select" name="gender" onchange="submitFilter()">
                             <option value="">Tất cả</option>
                             <option value="Nam" th:selected="${gender == 'Nam'}">Nam</option>
                             <option value="Nữ" th:selected="${gender == 'Nữ'}">Nữ</option>
@@ -262,7 +311,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Công nghệ</label>
-                        <select class="form-select" name="technology">
+                        <select class="form-select" name="technology" onchange="submitFilter()">
                             <option value="">Tất cả</option>
                             <option th:each="tech : ${allTechnologies}"
                                     th:value="${tech.id}"
@@ -273,7 +322,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Thứ tự</label>
-                        <select class="form-select" name="sortDir">
+                        <select class="form-select" name="sortDir" onchange="submitFilter()">
                             <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần</option>
                             <option value="asc" th:selected="${sortDir == 'asc'}">Tăng dần</option>
                         </select>
@@ -281,12 +330,9 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-search me-1"></i> Tìm kiếm
-                        </button>
-                        <a th:href="@{/admin/candidate-list}" class="btn btn-outline-secondary">
+                        <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
                             <i class="fas fa-refresh me-1"></i> Reset
-                        </a>
+                        </button>
                     </div>
                 </div>
             </form>
@@ -432,14 +478,14 @@
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/admin/candidate-list(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
+                               th:href="@{/admin/candidate-list(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, experience=${experience}, gender=${gender}, technology=${technology})}">
                                 <i class="fas fa-chevron-left"></i>
                             </a>
                         </li>
 
                         <li class="page-item" th:if="${currentPage > 2}">
                             <a class="page-link"
-                               th:href="@{/admin/candidate-list(page=0, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">1</a>
+                               th:href="@{/admin/candidate-list(page=0, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, experience=${experience}, gender=${gender}, technology=${technology})}">1</a>
                         </li>
                         <li class="page-item disabled" th:if="${currentPage > 3}">
                             <span class="page-link">...</span>
@@ -449,7 +495,7 @@
                             th:each="i : ${#numbers.sequence((currentPage - 2 >= 0 ? currentPage - 2 : 0), (currentPage + 2 < totalPages ? currentPage + 2 : totalPages - 1))}"
                             th:classappend="${i == currentPage} ? 'active'">
                             <a class="page-link"
-                               th:href="@{/admin/candidate-list(page=${i}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}"
+                               th:href="@{/admin/candidate-list(page=${i}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, experience=${experience}, gender=${gender}, technology=${technology})}"
                                th:text="${i + 1}">1</a>
                         </li>
 
@@ -458,13 +504,13 @@
                         </li>
                         <li class="page-item" th:if="${currentPage + 2 < totalPages}">
                             <a class="page-link"
-                               th:href="@{/admin/candidate-list(page=${totalPages - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}"
+                               th:href="@{/admin/candidate-list(page=${totalPages - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, experience=${experience}, gender=${gender}, technology=${technology})}"
                                th:text="${totalPages}">10</a>
                         </li>
 
                         <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/admin/candidate-list(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, status=${status}, gender=${gender})}">
+                               th:href="@{/admin/candidate-list(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, search=${search}, experience=${experience}, gender=${gender}, technology=${technology})}">
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                         </li>
@@ -572,11 +618,36 @@
         });
     }, 5000);
 
+    // Auto-submit filter functions
+    function submitFilter() {
+        document.getElementById('filterForm').submit();
+    }
+
+    function clearFilters() {
+        // Clear all form inputs
+        document.querySelector('input[name="search"]').value = '';
+        document.querySelector('select[name="experience"]').value = '';
+        document.querySelector('select[name="gender"]').value = '';
+        document.querySelector('select[name="technology"]').value = '';
+        document.querySelector('select[name="sortDir"]').value = 'desc';
+        
+        // Submit the form to refresh with no filters
+        document.getElementById('filterForm').submit();
+    }
+
+    // Auto-submit search after user stops typing (debounce)
+    let searchTimeout;
+    document.querySelector('input[name="search"]').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            document.getElementById('filterForm').submit();
+        }, 500); // Wait 500ms after user stops typing
+    });
+
     // Show loading state for form submissions
     document.getElementById('filterForm').addEventListener('submit', function () {
-        const submitBtn = this.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang tìm kiếm...';
+        // Add loading class to body
+        document.body.classList.add('loading');
     });
 
     function addTechnology(button) {

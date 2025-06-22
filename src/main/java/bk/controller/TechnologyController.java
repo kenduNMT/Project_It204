@@ -24,7 +24,7 @@ public class TechnologyController {
     @GetMapping("")
     public String listTechnologies(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(defaultValue = "5") int size,
             @RequestParam(required = false) String search,
             Model model) {
 

@@ -35,6 +35,63 @@ public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
     }
 
     @Override
+    public List<RecruitmentPosition> findAll(int page, int size) {
+        try {
+            String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.isDeleted = false ORDER BY rp.createdDate DESC";
+            Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql, RecruitmentPosition.class);
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<RecruitmentPosition> findByName(String name, int page, int size) {
+        try {
+            String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.name LIKE :name AND rp.isDeleted = false ORDER BY rp.createdDate DESC";
+            Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql, RecruitmentPosition.class);
+            query.setParameter("name", "%" + name + "%");
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<RecruitmentPosition> findActivePositions(int page, int size) {
+        try {
+            String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.isDeleted = false AND (rp.expiredDate IS NULL OR rp.expiredDate >= CURRENT_DATE) ORDER BY rp.createdDate DESC";
+            Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql, RecruitmentPosition.class);
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<RecruitmentPosition> findExpiredPositions(int page, int size) {
+        try {
+            String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.isDeleted = false AND rp.expiredDate < CURRENT_DATE ORDER BY rp.expiredDate DESC";
+            Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql, RecruitmentPosition.class);
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
     public RecruitmentPosition findById(Integer id) {
         try {
             String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.id = :id AND rp.isDeleted = false";
@@ -106,6 +163,14 @@ public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
     public Long countActive() {
         String hql = "SELECT COUNT(rp) FROM RecruitmentPosition rp WHERE rp.isDeleted = false AND (rp.expiredDate IS NULL OR rp.expiredDate >= CURRENT_DATE)";
         Query<Long> query = getCurrentSession().createQuery(hql, Long.class);
+        return query.getSingleResult();
+    }
+
+    @Override
+    public Long countByName(String name) {
+        String hql = "SELECT COUNT(rp) FROM RecruitmentPosition rp WHERE rp.name LIKE :name AND rp.isDeleted = false";
+        Query<Long> query = getCurrentSession().createQuery(hql, Long.class);
+        query.setParameter("name", "%" + name + "%");
         return query.getSingleResult();
     }
 }
