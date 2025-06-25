@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,6 +92,8 @@ public class RecruitmentPositionServiceImpl implements RecruitmentPositionServic
         if (existingPosition != null) {
             existingPosition.setName(recruitmentPosition.getName());
             existingPosition.setDescription(recruitmentPosition.getDescription());
+            existingPosition.setLocation(recruitmentPosition.getLocation());
+            existingPosition.setCategory(recruitmentPosition.getCategory());
             existingPosition.setMinSalary(recruitmentPosition.getMinSalary());
             existingPosition.setMaxSalary(recruitmentPosition.getMaxSalary());
             existingPosition.setMinExperience(recruitmentPosition.getMinExperience());
@@ -160,5 +161,55 @@ public class RecruitmentPositionServiceImpl implements RecruitmentPositionServic
         return technologyDAO.findAll().stream()
                 .filter(Technology::isActive)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<RecruitmentPosition> searchAndFilter(String keyword, String location, String category,
+                                                           Double minSalary, Double maxSalary, Integer minExperience,
+                                                           String sortBy, int page, int size) {
+        try {
+            List<RecruitmentPosition> positions = recruitmentPositionDAO.searchAndFilter(
+                    keyword, location, category, minSalary, maxSalary, minExperience, sortBy, page, size);
+            long totalElements = recruitmentPositionDAO.countSearchAndFilter(
+                    keyword, location, category, minSalary, maxSalary, minExperience);
+            return new PageResponse<>(positions, page, size, totalElements);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new PageResponse<>();
+        }
+    }
+
+    @Override
+    public List<String> getAvailableLocations() {
+        try {
+            return recruitmentPositionDAO.getAvailableLocations();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Arrays.asList("Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ");
+        }
+    }
+
+    @Override
+    public List<String> getAvailableCategories() {
+        try {
+            return recruitmentPositionDAO.getAvailableCategories();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Arrays.asList("IT", "Marketing", "Sales", "HR", "Finance", "Design");
+        }
+    }
+
+    @Override
+    public Map<String, Object> getSalaryRange() {
+        try {
+            return recruitmentPositionDAO.getSalaryRange();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> defaultRange = new HashMap<>();
+            defaultRange.put("min", 5.0);
+            defaultRange.put("max", 100.0);
+            defaultRange.put("average", 25.0);
+            return defaultRange;
+        }
     }
 }

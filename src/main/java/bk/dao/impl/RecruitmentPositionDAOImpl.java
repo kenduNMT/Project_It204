@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
@@ -172,5 +171,183 @@ public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
         Query<Long> query = getCurrentSession().createQuery(hql, Long.class);
         query.setParameter("name", "%" + name + "%");
         return query.getSingleResult();
+    }
+
+    @Override
+    public List<RecruitmentPosition> searchAndFilter(String keyword, String location, String category,
+                                                   Double minSalary, Double maxSalary, Integer minExperience,
+                                                   String sortBy, int page, int size) {
+        try {
+            StringBuilder hql = new StringBuilder();
+            hql.append("FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.isDeleted = false ");
+            hql.append("AND (rp.expiredDate IS NULL OR rp.expiredDate >= CURRENT_DATE) ");
+
+            Map<String, Object> parameters = new HashMap<>();
+
+            // Add search conditions
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                hql.append("AND (rp.name LIKE :keyword OR rp.description LIKE :keyword) ");
+                parameters.put("keyword", "%" + keyword.trim() + "%");
+            }
+
+            if (location != null && !location.trim().isEmpty()) {
+                hql.append("AND rp.location LIKE :location ");
+                parameters.put("location", "%" + location.trim() + "%");
+            }
+
+            if (category != null && !category.trim().isEmpty()) {
+                hql.append("AND rp.category LIKE :category ");
+                parameters.put("category", "%" + category.trim() + "%");
+            }
+
+            if (minSalary != null) {
+                hql.append("AND rp.maxSalary >= :minSalary ");
+                parameters.put("minSalary", minSalary);
+            }
+
+            if (maxSalary != null) {
+                hql.append("AND rp.minSalary <= :maxSalary ");
+                parameters.put("maxSalary", maxSalary);
+            }
+
+            if (minExperience != null) {
+                hql.append("AND rp.minExperience <= :minExperience ");
+                parameters.put("minExperience", minExperience);
+            }
+
+            // Add sorting
+            switch (sortBy) {
+                case "salary-high":
+                    hql.append("ORDER BY rp.maxSalary DESC");
+                    break;
+                case "salary-low":
+                    hql.append("ORDER BY rp.minSalary ASC");
+                    break;
+                case "deadline":
+                    hql.append("ORDER BY rp.expiredDate ASC");
+                    break;
+                case "newest":
+                default:
+                    hql.append("ORDER BY rp.createdDate DESC");
+                    break;
+            }
+
+            Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql.toString(), RecruitmentPosition.class);
+            
+            // Set parameters
+            for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public Long countSearchAndFilter(String keyword, String location, String category,
+                                   Double minSalary, Double maxSalary, Integer minExperience) {
+        try {
+            StringBuilder hql = new StringBuilder();
+            hql.append("SELECT COUNT(rp) FROM RecruitmentPosition rp WHERE rp.isDeleted = false ");
+            hql.append("AND (rp.expiredDate IS NULL OR rp.expiredDate >= CURRENT_DATE) ");
+
+            Map<String, Object> parameters = new HashMap<>();
+
+            // Add search conditions
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                hql.append("AND (rp.name LIKE :keyword OR rp.description LIKE :keyword) ");
+                parameters.put("keyword", "%" + keyword.trim() + "%");
+            }
+
+            if (location != null && !location.trim().isEmpty()) {
+                hql.append("AND rp.location LIKE :location ");
+                parameters.put("location", "%" + location.trim() + "%");
+            }
+
+            if (category != null && !category.trim().isEmpty()) {
+                hql.append("AND rp.category LIKE :category ");
+                parameters.put("category", "%" + category.trim() + "%");
+            }
+
+            if (minSalary != null) {
+                hql.append("AND rp.maxSalary >= :minSalary ");
+                parameters.put("minSalary", minSalary);
+            }
+
+            if (maxSalary != null) {
+                hql.append("AND rp.minSalary <= :maxSalary ");
+                parameters.put("maxSalary", maxSalary);
+            }
+
+            if (minExperience != null) {
+                hql.append("AND rp.minExperience <= :minExperience ");
+                parameters.put("minExperience", minExperience);
+            }
+
+            Query<Long> query = getCurrentSession().createQuery(hql.toString(), Long.class);
+            
+            // Set parameters
+            for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+
+            return query.getSingleResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0L;
+        }
+    }
+
+    @Override
+    public List<String> getAvailableLocations() {
+        try {
+            String hql = "SELECT DISTINCT rp.location FROM RecruitmentPosition rp WHERE rp.isDeleted = false AND rp.location IS NOT NULL AND rp.location != '' ORDER BY rp.location";
+            Query<String> query = getCurrentSession().createQuery(hql, String.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Arrays.asList("Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ");
+        }
+    }
+
+    @Override
+    public List<String> getAvailableCategories() {
+        try {
+            String hql = "SELECT DISTINCT rp.category FROM RecruitmentPosition rp WHERE rp.isDeleted = false AND rp.category IS NOT NULL AND rp.category != '' ORDER BY rp.category";
+            Query<String> query = getCurrentSession().createQuery(hql, String.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Arrays.asList("IT", "Marketing", "Sales", "HR", "Finance", "Design");
+        }
+    }
+
+    @Override
+    public Map<String, Object> getSalaryRange() {
+        try {
+            String hql = "SELECT MIN(rp.minSalary), MAX(rp.maxSalary), AVG((rp.minSalary + rp.maxSalary) / 2) FROM RecruitmentPosition rp WHERE rp.isDeleted = false AND rp.minSalary IS NOT NULL AND rp.maxSalary IS NOT NULL";
+            Query<Object[]> query = getCurrentSession().createQuery(hql, Object[].class);
+            Object[] result = query.getSingleResult();
+
+            Map<String, Object> salaryRange = new HashMap<>();
+            salaryRange.put("min", result[0] != null ? (Double) result[0] : 5.0);
+            salaryRange.put("max", result[1] != null ? (Double) result[1] : 100.0);
+            salaryRange.put("average", result[2] != null ? (Double) result[2] : 25.0);
+
+            return salaryRange;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> defaultRange = new HashMap<>();
+            defaultRange.put("min", 5.0);
+            defaultRange.put("max", 100.0);
+            defaultRange.put("average", 25.0);
+            return defaultRange;
+        }
     }
 }

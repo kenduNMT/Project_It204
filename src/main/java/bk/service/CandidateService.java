@@ -3,6 +3,7 @@ package bk.service;
 import bk.dto.CandidateLoginDTO;
 import bk.dto.CandidateRegistrationDTO;
 import bk.entity.Candidate;
+import bk.entity.Technology;
 import bk.exception.EmailAlreadyExistsException;
 import bk.exception.InvalidCredentialsException;
 import org.springframework.data.domain.Page;
@@ -62,6 +63,16 @@ public interface CandidateService {
     boolean checkPassword(String rawPassword, String encodedPassword);
 
     /**
+     * Kiểm tra mật khẩu theo ID ứng viên
+     */
+    boolean checkPassword(Long candidateId, String rawPassword);
+
+    /**
+     * Cập nhật mật khẩu
+     */
+    void updatePassword(Long candidateId, String newPassword);
+
+    /**
      * Mã hóa mật khẩu
      */
     String encodePassword(String rawPassword);
@@ -81,7 +92,7 @@ public interface CandidateService {
     /**
      * Tìm kiếm candidates với filter và pagination
      */
-
+    Page<Candidate> searchCandidates(String search, String experience, String gender, String technology, Pageable pageable);
 
     /**
      * Lấy candidate theo ID (cho admin)
@@ -98,12 +109,49 @@ public interface CandidateService {
      */
     void deleteCandidate(Long id);
 
+    // ===== Technology Management Methods =====
+
+    /**
+     * Lấy danh sách công nghệ của ứng viên
+     */
+    List<Technology> getCandidateTechnologies(Long candidateId);
+
+    /**
+     * Thêm công nghệ cho ứng viên
+     */
+    void addTechnology(Long candidateId, Integer technologyId);
+
+    /**
+     * Xóa công nghệ khỏi ứng viên
+     */
+    void removeTechnology(Long candidateId, Integer technologyId);
+
+    /**
+     * Kiểm tra ứng viên có công nghệ này không
+     */
+    boolean hasTechnology(Long candidateId, Integer technologyId);
+
+    /**
+     * Cập nhật danh sách công nghệ của ứng viên
+     */
+    void updateCandidateTechnologies(Long candidateId, List<Integer> technologyIds);
+
+    /**
+     * Thêm công nghệ cho ứng viên (trả về boolean)
+     */
+    boolean addTechnologyToCandidate(Long candidateId, Integer techId);
+
+    /**
+     * Xóa công nghệ khỏi ứng viên (trả về boolean)
+     */
+    boolean removeTechnologyFromCandidate(Long candidateId, Integer techId);
+
     // ===== Legacy methods (deprecated) =====
     /**
      * @deprecated Use Page<Candidate> searchCandidates instead
      */
     @Deprecated
-    List<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, java.awt.print.Pageable pageable);
+    List<Candidate> searchCandidatesLegacy(String search, String experience, String gender, String technologyId, Pageable pageable);
 
     /**
      * Đếm số lượng kết quả tìm kiếm
@@ -113,7 +161,7 @@ public interface CandidateService {
     /**
      * Lấy danh sách candidates với filter và pagination
      */
-    List<Candidate> findAllWithFilter(String status, String gender, java.awt.print.Pageable pageable);
+    List<Candidate> findAllWithFilter(String status, String gender, Pageable pageable);
 
     /**
      * Đếm số lượng candidates với filter
@@ -123,10 +171,5 @@ public interface CandidateService {
     /**
      * Lấy danh sách candidates theo page
      */
-    List<Candidate> findAllWithPagination(java.awt.print.Pageable pageable);
-
-    boolean removeTechnologyFromCandidate(Long candidateId, Integer techId);
-
-    boolean addTechnologyToCandidate(Long candidateId, Integer techId);
-    Page<Candidate> searchCandidates(String search, String experience, String gender, String technology, Pageable pageable);
+    List<Candidate> findAllWithPagination(Pageable pageable);
 }

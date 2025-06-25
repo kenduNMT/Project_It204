@@ -26,8 +26,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public void save(Application application) {
+    public Application save(Application application) {
         applicationDAO.save(application);
+        return application;
     }
 
     @Override
@@ -84,5 +85,37 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public long countByStatusAndSearch(Application.Status status, String searchTerm) {
         return applicationDAO.countByStatusAndSearch(status, searchTerm);
+    }
+
+    @Override
+    public boolean hasApplied(Integer candidateId, Integer recruitmentPositionId) {
+        try {
+            return applicationDAO.hasApplied(candidateId, recruitmentPositionId);
+        } catch (Exception e) {
+            // Log the error and return false as safe fallback
+            System.err.println("Error checking if candidate has applied: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<Application> findByCandidateId(Integer candidateId, int page, int size) {
+        return applicationDAO.findByCandidateId(candidateId, page, size);
+    }
+
+    @Override
+    public long countByCandidateId(Integer candidateId) {
+        return applicationDAO.countByCandidateId(candidateId);
+    }
+
+    @Override
+    public long countByCandidateIdAndStatus(Integer candidateId, Application.Status status) {
+        return applicationDAO.countByCandidateIdAndStatus(candidateId, status);
+    }
+
+    @Override
+    public List<Application> findByCandidateIdAndStatus(Integer candidateId, Application.Status status, int page, int size) {
+        return applicationDAO.findByCandidateIdAndStatus(candidateId, status, page, size);
     }
 }

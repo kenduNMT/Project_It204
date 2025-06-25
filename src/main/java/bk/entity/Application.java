@@ -39,6 +39,9 @@ public class Application {
     @Column(name = "interview_result_note")
     private String interviewResultNote;
 
+    @Column(name = "cv_url")
+    private String cvUrl;
+
     @Column(name = "destroy_reason")
     private String destroyReason;
 

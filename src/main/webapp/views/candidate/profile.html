@@ -69,6 +69,52 @@
         .info-value {
             color: #333;
         }
+        .tech-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 4px 6px 4px 0;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+        .tech-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .tech-container {
+            min-height: 60px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            padding: 10px 0;
+        }
+        .no-tech-message {
+            color: #6c757d;
+            font-style: italic;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px dashed #dee2e6;
+        }
+        .tech-count {
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -210,8 +256,8 @@
                                     <div class="row">
                                         <div class="col-5 info-label">Trạng thái:</div>
                                         <div class="col-7 info-value">
-                                            <span class="badge bg-success" th:if="${candidate.status == 'active'}">Đang hoạt động</span>
-                                            <span class="badge bg-secondary" th:if="${candidate.status != 'active'}">Không hoạt động</span>
+                                            <span class="badge bg-success" th:if="${candidate.status.name() == 'ACTIVE'}">Đang hoạt động</span>
+                                            <span class="badge bg-secondary" th:if="${candidate.status.name() == 'INACTIVE'}">Không hoạt động</span>
                                         </div>
                                     </div>
                                 </div>
@@ -238,6 +284,41 @@
                     </div>
                 </div>
 
+                <!-- Technologies Section -->
+                <div class="card info-card mb-4">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-code me-2"></i>Công nghệ & Kỹ năng
+                            <span th:if="${candidateTechnologies != null and !#lists.isEmpty(candidateTechnologies)}"
+                                  class="tech-count" th:text="${#lists.size(candidateTechnologies)}">0</span>
+                        </h5>
+                        <a th:href="@{/candidate/profile/edit}" class="btn btn-sm btn-outline-dark">
+                            <i class="fas fa-cog me-1"></i>Quản lý
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${candidateTechnologies != null and !#lists.isEmpty(candidateTechnologies)}"
+                             class="tech-container">
+                            <span th:each="tech : ${candidateTechnologies}"
+                                  class="tech-badge"
+                                  th:text="${tech.name}">
+                                Technology Name
+                            </span>
+                        </div>
+                        <div th:if="${candidateTechnologies == null or #lists.isEmpty(candidateTechnologies)}"
+                             class="no-tech-message">
+                            <i class="fas fa-code fa-2x mb-3 text-muted"></i>
+                            <p class="mb-2">Chưa có công nghệ nào được thêm</p>
+                            <small>Hãy thêm các công nghệ bạn biết để tăng cơ hội được tuyển dụng!</small>
+                            <div class="mt-3">
+                                <a th:href="@{/candidate/technologies/add}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Thêm công nghệ đầu tiên
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Description -->
                 <div class="card info-card">
                     <div class="card-header bg-info text-white">
@@ -258,6 +339,9 @@
                     <a th:href="@{/candidate/profile/edit}" class="btn btn-edit btn-lg me-3">
                         <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin
                     </a>
+                    <a th:href="@{/candidate/profile/edit}" class="btn btn-outline-warning btn-lg me-3">
+                        <i class="fas fa-code me-2"></i>Quản lý công nghệ
+                    </a>
                     <a th:href="@{/candidate/change-password}" class="btn btn-outline-secondary btn-lg">
                         <i class="fas fa-key me-2"></i>Đổi mật khẩu
                     </a>
@@ -268,5 +352,29 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Add hover effects and animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate tech badges on load
+        const techBadges = document.querySelectorAll('.tech-badge');
+        techBadges.forEach((badge, index) => {
+            badge.style.opacity = '0';
+            badge.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                badge.style.transition = 'all 0.5s ease';
+                badge.style.opacity = '1';
+                badge.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Add click events for tech badges (optional - for future features)
+        techBadges.forEach(badge => {
+            badge.addEventListener('click', function() {
+                // Could show tech details or proficiency level
+                console.log('Clicked tech:', this.textContent);
+            });
+        });
+    });
+</script>
 </body>
 </html>

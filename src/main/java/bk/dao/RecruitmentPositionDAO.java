@@ -2,6 +2,7 @@ package bk.dao;
 
 import bk.entity.RecruitmentPosition;
 import java.util.List;
+import java.util.Map;
 
 public interface RecruitmentPositionDAO {
     List<RecruitmentPosition> findAll();
@@ -23,4 +24,16 @@ public interface RecruitmentPositionDAO {
     Long countAll();
     Long countActive();
     Long countByName(String name);
+    
+    // Advanced search and filter methods
+    List<RecruitmentPosition> searchAndFilter(String keyword, String location, String category,
+                                             Double minSalary, Double maxSalary, Integer minExperience,
+                                             String sortBy, int page, int size);
+    Long countSearchAndFilter(String keyword, String location, String category,
+                             Double minSalary, Double maxSalary, Integer minExperience);
+    
+    // API methods for filters
+    List<String> getAvailableLocations();
+    List<String> getAvailableCategories();
+    Map<String, Object> getSalaryRange();
 }

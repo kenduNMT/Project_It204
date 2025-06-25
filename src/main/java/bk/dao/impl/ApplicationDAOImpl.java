@@ -151,4 +151,69 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 .setParameter("searchTerm", "%" + searchTerm + "%")
                 .uniqueResult();
     }
+
+    @Override
+    public boolean hasApplied(Integer candidateId, Integer recruitmentPositionId) {
+        try {
+            String hql = "SELECT COUNT(a) FROM Application a WHERE a.candidate.id = :candidateId AND a.recruitmentPosition.id = :recruitmentPositionId";
+            Long count = getSession().createQuery(hql, Long.class)
+                    .setParameter("candidateId", candidateId)
+                    .setParameter("recruitmentPositionId", recruitmentPositionId)
+                    .uniqueResult();
+            return count != null && count > 0;
+        } catch (Exception e) {
+            // Alternative approach using native SQL to avoid type casting issues
+            System.err.println("HQL query failed, trying native SQL approach: " + e.getMessage());
+            try {
+                String sql = "SELECT COUNT(*) FROM applications a WHERE a.candidate_id = :candidateId AND a.recruitment_position_id = :recruitmentPositionId";
+                Long count = (Long) getSession().createNativeQuery(sql)
+                        .setParameter("candidateId", candidateId)
+                        .setParameter("recruitmentPositionId", recruitmentPositionId)
+                        .uniqueResult();
+                return count != null && count > 0;
+            } catch (Exception e2) {
+                System.err.println("Native SQL query also failed: " + e2.getMessage());
+                e2.printStackTrace();
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public List<Application> findByCandidateId(Integer candidateId, int page, int size) {
+        String hql = "FROM Application a WHERE a.candidate.id = :candidateId ORDER BY a.createdAt DESC";
+        return getSession().createQuery(hql, Application.class)
+                .setParameter("candidateId", candidateId)
+                .setFirstResult((page - 1) * size)
+                .setMaxResults(size)
+                .list();
+    }
+
+    @Override
+    public long countByCandidateId(Integer candidateId) {
+        String hql = "SELECT COUNT(a) FROM Application a WHERE a.candidate.id = :candidateId";
+        return getSession().createQuery(hql, Long.class)
+                .setParameter("candidateId", candidateId)
+                .uniqueResult();
+    }
+
+    @Override
+    public long countByCandidateIdAndStatus(Integer candidateId, Application.Status status) {
+        String hql = "SELECT COUNT(a) FROM Application a WHERE a.candidate.id = :candidateId AND a.status = :status";
+        return getSession().createQuery(hql, Long.class)
+                .setParameter("candidateId", candidateId)
+                .setParameter("status", status)
+                .uniqueResult();
+    }
+
+    @Override
+    public List<Application> findByCandidateIdAndStatus(Integer candidateId, Application.Status status, int page, int size) {
+        String hql = "FROM Application a WHERE a.candidate.id = :candidateId AND a.status = :status ORDER BY a.createdAt DESC";
+        return getSession().createQuery(hql, Application.class)
+                .setParameter("candidateId", candidateId)
+                .setParameter("status", status)
+                .setFirstResult((page - 1) * size)
+                .setMaxResults(size)
+                .list();
+    }
 }

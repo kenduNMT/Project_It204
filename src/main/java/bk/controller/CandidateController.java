@@ -2,7 +2,9 @@ package bk.controller;
 
 import bk.dto.CandidateProfileUpdateDTO;
 import bk.entity.Candidate;
+import bk.entity.Technology;
 import bk.service.CandidateService;
+import bk.service.TechnologyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -20,6 +23,9 @@ public class CandidateController {
 
     @Autowired
     private CandidateService candidateService;
+
+    @Autowired
+    private TechnologyService technologyService;
 
     /**
      * Kiểm tra đăng nhập
@@ -72,8 +78,15 @@ public class CandidateController {
             model.addAttribute("candidate", updatedCandidate.get());
             // Cập nhật session
             session.setAttribute("currentCandidate", updatedCandidate.get());
+
+            // Lấy danh sách công nghệ của ứng viên
+            List<Technology> candidateTechnologies = candidateService.getCandidateTechnologies(updatedCandidate.get().getId());
+            model.addAttribute("candidateTechnologies", candidateTechnologies);
         } else {
             model.addAttribute("candidate", candidate);
+            // Lấy danh sách công nghệ của ứng viên
+            List<Technology> candidateTechnologies = candidateService.getCandidateTechnologies(candidate.getId());
+            model.addAttribute("candidateTechnologies", candidateTechnologies);
         }
 
         return "candidate/profile";
@@ -88,15 +101,35 @@ public class CandidateController {
             return "redirect:/auth/login";
         }
 
-        Candidate candidate = getCurrentCandidate(session);
-        // Lấy thông tin mới nhất từ database
-        Optional<Candidate> updatedCandidate = candidateService.findById(candidate.getId());
+        // Nếu model chưa có attribute "candidateDTO", ta tạo mới
+        if (!model.containsAttribute("candidateDTO")) {
+            Candidate candidate = getCurrentCandidate(session);
+            // Lấy thông tin mới nhất từ database để đảm bảo dữ liệu luôn đúng
+            Optional<Candidate> updatedCandidateOpt = candidateService.findById(candidate.getId());
+            Candidate updatedCandidate = updatedCandidateOpt.orElse(candidate);
 
-        if (updatedCandidate.isPresent()) {
-            model.addAttribute("candidate", updatedCandidate.get());
+            // Chuyển từ Entity sang DTO để hiển thị trên form
+            CandidateProfileUpdateDTO dto = new CandidateProfileUpdateDTO();
+            dto.setName(updatedCandidate.getName());
+            dto.setPhone(updatedCandidate.getPhone());
+            dto.setGender(updatedCandidate.getGender());
+            dto.setDob(updatedCandidate.getDob());
+            dto.setDescription(updatedCandidate.getDescription());
+            dto.setExperience(updatedCandidate.getExperience());
+
+            model.addAttribute("candidateDTO", dto);
+            model.addAttribute("candidate", updatedCandidate); // Vẫn giữ để dùng cho sidebar, header...
         } else {
-            model.addAttribute("candidate", candidate);
+            // Nếu có lỗi validation, ta cần lấy lại thông tin candidate đầy đủ
+            model.addAttribute("candidate", getCurrentCandidate(session));
         }
+
+        // Lấy danh sách công nghệ
+        Candidate currentCandidate = getCurrentCandidate(session);
+        List<Technology> candidateTechnologies = candidateService.getCandidateTechnologies(currentCandidate.getId());
+        List<Technology> allTechnologies = technologyService.getAllActiveTechnologies();
+        model.addAttribute("candidateTechnologies", candidateTechnologies);
+        model.addAttribute("allTechnologies", allTechnologies);
 
         return "candidate/edit-profile";
     }
@@ -105,7 +138,7 @@ public class CandidateController {
      * Xử lý cập nhật profile
      */
     @PostMapping("/profile/update")
-    public String updateProfile(@Valid @ModelAttribute("candidate") CandidateProfileUpdateDTO dto,
+    public String updateProfile(@Valid @ModelAttribute("candidateDTO") CandidateProfileUpdateDTO dto,
                                 BindingResult result,
                                 HttpSession session,
                                 RedirectAttributes redirectAttributes,
@@ -116,7 +149,11 @@ public class CandidateController {
         }
 
         if (result.hasErrors()) {
-            return "candidate/edit-profile";
+            // Nếu có lỗi, thêm DTO và lỗi vào redirect a`ttributes để hiển thị lại form
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.candidateDTO", result);
+            redirectAttributes.addFlashAttribute("candidateDTO", dto);
+            // Redirect về trang edit để tránh lỗi F5 (resubmission)
+            return "redirect:/candidate/profile/edit";
         }
 
         try {
@@ -143,9 +180,128 @@ public class CandidateController {
             return "redirect:/candidate/profile";
 
         } catch (Exception e) {
+            // Khi có lỗi, cần load lại danh sách công nghệ
+            Candidate candidate = getCurrentCandidate(session);
+            List<Technology> candidateTechnologies = candidateService.getCandidateTechnologies(candidate.getId());
+            List<Technology> allTechnologies = technologyService.getAllActiveTechnologies();
+
+            model.addAttribute("candidateTechnologies", candidateTechnologies);
+            model.addAttribute("allTechnologies", allTechnologies);
             model.addAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật thông tin: " + e.getMessage());
+
             return "candidate/edit-profile";
         }
+    }
+
+    /**
+     * Hiển thị trang quản lý công nghệ
+     */
+    @GetMapping("/technologies")
+    public String manageTechnologies(HttpSession session, Model model) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+        }
+
+        Candidate candidate = getCurrentCandidate(session);
+        model.addAttribute("candidate", candidate);
+
+        // Lấy danh sách công nghệ của ứng viên
+        List<Technology> candidateTechnologies = candidateService.getCandidateTechnologies(candidate.getId());
+        model.addAttribute("candidateTechnologies", candidateTechnologies);
+
+        // Lấy danh sách tất cả công nghệ để thêm mới
+        List<Technology> allTechnologies = technologyService.getAllActiveTechnologies();
+        model.addAttribute("allTechnologies", allTechnologies);
+
+        return "candidate/technologies";
+    }
+
+    /**
+     * Thêm công nghệ cho ứng viên (từ trang edit profile)
+     */
+    @PostMapping("/profile/technologies/add")
+    public String addTechnologyFromEdit(@RequestParam("technologyId") Integer technologyId,
+                                        HttpSession session,
+                                        RedirectAttributes redirectAttributes) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+        }
+
+        try {
+            Candidate candidate = getCurrentCandidate(session);
+            candidateService.addTechnology(candidate.getId(), technologyId);
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm công nghệ thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+        }
+
+        return "redirect:/candidate/profile/edit";
+    }
+
+    /**
+     * Xóa công nghệ khỏi ứng viên (từ trang edit profile)
+     */
+    @PostMapping("/profile/technologies/remove")
+    public String removeTechnologyFromEdit(@RequestParam("technologyId") Integer technologyId,
+                                           HttpSession session,
+                                           RedirectAttributes redirectAttributes) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+        }
+
+        try {
+            Candidate candidate = getCurrentCandidate(session);
+            candidateService.removeTechnology(candidate.getId(), technologyId);
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa công nghệ thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+        }
+
+        return "redirect:/candidate/profile/edit";
+    }
+
+    /**
+     * Thêm công nghệ cho ứng viên
+     */
+    @PostMapping("/technologies/add")
+    public String addTechnology(@RequestParam("technologyId") Integer technologyId,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+        }
+
+        try {
+            Candidate candidate = getCurrentCandidate(session);
+            candidateService.addTechnology(candidate.getId(), technologyId);
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm công nghệ thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+        }
+
+        return "redirect:/candidate/technologies";
+    }
+
+    /**
+     * Xóa công nghệ khỏi ứng viên
+     */
+    @PostMapping("/technologies/remove")
+    public String removeTechnology(@RequestParam("technologyId") Integer technologyId,
+                                   HttpSession session,
+                                   RedirectAttributes redirectAttributes) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+        }
+
+        try {
+            Candidate candidate = getCurrentCandidate(session);
+            candidateService.removeTechnology(candidate.getId(), technologyId);
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa công nghệ thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+        }
+
+        return "redirect:/candidate/technologies";
     }
 
     /**
@@ -169,20 +325,20 @@ public class CandidateController {
     /**
      * Hiển thị danh sách việc làm
      */
-    @GetMapping("/jobs")
-    public String showJobs(HttpSession session, Model model) {
-        if (!isLoggedIn(session)) {
-            return "redirect:/auth/login";
-        }
-
-        Candidate candidate = getCurrentCandidate(session);
-        model.addAttribute("candidate", candidate);
-
-        // TODO: Lấy danh sách việc làm khi có bảng recruitment_position
-        model.addAttribute("jobs", java.util.Collections.emptyList());
-
-        return "candidate/jobs";
-    }
+//    @GetMapping("/jobs")
+//    public String showJobs(HttpSession session, Model model) {
+//        if (!isLoggedIn(session)) {
+//            return "redirect:/auth/login";
+//        }
+//
+//        Candidate candidate = getCurrentCandidate(session);
+//        model.addAttribute("candidate", candidate);
+//
+//        // TODO: Lấy danh sách việc làm khi có bảng recruitment_position
+//        model.addAttribute("jobs", java.util.Collections.emptyList());
+//
+//        return "candidate/jobs";
+//    }
 
     /**
      * Đổi mật khẩu - hiển thị form
@@ -192,6 +348,9 @@ public class CandidateController {
         if (!isLoggedIn(session)) {
             return "redirect:/auth/login";
         }
+
+        Candidate candidate = getCurrentCandidate(session);
+        model.addAttribute("candidate", candidate);
 
         return "candidate/change-password";
     }
@@ -211,14 +370,15 @@ public class CandidateController {
             return "redirect:/auth/login";
         }
 
-        // Validation
-        if (newPassword == null || newPassword.length() < 6) {
-            model.addAttribute("errorMessage", "Mật khẩu mới phải có ít nhất 6 ký tự");
+        // Kiểm tra mật khẩu mới và xác nhận
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("errorMessage", "Mật khẩu mới và xác nhận mật khẩu không khớp!");
             return "candidate/change-password";
         }
 
-        if (!newPassword.equals(confirmPassword)) {
-            model.addAttribute("errorMessage", "Mật khẩu xác nhận không khớp");
+        // Kiểm tra độ dài mật khẩu
+        if (newPassword.length() < 6) {
+            model.addAttribute("errorMessage", "Mật khẩu mới phải có ít nhất 6 ký tự!");
             return "candidate/change-password";
         }
 
@@ -226,25 +386,19 @@ public class CandidateController {
             Candidate candidate = getCurrentCandidate(session);
 
             // Kiểm tra mật khẩu hiện tại
-            if (!candidateService.checkPassword(currentPassword, candidate.getPassword())) {
-                model.addAttribute("errorMessage", "Mật khẩu hiện tại không chính xác");
+            if (!candidateService.checkPassword(candidate.getId(), currentPassword)) {
+                model.addAttribute("errorMessage", "Mật khẩu hiện tại không đúng!");
                 return "candidate/change-password";
             }
 
             // Cập nhật mật khẩu mới
-            candidate.setPassword(candidateService.encodePassword(newPassword));
-            candidateService.updateProfile(candidate);
+            candidateService.updatePassword(candidate.getId(), newPassword);
 
-            // Cập nhật session
-            session.setAttribute("currentCandidate", candidate);
-
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Đổi mật khẩu thành công!");
-
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi mật khẩu thành công!");
             return "redirect:/candidate/profile";
 
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            model.addAttribute("errorMessage", "Có lỗi xảy ra khi đổi mật khẩu: " + e.getMessage());
             return "candidate/change-password";
         }
     }

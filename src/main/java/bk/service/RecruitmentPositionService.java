@@ -5,6 +5,7 @@ import bk.entity.Technology;
 import bk.utils.PageResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RecruitmentPositionService {
 
@@ -29,4 +30,14 @@ public interface RecruitmentPositionService {
 
     boolean isNameExists(String name, Integer excludeId);
     List<Technology> getAllActiveTechnologies();
+    
+    // Advanced search and filter methods
+    PageResponse<RecruitmentPosition> searchAndFilter(String keyword, String location, String category,
+                                                     Double minSalary, Double maxSalary, Integer minExperience,
+                                                     String sortBy, int page, int size);
+    
+    // API methods for filters
+    List<String> getAvailableLocations();
+    List<String> getAvailableCategories();
+    Map<String, Object> getSalaryRange();
 }

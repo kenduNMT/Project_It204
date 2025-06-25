@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -121,6 +122,21 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
+    public boolean checkPassword(Long candidateId, String rawPassword) {
+        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
+        if (candidateOpt.isPresent()) {
+            return checkPassword(rawPassword, candidateOpt.get().getPassword());
+        }
+        return false;
+    }
+
+    @Override
+    public void updatePassword(Long candidateId, String newPassword) {
+        String encodedPassword = encodePassword(newPassword);
+        candidateDAO.updatePassword(candidateId, encodedPassword);
+    }
+
+    @Override
     public String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
@@ -163,60 +179,132 @@ public class CandidateServiceImpl implements CandidateService {
         candidateDAO.deleteById(id);
     }
 
-    @Override
-    @Transactional
-    public boolean addTechnologyToCandidate(Long candidateId, Integer techId) {
-        Candidate candidate = candidateDAO.findById(candidateId).orElse(null);
-        Technology technology = technologyService.findById(techId).orElse(null);
+    // ===== Technology Management Methods =====
 
-        if (candidate != null && technology != null) {
-            candidate.getTechnologies().add(technology);
-            candidateDAO.save(candidate);
-            return true;
+    @Override
+    @Transactional(readOnly = true)
+    public List<Technology> getCandidateTechnologies(Long candidateId) {
+        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
+        if (candidateOpt.isPresent()) {
+            return new ArrayList<>(candidateOpt.get().getTechnologies());
         }
-        return false;
+        return Collections.emptyList();
     }
 
     @Override
-    @Transactional
-    public boolean removeTechnologyFromCandidate(Long candidateId, Integer techId) {
-        Candidate candidate = candidateDAO.findById(candidateId).orElse(null);
-        Technology technology = technologyService.findById(techId).orElse(null);
+    public void addTechnology(Long candidateId, Integer technologyId) {
+        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
+        Optional<Technology> technologyOpt = technologyService.findById(technologyId);
 
-        if (candidate != null && technology != null) {
+        if (candidateOpt.isPresent() && technologyOpt.isPresent()) {
+            Candidate candidate = candidateOpt.get();
+            Technology technology = technologyOpt.get();
+
+            if (!candidate.getTechnologies().contains(technology)) {
+                candidate.getTechnologies().add(technology);
+                candidateDAO.update(candidate);
+            }
+        }
+    }
+
+    @Override
+    public void removeTechnology(Long candidateId, Integer technologyId) {
+        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
+        Optional<Technology> technologyOpt = technologyService.findById(technologyId);
+
+        if (candidateOpt.isPresent() && technologyOpt.isPresent()) {
+            Candidate candidate = candidateOpt.get();
+            Technology technology = technologyOpt.get();
+
             candidate.getTechnologies().remove(technology);
-            candidateDAO.save(candidate);
-            return true;
+            candidateDAO.update(candidate);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasTechnology(Long candidateId, Integer technologyId) {
+        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
+        Optional<Technology> technologyOpt = technologyService.findById(technologyId);
+
+        if (candidateOpt.isPresent() && technologyOpt.isPresent()) {
+            return candidateOpt.get().getTechnologies().contains(technologyOpt.get());
         }
         return false;
     }
 
+    @Override
+    public void updateCandidateTechnologies(Long candidateId, List<Integer> technologyIds) {
+        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
 
-    // ===== Legacy methods (keep for backward compatibility) =====
+        if (candidateOpt.isPresent()) {
+            Candidate candidate = candidateOpt.get();
+
+            // Xóa tất cả technologies hiện tại
+            candidate.getTechnologies().clear();
+
+            // Thêm technologies mới
+            for (Integer techId : technologyIds) {
+                Optional<Technology> technologyOpt = technologyService.findById(techId);
+                if (technologyOpt.isPresent()) {
+                    candidate.getTechnologies().add(technologyOpt.get());
+                }
+            }
+
+            candidateDAO.update(candidate);
+        }
+    }
+
+    @Override
+    public boolean addTechnologyToCandidate(Long candidateId, Integer techId) {
+        try {
+            addTechnology(candidateId, techId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeTechnologyFromCandidate(Long candidateId, Integer techId) {
+        try {
+            removeTechnology(candidateId, techId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // ===== Legacy methods (deprecated) =====
 
     @Override
     @Deprecated
-    public List<Candidate> searchCandidates(String search, String experience, String gender, String technologyId, java.awt.print.Pageable pageable) {
-        return Collections.emptyList();
+    @Transactional(readOnly = true)
+    public List<Candidate> searchCandidatesLegacy(String search, String experience, String gender, String technologyId, Pageable pageable) {
+        return candidateDAO.searchCandidatesLegacy(search, experience, gender, technologyId, pageable);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countSearchResults(String search, String status, String gender) {
-        return candidateDAO.countByFilter(search, status, gender);
+        return candidateDAO.countSearchResults(search, status, gender);
     }
 
     @Override
-    public List<Candidate> findAllWithFilter(String status, String gender, java.awt.print.Pageable pageable) {
-        return Collections.emptyList();
+    @Transactional(readOnly = true)
+    public List<Candidate> findAllWithFilter(String status, String gender, Pageable pageable) {
+        return candidateDAO.findAllWithFilter(status, gender, pageable);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countWithFilter(String status, String gender) {
-        return candidateDAO.countByFilter(null, status, gender);
+        return candidateDAO.countWithFilter(status, gender);
     }
 
     @Override
-    public List<Candidate> findAllWithPagination(java.awt.print.Pageable pageable) {
-        return Collections.emptyList();
+    @Transactional(readOnly = true)
+    public List<Candidate> findAllWithPagination(Pageable pageable) {
+        return candidateDAO.findAllWithPagination(pageable);
     }
 }

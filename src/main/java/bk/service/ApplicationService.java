@@ -6,7 +6,7 @@ import java.util.List;
 public interface ApplicationService {
     List<Application> findAll();
     Application findById(Long id);
-    void save(Application application);
+    Application save(Application application);
     void update(Application application);
     void delete(Long id);
     List<Application> findByStatus(Application.Status status);
@@ -20,4 +20,9 @@ public interface ApplicationService {
     long countByStatus(Application.Status status);
     long countBySearch(String searchTerm);
     long countByStatusAndSearch(Application.Status status, String searchTerm);
+    boolean hasApplied(Integer candidateId, Integer recruitmentPositionId);
+    List<Application> findByCandidateId(Integer candidateId, int page, int size);
+    long countByCandidateId(Integer candidateId);
+    long countByCandidateIdAndStatus(Integer candidateId, Application.Status status);
+    List<Application> findByCandidateIdAndStatus(Integer candidateId, Application.Status status, int page, int size);
 }
