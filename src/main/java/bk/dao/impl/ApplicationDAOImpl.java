@@ -29,7 +29,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
     @Override
     public Application findById(Long id) {
-        return getSession().get(Application.class, id);
+        String hql = "SELECT a FROM Application a " +
+                "LEFT JOIN FETCH a.candidate " +
+                "LEFT JOIN FETCH a.recruitmentPosition " +
+                "WHERE a.id = :id";
+        return getSession().createQuery(hql, Application.class)
+                .setParameter("id", id)
+                .uniqueResult();
     }
 
     @Override
@@ -157,8 +163,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             String hql = "SELECT COUNT(a) FROM Application a WHERE a.candidate.id = :candidateId AND a.recruitmentPosition.id = :recruitmentPositionId";
             Long count = getSession().createQuery(hql, Long.class)
-                    .setParameter("candidateId", candidateId)
-                    .setParameter("recruitmentPositionId", recruitmentPositionId)
+                    .setParameter("candidateId", candidateId.longValue()) // Convert to Long
+                    .setParameter("recruitmentPositionId", recruitmentPositionId.longValue()) // Convert to Long
                     .uniqueResult();
             return count != null && count > 0;
         } catch (Exception e) {
@@ -166,11 +172,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             System.err.println("HQL query failed, trying native SQL approach: " + e.getMessage());
             try {
                 String sql = "SELECT COUNT(*) FROM applications a WHERE a.candidate_id = :candidateId AND a.recruitment_position_id = :recruitmentPositionId";
-                Long count = (Long) getSession().createNativeQuery(sql)
+                Number count = (Number) getSession().createNativeQuery(sql)
                         .setParameter("candidateId", candidateId)
                         .setParameter("recruitmentPositionId", recruitmentPositionId)
                         .uniqueResult();
-                return count != null && count > 0;
+                return count != null && count.longValue() > 0;
             } catch (Exception e2) {
                 System.err.println("Native SQL query also failed: " + e2.getMessage());
                 e2.printStackTrace();
@@ -181,19 +187,23 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
     @Override
     public List<Application> findByCandidateId(Integer candidateId, int page, int size) {
-        String hql = "FROM Application a WHERE a.candidate.id = :candidateId ORDER BY a.createdAt DESC";
-        return getSession().createQuery(hql, Application.class)
-                .setParameter("candidateId", candidateId)
+        Session session = sessionFactory.getCurrentSession();
+        String hql = "SELECT a FROM Application a " +
+                "JOIN FETCH a.recruitmentPosition " +
+                "WHERE a.candidate.id = :candidateId";
+        return session.createQuery(hql, Application.class)
+                .setParameter("candidateId", candidateId.longValue())
                 .setFirstResult((page - 1) * size)
                 .setMaxResults(size)
                 .list();
     }
 
+
     @Override
     public long countByCandidateId(Integer candidateId) {
         String hql = "SELECT COUNT(a) FROM Application a WHERE a.candidate.id = :candidateId";
         return getSession().createQuery(hql, Long.class)
-                .setParameter("candidateId", candidateId)
+                .setParameter("candidateId", candidateId.longValue()) // Convert to Long
                 .uniqueResult();
     }
 
@@ -201,17 +211,19 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     public long countByCandidateIdAndStatus(Integer candidateId, Application.Status status) {
         String hql = "SELECT COUNT(a) FROM Application a WHERE a.candidate.id = :candidateId AND a.status = :status";
         return getSession().createQuery(hql, Long.class)
-                .setParameter("candidateId", candidateId)
+                .setParameter("candidateId", candidateId.longValue()) // Convert to Long
                 .setParameter("status", status)
                 .uniqueResult();
     }
 
     @Override
     public List<Application> findByCandidateIdAndStatus(Integer candidateId, Application.Status status, int page, int size) {
-        String hql = "FROM Application a WHERE a.candidate.id = :candidateId AND a.status = :status ORDER BY a.createdAt DESC";
-        return getSession().createQuery(hql, Application.class)
-                .setParameter("candidateId", candidateId)
-                .setParameter("status", status)
+        Session session = sessionFactory.getCurrentSession();
+        String hql = "SELECT a FROM Application a " +
+                "JOIN FETCH a.recruitmentPosition " +
+                "WHERE a.candidate.id = :candidateId";
+        return session.createQuery(hql, Application.class)
+                .setParameter("candidateId", candidateId.longValue()) // Convert to Long
                 .setFirstResult((page - 1) * size)
                 .setMaxResults(size)
                 .list();

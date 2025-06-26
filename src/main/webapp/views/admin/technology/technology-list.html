@@ -198,7 +198,7 @@
                             </a>
                         </li>
                         <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/technology(page=${currentPage+1},search=${search})}">
+                            <a class="page-link" th:href="@{/admin/technology(page=${currentPage - 1},search=${search})}">
                                 <i class="fas fa-angle-left"></i>
                             </a>
                         </li>

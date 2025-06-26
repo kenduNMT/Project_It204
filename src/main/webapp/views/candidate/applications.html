@@ -76,6 +76,14 @@
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
         }
+        .status-destroyed {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+        }
+        .status-done {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
         .stats-card {
             border-radius: 15px;
             border: none;
@@ -100,6 +108,9 @@
         .stats-approved { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
         .stats-rejected { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
         .stats-total { background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%); }
+        .stats-interviewing { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); }
+        .stats-done { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); }
+        .stats-destroyed { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); }
 
         .filter-tabs .nav-link {
             border-radius: 25px;
@@ -117,7 +128,8 @@
             border-radius: 20px;
             padding: 5px 15px;
             font-size: 0.85rem;
-            margin: 0 2px;
+            margin: 0 2px 5px 0;
+            display: inline-block;
         }
         .progress-timeline {
             position: relative;
@@ -162,6 +174,54 @@
             border: none;
             color: white;
         }
+        .btn-interview {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            color: white;
+        }
+        .btn-accept-offer {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+        }
+        .btn-edit-cv {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            border: none;
+            color: #000;
+        }
+        .btn-feedback {
+            background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%);
+            border: none;
+            color: white;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .interview-confirmation {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .offer-notification {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -172,7 +232,7 @@
         <div class="navbar-nav ms-auto">
             <div class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-user-circle"></i> <span th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</span>
+                    <i class="fas fa-user-circle"></i> <span th:text="${candidateName ?: 'Ứng viên'}">Ứng viên</span>
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" th:href="@{/candidate/profile}"><i class="fas fa-user"></i> Thông tin cá nhân</a></li>
@@ -191,10 +251,8 @@
         <div class="col-md-3 col-lg-2 px-0">
             <div class="sidebar">
                 <div class="p-3 text-center">
-                    <img src="https://via.placeholder.com/80x80/ffffff/667eea?text=Avatar"
-                         class="rounded-circle mb-2" alt="Avatar">
-                    <h6 class="text-white" th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</h6>
-                    <small class="text-white-50" th:text="${session.candidateEmail ?: 'email@example.com'}">email@example.com</small>
+                    <h6 class="text-white" th:text="${candidateName ?: 'Ứng viên'}">Ứng viên</h6>
+                    <small class="text-white-50" th:text="${candidateEmail ?: 'email@example.com'}">email@example.com</small>
                 </div>
                 <nav class="nav nav-pills flex-column">
                     <a class="nav-link" th:href="@{/candidate/dashboard}">
@@ -224,324 +282,187 @@
                             <p class="mb-0">Theo dõi trạng thái các đơn ứng tuyển và lịch phỏng vấn</p>
                         </div>
                         <div class="col-md-4 text-end">
-                                <span class="badge bg-light text-dark fs-6">
-                                    <i class="fas fa-paper-plane me-2"></i>8 đơn ứng tuyển
-                                </span>
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="fas fa-paper-plane me-2"></i><span th:text="${totalCount}">0</span> đơn ứng tuyển
+                            </span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Statistics Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="stats-card p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="stats-icon stats-total me-3">
-                                    <i class="fas fa-paper-plane"></i>
-                                </div>
-                                <div>
-                                    <h4 class="mb-0">8</h4>
-                                    <small class="text-muted">Tổng đơn</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="stats-icon stats-pending me-3">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <div>
-                                    <h4 class="mb-0">3</h4>
-                                    <small class="text-muted">Đang chờ</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="stats-icon stats-approved me-3">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <div>
-                                    <h4 class="mb-0">3</h4>
-                                    <small class="text-muted">Được duyệt</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card p-3">
-                            <div class="d-flex align-items-center">
-                                <div class="stats-icon stats-rejected me-3">
-                                    <i class="fas fa-times"></i>
-                                </div>
-                                <div>
-                                    <h4 class="mb-0">2</h4>
-                                    <small class="text-muted">Từ chối</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Filter Tabs -->
-                <ul class="nav nav-pills filter-tabs mb-4" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-bs-toggle="pill" href="#all">
-                            <i class="fas fa-list me-2"></i>Tất cả (8)
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="pill" href="#pending">
-                            <i class="fas fa-clock me-2"></i>Đang chờ (3)
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="pill" href="#approved">
-                            <i class="fas fa-check me-2"></i>Được duyệt (3)
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="pill" href="#rejected">
-                            <i class="fas fa-times me-2"></i>Từ chối (2)
-                        </a>
-                    </li>
-                </ul>
 
                 <!-- Applications List -->
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="all">
-                        <!-- Application 1 - Interviewing -->
-                        <div class="application-card">
-                            <div class="application-header p-3">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://via.placeholder.com/50x50/007bff/ffffff?text=Tech"
-                                             class="company-logo me-3" alt="Company">
-                                        <div>
-                                            <h5 class="mb-1">Senior Java Developer</h5>
-                                            <p class="text-muted mb-0">TechCorp Solutions</p>
-                                        </div>
-                                    </div>
-                                    <div class="status-badge status-interviewing">
-                                        <i class="fas fa-comments"></i> Phỏng vấn
-                                    </div>
+                <div class="applications-list">
+                    <!-- Empty State -->
+                    <div th:if="${applications == null or applications.isEmpty()}" class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <h4>Không có đơn ứng tuyển nào</h4>
+                        <p>Bạn chưa có đơn ứng tuyển nào. Hãy tìm kiếm và ứng tuyển các công việc phù hợp!</p>
+                        <a th:href="@{/candidate/jobs}" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Tìm việc làm
+                        </a>
+                    </div>
+
+                    <!-- Applications Cards -->
+                    <div th:each="app : ${applications}" class="application-card">
+                        <div class="application-header p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="mb-1" th:text="${app.recruitmentPosition?.name ?: 'Vị trí ứng tuyển'}">Vị trí ứng tuyển</h5>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <p class="mb-3"><strong>Ngày ứng tuyển:</strong> 15/06/2025</p>
-                                        <p class="mb-3"><strong>Lịch phỏng vấn:</strong> 20/06/2025 - 14:00</p>
-                                        <div class="progress-timeline">
-                                            <div class="progress-step completed">
-                                                <strong>Đơn đã được gửi</strong>
-                                                <br><small class="text-muted">15/06/2025</small>
-                                            </div>
-                                            <div class="progress-step completed">
-                                                <strong>CV được duyệt</strong>
-                                                <br><small class="text-muted">16/06/2025</small>
-                                            </div>
-                                            <div class="progress-step current">
-                                                <strong>Lịch phỏng vấn</strong>
-                                                <br><small class="text-muted">20/06/2025 - 14:00</small>
-                                            </div>
-                                            <div class="progress-step">
-                                                <strong>Kết quả</strong>
-                                                <br><small class="text-muted">Đang chờ</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="application-actions text-end">
-                                            <button class="btn btn-view btn-sm mb-2">
-                                                <i class="fas fa-eye"></i> Xem chi tiết
-                                            </button>
-                                            <br>
-                                            <button class="btn btn-primary btn-sm mb-2">
-                                                <i class="fas fa-video"></i> Tham gia phỏng vấn
-                                            </button>
-                                            <br>
-                                            <button class="btn btn-withdraw btn-sm">
-                                                <i class="fas fa-times"></i> Rút đơn
-                                            </button>
-                                        </div>
-                                    </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="status-badge"
+                                          th:classappend="${'status-' + app.status.name().toLowerCase()}"
+                                          th:text="${app.status == T(bk.entity.Application.Status).PENDING ? 'Đang chờ' :
+                                                   app.status == T(bk.entity.Application.Status).APPROVED ? 'Được duyệt' :
+                                                   app.status == T(bk.entity.Application.Status).REJECTED ? 'Từ chối' :
+                                                   app.status == T(bk.entity.Application.Status).INTERVIEWING ? 'Phỏng vấn' :
+                                                   app.status == T(bk.entity.Application.Status).DESTROYED ? 'Đã hủy' :
+                                                   app.status == T(bk.entity.Application.Status).DONE ? 'Hoàn thành' : 'Khác'}">
+                                        Trạng thái
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Application 2 - Approved -->
-                        <div class="application-card">
-                            <div class="application-header p-3">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://via.placeholder.com/50x50/28a745/ffffff?text=Mark"
-                                             class="company-logo me-3" alt="Company">
-                                        <div>
-                                            <h5 class="mb-1">Digital Marketing Specialist</h5>
-                                            <p class="text-muted mb-0">Creative Agency</p>
-                                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <!-- Ngày ứng tuyển -->
+                                    <p class="mb-2">
+                                        <strong>Ngày ứng tuyển:</strong>
+                                        <span th:text="${#temporals.format(app.createdAt, 'dd/MM/yyyy HH:mm')}">--/--/---- --:--</span>
+                                    </p>
+
+                                    <!-- Mức lương -->
+                                    <p class="mb-2" th:if="${app.recruitmentPosition?.minSalary != null or app.recruitmentPosition?.maxSalary != null}">
+                                        <strong>Mức lương:</strong>
+                                        <span th:if="${app.recruitmentPosition.minSalary != null and app.recruitmentPosition.maxSalary != null}"
+                                              th:text="${app.recruitmentPosition.minSalary + ' - ' + app.recruitmentPosition.maxSalary + ' VNĐ'}">Lương</span>
+                                        <span th:if="${app.recruitmentPosition.minSalary != null and app.recruitmentPosition.maxSalary == null}"
+                                              th:text="${'Từ ' + app.recruitmentPosition.minSalary + ' VNĐ'}">Lương</span>
+                                        <span th:if="${app.recruitmentPosition.minSalary == null and app.recruitmentPosition.maxSalary != null}"
+                                              th:text="${'Tối đa ' + app.recruitmentPosition.maxSalary + ' VNĐ'}">Lương</span>
+                                    </p>
+
+                                    <!-- Lịch phỏng vấn -->
+                                    <div th:if="${app.status == T(bk.entity.Application.Status).INTERVIEWING and app.interviewTime != null}"
+                                         class="interview-confirmation">
+                                        <h6><i class="fas fa-calendar-alt me-2"></i>Lịch phỏng vấn</h6>
+                                        <p class="mb-2">
+                                            <strong>Thời gian:</strong>
+                                            <span th:text="${#temporals.format(app.interviewTime, 'dd/MM/yyyy HH:mm')}">--/--/---- --:--</span>
+                                        </p>
+                                        <p class="mb-0" th:if="${!app.interviewConfirmed}">
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>Chưa xác nhận tham gia
+                                            </span>
+                                        </p>
+                                        <p class="mb-0" th:if="${app.interviewConfirmed}">
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Đã xác nhận tham gia
+                                            </span>
+                                        </p>
                                     </div>
-                                    <div class="status-badge status-approved">
-                                        <i class="fas fa-check"></i> Được duyệt
+
+                                    <!-- Thông báo offer -->
+                                    <div th:if="${app.status == T(bk.entity.Application.Status).APPROVED}"
+                                         class="offer-notification">
+                                        <h6><i class="fas fa-trophy me-2"></i>Chúc mừng! Bạn đã được nhận vào làm</h6>
+                                        <p class="mb-0">Hãy xác nhận chấp nhận offer để hoàn tất quá trình tuyển dụng.</p>
+                                    </div>
+
+                                    <!-- Kết quả phỏng vấn -->
+                                    <p class="mb-2" th:if="${app.interviewResult}">
+                                        <strong>Kết quả phỏng vấn:</strong>
+                                        <span th:text="${app.interviewResult}">Interview result</span>
+                                    </p>
+
+                                    <!-- Ghi chú phỏng vấn -->
+                                    <p class="mb-2" th:if="${app.interviewResultNote}">
+                                        <strong>Ghi chú phỏng vấn:</strong>
+                                        <span th:text="${app.interviewResultNote}">Interview note</span>
+                                    </p>
+
+                                    <!-- Lý do hủy -->
+                                    <p class="mb-2"
+                                       th:if="${app.status == T(bk.entity.Application.Status).DESTROYED and app.destroyReason != null}">
+                                        <strong>Lý do hủy:</strong>
+                                        <span th:text="${app.destroyReason}">Destroy reason</span>
+                                    </p>
+
+                                    <!-- CV đính kèm -->
+                                    <p class="mb-2" th:if="${app.cvUrl}">
+                                        <strong>CV đính kèm:</strong>
+                                        <a th:href="${app.cvUrl}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i> Tải CV
+                                        </a>
+                                    </p>
+
+                                    <!-- Progress Timeline -->
+                                    <div class="progress-timeline mt-3">
+                                        <div class="progress-step completed">
+                                            <strong>Đơn đã được gửi</strong>
+                                            <br><small class="text-muted" th:text="${#temporals.format(app.createdAt, 'dd/MM/yyyy HH:mm')}">--/--/---- --:--</small>
+                                        </div>
+                                        <div class="progress-step"
+                                             th:classappend="${app.status != T(bk.entity.Application.Status).PENDING} ? 'completed' : 'current'">
+                                            <strong>Đang xem xét</strong>
+                                            <br><small class="text-muted">
+                                            <span th:if="${app.status == T(bk.entity.Application.Status).PENDING}">HR đang review</span>
+                                            <span th:unless="${app.status == T(bk.entity.Application.Status).PENDING}">Đã xem xét</span>
+                                        </small>
+                                        </div>
+                                        <div class="progress-step"
+                                             th:if="${app.status == T(bk.entity.Application.Status).INTERVIEWING or app.status == T(bk.entity.Application.Status).APPROVED or app.status == T(bk.entity.Application.Status).DONE}"
+                                             th:classappend="${app.status == T(bk.entity.Application.Status).INTERVIEWING} ? 'current' : 'completed'">
+                                            <strong>Phỏng vấn</strong>
+                                            <br><small class="text-muted" th:text="${app.interviewTime != null ? #temporals.format(app.interviewTime, 'dd/MM/yyyy HH:mm') : 'Chờ thông báo'}">Chờ thông báo</small>
+                                        </div>
+                                        <div class="progress-step"
+                                             th:if="${app.status == T(bk.entity.Application.Status).APPROVED or app.status == T(bk.entity.Application.Status).REJECTED or app.status == T(bk.entity.Application.Status).DONE}"
+                                             th:classappend="completed">
+                                            <strong th:text="${app.status == T(bk.entity.Application.Status).APPROVED or app.status == T(bk.entity.Application.Status).DONE} ? 'Được chấp nhận' : 'Từ chối'">Kết quả</strong>
+                                            <br><small class="text-muted" th:text="${app.updatedAt != null ? #temporals.format(app.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">--/--/---- --:--</small>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <p class="mb-3"><strong>Ngày ứng tuyển:</strong> 10/06/2025</p>
-                                        <p class="mb-3"><strong>Ngày được duyệt:</strong> 12/06/2025</p>
-                                        <div class="progress-timeline">
-                                            <div class="progress-step completed">
-                                                <strong>Đơn đã được gửi</strong>
-                                                <br><small class="text-muted">10/06/2025</small>
-                                            </div>
-                                            <div class="progress-step completed">
-                                                <strong>CV được duyệt</strong>
-                                                <br><small class="text-muted">12/06/2025</small>
-                                            </div>
-                                            <div class="progress-step completed">
-                                                <strong>Phỏng vấn thành công</strong>
-                                                <br><small class="text-muted">14/06/2025</small>
-                                            </div>
-                                            <div class="progress-step completed">
-                                                <strong>Được chấp nhận</strong>
-                                                <br><small class="text-muted">15/06/2025</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="application-actions text-end">
-                                            <button class="btn btn-view btn-sm mb-2">
-                                                <i class="fas fa-eye"></i> Xem chi tiết
+
+                                <div class="col-md-4">
+                                    <div class="application-actions text-end">
+                                        <!-- Tham gia phỏng vấn -->
+                                        <form th:if="${app.status == T(bk.entity.Application.Status).INTERVIEWING and !app.interviewConfirmed}"
+                                              th:action="@{/candidate/applications/accept-interview}" method="post" style="display: inline;">
+                                            <input type="hidden" name="id" th:value="${app.id}">
+                                            <button type="submit" class="btn btn-interview btn-sm mb-2">
+                                                <i class="fas fa-check-circle"></i> Xác nhận PV
                                             </button>
-                                            <br>
-                                            <button class="btn btn-success btn-sm mb-2">
+                                        </form>
+
+                                        <!-- Chấp nhận offer -->
+                                        <form th:if="${app.status == T(bk.entity.Application.Status).APPROVED}"
+                                              th:action="@{/candidate/applications/accept-offer}" method="post" style="display: inline;">
+                                            <input type="hidden" name="id" th:value="${app.id}">
+                                            <button type="submit" class="btn btn-accept-offer btn-sm mb-2"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn chấp nhận offer này?')">
                                                 <i class="fas fa-handshake"></i> Chấp nhận offer
                                             </button>
-                                            <br>
-                                            <button class="btn btn-secondary btn-sm">
-                                                <i class="fas fa-download"></i> Tải hợp đồng
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                        </form>
 
-                        <!-- Application 3 - Pending -->
-                        <div class="application-card">
-                            <div class="application-header p-3">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://via.placeholder.com/50x50/dc3545/ffffff?text=Bank"
-                                             class="company-logo me-3" alt="Company">
-                                        <div>
-                                            <h5 class="mb-1">Business Analyst</h5>
-                                            <p class="text-muted mb-0">VietBank</p>
-                                        </div>
-                                    </div>
-                                    <div class="status-badge status-pending">
-                                        <i class="fas fa-clock"></i> Đang chờ
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <p class="mb-3"><strong>Ngày ứng tuyển:</strong> 14/06/2025</p>
-                                        <p class="mb-3"><strong>Trạng thái:</strong> Đang xem xét hồ sơ</p>
-                                        <div class="progress-timeline">
-                                            <div class="progress-step completed">
-                                                <strong>Đơn đã được gửi</strong>
-                                                <br><small class="text-muted">14/06/2025</small>
-                                            </div>
-                                            <div class="progress-step current">
-                                                <strong>Đang xem xét</strong>
-                                                <br><small class="text-muted">HR đang review</small>
-                                            </div>
-                                            <div class="progress-step">
-                                                <strong>Phỏng vấn</strong>
-                                                <br><small class="text-muted">Chờ thông báo</small>
-                                            </div>
-                                            <div class="progress-step">
-                                                <strong>Kết quả</strong>
-                                                <br><small class="text-muted">Đang chờ</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="application-actions text-end">
-                                            <button class="btn btn-view btn-sm mb-2">
-                                                <i class="fas fa-eye"></i> Xem chi tiết
-                                            </button>
-                                            <br>
-                                            <button class="btn btn-warning btn-sm mb-2">
-                                                <i class="fas fa-edit"></i> Chỉnh sửa CV
-                                            </button>
-                                            <br>
-                                            <button class="btn btn-withdraw btn-sm">
-                                                <i class="fas fa-times"></i> Rút đơn
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                        <!-- Tải CV -->
+                                        <a th:if="${app.cvUrl}"
+                                           th:href="${app.cvUrl}"
+                                           target="_blank"
+                                           class="btn btn-secondary btn-sm mb-2">
+                                            <i class="fas fa-download"></i> Tải CV
+                                        </a>
 
-                        <!-- Application 4 - Rejected -->
-                        <div class="application-card">
-                            <div class="application-header p-3">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://via.placeholder.com/50x50/6f42c1/ffffff?text=Start"
-                                             class="company-logo me-3" alt="Company">
-                                        <div>
-                                            <h5 class="mb-1">Frontend Developer</h5>
-                                            <p class="text-muted mb-0">StartupTech</p>
-                                        </div>
-                                    </div>
-                                    <div class="status-badge status-rejected">
-                                        <i class="fas fa-times"></i> Từ chối
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <p class="mb-3"><strong>Ngày ứng tuyển:</strong> 05/06/2025</p>
-                                        <p class="mb-3"><strong>Ngày từ chối:</strong> 08/06/2025</p>
-                                        <p class="mb-3"><strong>Lý do:</strong> Kinh nghiệm chưa phù hợp với yêu cầu công việc</p>
-                                        <div class="progress-timeline">
-                                            <div class="progress-step completed">
-                                                <strong>Đơn đã được gửi</strong>
-                                                <br><small class="text-muted">05/06/2025</small>
-                                            </div>
-                                            <div class="progress-step completed">
-                                                <strong>CV được xem xét</strong>
-                                                <br><small class="text-muted">07/06/2025</small>
-                                            </div>
-                                            <div class="progress-step completed">
-                                                <strong>Từ chối</strong>
-                                                <br><small class="text-muted">08/06/2025</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="application-actions text-end">
-                                            <button class="btn btn-view btn-sm mb-2">
-                                                <i class="fas fa-eye"></i> Xem chi tiết
-                                            </button>
-                                            <br>
-                                            <button class="btn btn-info btn-sm">
-                                                <i class="fas fa-lightbulb"></i> Phản hồi
-                                            </button>
-                                        </div>
+                                        <!-- Rút đơn -->
+                                        <button th:if="${app.status == T(bk.entity.Application.Status).PENDING or app.status == T(bk.entity.Application.Status).INTERVIEWING}"
+                                                class="btn btn-withdraw btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#withdrawModal"
+                                                th:attr="data-application-id=${app.id}">
+                                            <i class="fas fa-times"></i> Rút đơn
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -550,19 +471,28 @@
                 </div>
 
                 <!-- Pagination -->
-                <nav aria-label="Page navigation" class="mt-4">
+                <nav aria-label="Page navigation" class="mt-4" th:if="${totalPages > 1}">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                            <a class="page-link" th:if="${hasPrevious}"
+                               th:href="@{/candidate/applications(page=${currentPage - 1}, status=${selectedStatus})}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
                         </li>
-                        <li class="page-item active">
-                            <span class="page-link">1</span>
+
+                        <li th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                            class="page-item"
+                            th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/candidate/applications(page=${pageNum}, status=${selectedStatus})}"
+                               th:text="${pageNum}">1</a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+
+                        <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                            <a class="page-link" th:if="${hasNext}"
+                               th:href="@{/candidate/applications(page=${currentPage + 1}, status=${selectedStatus})}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
                         </li>
                     </ul>
                 </nav>
@@ -571,84 +501,74 @@
     </div>
 </div>
 
-<!-- Modal for Application Details -->
-<div class="modal fade" id="applicationModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<!-- Success/Error Messages -->
+<div th:if="${success}" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" th:text="${success}">
+                Success message
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<div th:if="${error}" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" th:text="${error}">
+                Error message
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Withdraw Application Modal -->
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Chi tiết đơn ứng tuyển</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title">Xác nhận rút đơn ứng tuyển</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <img src="https://via.placeholder.com/100x100/007bff/ffffff?text=Company"
-                             class="img-fluid rounded mb-3" alt="Company Logo">
+                <p>Bạn có chắc chắn muốn rút đơn ứng tuyển này?</p>
+                <form th:action="@{/candidate/applications/withdraw}" method="post">
+                    <input type="hidden" name="id" id="withdrawApplicationId">
+                    <div class="mb-3">
+                        <label for="withdrawReason" class="form-label">Lý do rút đơn (không bắt buộc)</label>
+                        <textarea class="form-control" id="withdrawReason" name="reason" rows="3"></textarea>
                     </div>
-                    <div class="col-md-8">
-                        <h4>Senior Java Developer</h4>
-                        <p class="text-muted">TechCorp Solutions</p>
-                        <p><strong>Địa điểm:</strong> Hà Nội</p>
-                        <p><strong>Mức lương:</strong> 25-35 triệu VND</p>
-                        <p><strong>Kinh nghiệm:</strong> 3-5 năm</p>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Xác nhận rút đơn</button>
                     </div>
-                </div>
-                <hr>
-                <h6>Mô tả công việc:</h6>
-                <p>Phát triển ứng dụng web với Java Spring Boot, MySQL, có kinh nghiệm về microservices và cloud computing...</p>
-                <h6>Yêu cầu:</h6>
-                <ul>
-                    <li>Có kinh nghiệm 3+ năm với Java Spring Boot</li>
-                    <li>Thành thạo MySQL, MongoDB</li>
-                    <li>Hiểu biết về Docker, Kubernetes</li>
-                    <li>Kinh nghiệm với AWS hoặc Azure</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary">Liên hệ HR</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 <script>
-    // View application details
-    document.querySelectorAll('.btn-view').forEach(button => {
-        button.addEventListener('click', function() {
-            new bootstrap.Modal(document.getElementById('applicationModal')).show();
+    // Initialize toasts
+    document.addEventListener('DOMContentLoaded', function() {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl, {autohide: true, delay: 5000}).show();
         });
-    });
 
-    // Withdraw application
-    document.querySelectorAll('.btn-withdraw').forEach(button => {
-        button.addEventListener('click', function() {
-            if (confirm('Bạn có chắc chắn muốn rút đơn ứng tuyển này?')) {
-                alert('Đơn ứng tuyển đã được rút thành công!');
-                // Here you would typically send an API request
-                this.closest('.application-card').style.opacity = '0.5';
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-check"></i> Đã rút';
-            }
-        });
-    });
-
-    // Accept offer
-    document.querySelectorAll('.btn-success').forEach(button => {
-        button.addEventListener('click', function() {
-            if (confirm('Bạn có chắc chắn muốn chấp nhận offer này?')) {
-                alert('Chúc mừng! Bạn đã chấp nhận offer thành công!');
-            }
-        });
-    });
-
-    // Filter functionality
-    document.querySelectorAll('[data-bs-toggle="pill"]').forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Here you would typically filter the applications based on status
-            console.log('Filtering by:', this.getAttribute('href'));
-        });
+        // Initialize withdraw modal
+        var withdrawModal = document.getElementById('withdrawModal');
+        if (withdrawModal) {
+            withdrawModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                var applicationId = button.getAttribute('data-application-id');
+                document.getElementById('withdrawApplicationId').value = applicationId;
+            });
+        }
     });
 </script>
 </body>

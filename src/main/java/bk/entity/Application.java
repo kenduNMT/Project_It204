@@ -13,7 +13,7 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "candidate_id")
     private Candidate candidate;
 
@@ -32,6 +32,9 @@ public class Application {
 
     @Column(name = "interview_time")
     private LocalDateTime interviewTime;
+
+    @Column(name = "interview_confirmed")
+    private Boolean interviewConfirmed = false;
 
     @Column(name = "interview_result")
     private String interviewResult;

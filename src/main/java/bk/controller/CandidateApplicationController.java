@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -62,6 +64,8 @@ public class CandidateApplicationController {
             long approvedCount = applicationService.countByCandidateIdAndStatus(candidateId, Application.Status.APPROVED);
             long rejectedCount = applicationService.countByCandidateIdAndStatus(candidateId, Application.Status.REJECTED);
             long interviewingCount = applicationService.countByCandidateIdAndStatus(candidateId, Application.Status.INTERVIEWING);
+            long destroyedCount = applicationService.countByCandidateIdAndStatus(candidateId, Application.Status.DESTROYED);
+            long doneCount = applicationService.countByCandidateIdAndStatus(candidateId, Application.Status.DONE);
 
             // Calculate pagination
             int totalPages = (int) Math.ceil((double) totalApplications / size);
@@ -82,6 +86,8 @@ public class CandidateApplicationController {
             model.addAttribute("approvedCount", approvedCount);
             model.addAttribute("rejectedCount", rejectedCount);
             model.addAttribute("interviewingCount", interviewingCount);
+            model.addAttribute("destroyedCount", destroyedCount);
+            model.addAttribute("doneCount", doneCount);
 
             // Candidate info from session
             model.addAttribute("candidateName", session.getAttribute("candidateName"));
@@ -98,48 +104,10 @@ public class CandidateApplicationController {
         }
     }
 
-    @GetMapping("/applications/detail")
-    public String viewApplicationDetail(
-            @RequestParam("id") Long applicationId,
-            HttpSession session,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-
-        // Check login
-        Long candidateIdLong = (Long) session.getAttribute("candidateId");
-        if (candidateIdLong == null) {
-            redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập");
-            return "redirect:/auth/login";
-        }
-
-        try {
-            Application application = applicationService.findById(applicationId);
-
-            if (application == null) {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn ứng tuyển");
-                return "redirect:/candidate/applications";
-            }
-
-            // Check if application belongs to current candidate
-            if (!application.getCandidate().getId().equals(candidateIdLong.intValue())) {
-                redirectAttributes.addFlashAttribute("error", "Bạn không có quyền xem đơn ứng tuyển này");
-                return "redirect:/candidate/applications";
-            }
-
-            model.addAttribute("application", application);
-            return "candidate/application-detail";
-
-        } catch (Exception e) {
-            System.err.println("Error loading application detail: " + e.getMessage());
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi tải chi tiết đơn ứng tuyển");
-            return "redirect:/candidate/applications";
-        }
-    }
-
-    @GetMapping("/applications/withdraw")
+    @PostMapping("/applications/withdraw")
     public String withdrawApplication(
             @RequestParam("id") Long applicationId,
+            @RequestParam(value = "reason", required = false) String reason,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
@@ -155,24 +123,22 @@ public class CandidateApplicationController {
 
             if (application == null) {
                 redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn ứng tuyển");
-                return "redirect:/candidate/applications";
-            }
-
-            // Check if application belongs to current candidate
-            if (!application.getCandidate().getId().equals(candidateIdLong.intValue())) {
-                redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thao tác với đơn ứng tuyển này");
                 return "redirect:/candidate/applications";
             }
 
             // Check if application can be withdrawn
             if (application.getStatus() == Application.Status.APPROVED ||
-                    application.getStatus() == Application.Status.REJECTED) {
-                redirectAttributes.addFlashAttribute("error", "Không thể rút đơn ứng tuyển đã được duyệt hoặc từ chối");
+                    application.getStatus() == Application.Status.REJECTED ||
+                    application.getStatus() == Application.Status.DONE ||
+                    application.getStatus() == Application.Status.DESTROYED) {
+                redirectAttributes.addFlashAttribute("error", "Không thể rút đơn ứng tuyển này");
                 return "redirect:/candidate/applications";
             }
 
-            // Update status to withdrawn (you might need to add WITHDRAWN status to your enum)
-            application.setStatus(Application.Status.REJECTED); // or create WITHDRAWN status
+            // Update status to destroyed
+            application.setStatus(Application.Status.DESTROYED);
+            application.setDestroyReason(reason != null ? reason : "Ứng viên tự rút đơn");
+            application.setUpdatedAt(LocalDateTime.now());
             applicationService.update(application);
 
             redirectAttributes.addFlashAttribute("success", "Đã rút đơn ứng tuyển thành công");
@@ -182,6 +148,92 @@ public class CandidateApplicationController {
             System.err.println("Error withdrawing application: " + e.getMessage());
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi rút đơn ứng tuyển");
+            return "redirect:/candidate/applications";
+        }
+    }
+
+    @PostMapping("/applications/accept-interview")
+    public String acceptInterview(
+            @RequestParam("id") Long applicationId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        // Check login
+        Long candidateIdLong = (Long) session.getAttribute("candidateId");
+        if (candidateIdLong == null) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập");
+            return "redirect:/auth/login";
+        }
+
+        try {
+            Application application = applicationService.findById(applicationId);
+
+            if (application == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn ứng tuyển");
+                return "redirect:/candidate/applications";
+            }
+
+            // Check if application has interview scheduled
+            if (application.getStatus() != Application.Status.INTERVIEWING || application.getInterviewTime() == null) {
+                redirectAttributes.addFlashAttribute("error", "Không có lịch phỏng vấn để xác nhận");
+                return "redirect:/candidate/applications";
+            }
+
+            // Update interview confirmation
+            application.setInterviewConfirmed(true);
+            application.setUpdatedAt(LocalDateTime.now());
+            applicationService.update(application);
+
+            redirectAttributes.addFlashAttribute("success", "Đã xác nhận tham gia phỏng vấn");
+            return "redirect:/candidate/applications";
+
+        } catch (Exception e) {
+            System.err.println("Error accepting interview: " + e.getMessage());
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi xác nhận phỏng vấn");
+            return "redirect:/candidate/applications";
+        }
+    }
+
+    @PostMapping("/applications/accept-offer")
+    public String acceptOffer(
+            @RequestParam("id") Long applicationId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        // Check login
+        Long candidateIdLong = (Long) session.getAttribute("candidateId");
+        if (candidateIdLong == null) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập");
+            return "redirect:/auth/login";
+        }
+
+        try {
+            Application application = applicationService.findById(applicationId);
+
+            if (application == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn ứng tuyển");
+                return "redirect:/candidate/applications";
+            }
+
+            // Check if application is approved
+            if (application.getStatus() != Application.Status.APPROVED) {
+                redirectAttributes.addFlashAttribute("error", "Đơn ứng tuyển chưa được duyệt");
+                return "redirect:/candidate/applications";
+            }
+
+            // Update status to done
+            application.setStatus(Application.Status.DONE);
+            application.setUpdatedAt(LocalDateTime.now());
+            applicationService.update(application);
+
+            redirectAttributes.addFlashAttribute("success", "Đã chấp nhận offer thành công!");
+            return "redirect:/candidate/applications";
+
+        } catch (Exception e) {
+            System.err.println("Error accepting offer: " + e.getMessage());
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi chấp nhận offer");
             return "redirect:/candidate/applications";
         }
     }

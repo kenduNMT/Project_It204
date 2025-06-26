@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -66,13 +67,6 @@ public class ApplicationManagementController {
         return "admin/application/index";
     }
 
-    @GetMapping("/view/{id}")
-    public String viewApplication(@PathVariable Long id, Model model) {
-        Application app = applicationService.findById(id);
-        model.addAttribute("application", app);
-        return "admin/application/view";
-    }
-
     @PostMapping("/approve/{id}")
     public String approveInterview(@PathVariable Long id,
                                    @RequestParam String interviewResult,
@@ -96,12 +90,10 @@ public class ApplicationManagementController {
 
     @PostMapping("/interview/{id}")
     public String scheduleInterview(@PathVariable Long id,
-                                    @RequestParam String interviewLink,
                                     @RequestParam String interviewTime) {
         Application app = applicationService.findById(id);
         app.setStatus(Application.Status.INTERVIEWING);
-        // app.setInterviewLink(interviewLink); // Nếu có trường này
-        // app.setInterviewTime(LocalDateTime.parse(interviewTime));
+        app.setInterviewTime(LocalDateTime.parse(interviewTime));
         applicationService.update(app);
         return "redirect:/admin/application";
     }

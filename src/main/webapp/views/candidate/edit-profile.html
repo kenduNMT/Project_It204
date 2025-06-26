@@ -3,226 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tìm việc làm - Ứng viên</title>
+  <title>Chỉnh sửa thông tin - Ứng viên</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     .sidebar {
       min-height: 100vh;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     }
-
     .sidebar .nav-link {
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255,255,255,0.8);
       padding: 12px 20px;
       margin: 5px 10px;
       border-radius: 8px;
       transition: all 0.3s ease;
     }
-
     .sidebar .nav-link:hover, .sidebar .nav-link.active {
       color: white;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.2);
       transform: translateX(5px);
     }
-
+    .form-card {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .btn-save {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      color: white;
+    }
+    .btn-cancel {
+      background: #6c757d;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+      color: white;
+    }
     .navbar-brand {
       font-weight: bold;
       color: #667eea !important;
     }
-
+    .form-floating label {
+      color: #6c757d;
+    }
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
     .header-card {
-      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border-radius: 15px;
     }
-
-    .job-card {
-      border-radius: 15px;
-      border: none;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      margin-bottom: 20px;
-    }
-
-    .job-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .job-header {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 15px 15px 0 0;
-    }
-
-    .company-logo {
-      width: 60px;
-      height: 60px;
-      border-radius: 10px;
-      object-fit: cover;
-    }
-
-    .salary-badge {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    .tech-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+      padding: 8px 15px;
       border-radius: 20px;
-      padding: 5px 15px;
-      font-weight: 500;
-    }
-
-    .urgent-badge {
-      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-      color: white;
-      border-radius: 20px;
-      padding: 5px 15px;
-      font-weight: 500;
-    }
-
-    .search-card {
-      border-radius: 15px;
-      border: none;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-apply {
-      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-      border: none;
-      border-radius: 25px;
-      color: white;
-      font-weight: 500;
+      font-size: 0.9em;
+      display: inline-flex;
+      align-items: center;
+      margin: 3px;
       transition: all 0.3s ease;
     }
-
-    .btn-apply:hover {
+    .tech-badge:hover {
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    .tech-badge .btn-remove {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      margin-left: 8px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .tech-badge .btn-remove:hover {
+      background: rgba(255,255,255,0.3);
       color: white;
     }
-
-    .btn-save {
-      background: #ffc107;
-      border: none;
-      border-radius: 25px;
-      color: #000;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .btn-save:hover {
-      background: #e0a800;
-      transform: translateY(-2px);
-      color: #000;
-    }
-
-    .filter-section {
+    .tech-select-container {
       background: #f8f9fa;
       border-radius: 10px;
       padding: 20px;
-      margin-bottom: 20px;
+      border: 2px dashed #dee2e6;
+      transition: all 0.3s ease;
     }
-
-    .job-tags .badge {
-      margin: 2px;
-      padding: 5px 10px;
-      font-size: 0.75rem;
-    }
-
-    .pagination .page-link {
-      border-radius: 10px;
-      margin: 0 2px;
-      border: none;
-      color: #667eea;
-    }
-
-    .pagination .page-item.active .page-link {
-      background: #667eea;
+    .tech-select-container:hover {
       border-color: #667eea;
+      background: #f0f2ff;
     }
-
-    .job-meta {
-      font-size: 0.9rem;
-      color: #6c757d;
-    }
-
-    .location-badge {
-      background: #6c757d;
-      color: white;
-      border-radius: 15px;
-      padding: 3px 10px;
-      font-size: 0.8rem;
-    }
-
-    .experience-badge {
-      background: #17a2b8;
-      color: white;
-      border-radius: 15px;
-      padding: 3px 10px;
-      font-size: 0.8rem;
-    }
-
-    .filter-badge {
-      background: #e9ecef;
-      color: #495057;
-      border: none;
-      margin: 2px;
-    }
-
-    .filter-badge.active {
-      background: #667eea;
-      color: white;
-    }
-
-    .saved-job {
-      position: relative;
-    }
-
-    .saved-indicator {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      color: #ffc107;
-    }
-
-    .quick-stats {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px 0;
-    }
-
-    .job-card {
-      transition: transform 0.3s;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .job-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    .job-title {
-      color: #2c3e50;
-      font-weight: 600;
-    }
-    .company-name {
-      color: #7f8c8d;
-      font-size: 0.9rem;
-    }
-    .badge-custom {
-      background-color: #e74c3c;
-      color: white;
-    }
-    .search-box {
-      margin-bottom: 30px;
-    }
-    .expired-badge {
-      background: #dc3545;
-      color: white;
-    }
-    .active-badge {
+    .btn-add-tech {
       background: #28a745;
+      border: none;
+      border-radius: 20px;
       color: white;
+      font-size: 0.85em;
+      padding: 6px 15px;
+      transition: all 0.3s ease;
+    }
+    .btn-add-tech:hover {
+      background: #218838;
+      transform: translateY(-1px);
+      color: white;
+    }
+    .empty-tech-message {
+      text-align: center;
+      color: #6c757d;
+      font-style: italic;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border: 2px dashed #dee2e6;
     }
   </style>
 </head>
@@ -234,19 +149,13 @@
     <div class="navbar-nav ms-auto">
       <div class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-          <i class="fas fa-user-circle"></i> <span
-                th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</span>
+          <i class="fas fa-user-circle"></i> <span th:text="${candidate.name}">Tên ứng viên</span>
         </a>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" th:href="@{/candidate/profile}"><i class="fas fa-user"></i> Thông tin
-            cá nhân</a></li>
-          <li><a class="dropdown-item" th:href="@{/candidate/change-password}"><i class="fas fa-key"></i> Đổi
-            mật khẩu</a></li>
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-          <li><a class="dropdown-item" th:href="@{/auth/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
-          </li>
+          <li><a class="dropdown-item" th:href="@{/candidate/profile}"><i class="fas fa-user"></i> Thông tin cá nhân</a></li>
+          <li><a class="dropdown-item" th:href="@{/candidate/change-password}"><i class="fas fa-key"></i> Đổi mật khẩu</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" th:href="@{/auth/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
         </ul>
       </div>
     </div>
@@ -259,20 +168,17 @@
     <div class="col-md-3 col-lg-2 px-0">
       <div class="sidebar">
         <div class="p-3 text-center">
-          <img src="https://via.placeholder.com/80x80/ffffff/667eea?text=Avatar"
-               class="rounded-circle mb-2" alt="Avatar">
-          <h6 class="text-white" th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</h6>
-          <small class="text-white-50" th:text="${session.candidateEmail ?: 'email@example.com'}">email@example.com</small>
+          <h6 class="text-white" th:text="${candidate.name}">Tên ứng viên</h6>
+          <small class="text-white-50" th:text="${candidate.email}">email@example.com</small>
         </div>
-
         <nav class="nav nav-pills flex-column">
           <a class="nav-link" th:href="@{/candidate/dashboard}">
             <i class="fas fa-tachometer-alt me-2"></i> Trang chủ
           </a>
-          <a class="nav-link" th:href="@{/candidate/profile}">
+          <a class="nav-link active" th:href="@{/candidate/profile}">
             <i class="fas fa-user me-2"></i> Thông tin cá nhân
           </a>
-          <a class="nav-link active" th:href="@{/candidate/jobs}">
+          <a class="nav-link" th:href="@{/candidate/jobs}">
             <i class="fas fa-search me-2"></i> Tìm việc làm
           </a>
           <a class="nav-link" th:href="@{/candidate/applications}">
@@ -289,309 +195,278 @@
         <div class="header-card p-4 mb-4">
           <div class="row align-items-center">
             <div class="col-md-8">
-              <h2><i class="fas fa-search me-3"></i>Tìm việc làm</h2>
-              <p class="mb-0">Khám phá các cơ hội nghề nghiệp phù hợp với bạn</p>
+              <h2><i class="fas fa-edit me-3"></i>Chỉnh sửa thông tin cá nhân</h2>
+              <p class="mb-0">Cập nhật thông tin để hoàn thiện hồ sơ của bạn</p>
             </div>
             <div class="col-md-4 text-end">
-                                <span class="badge bg-light text-dark fs-6">
-                                    <i class="fas fa-briefcase me-2"></i><span id="jobCount" th:text="${totalElements ?: 0}">125</span> việc làm
-                                </span>
+              <a th:href="@{/candidate/profile}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- Search and Filter Section -->
-        <div class="search-card card p-4 mb-4">
-          <form id="jobSearchForm" th:action="@{/candidate/jobs}" method="get">
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label"><i class="fas fa-search me-2"></i>Từ khóa</label>
-                <input type="text" class="form-control" id="keyword" name="keyword"
-                       th:value="${keyword}"
-                       placeholder="Nhập vị trí công việc...">
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
-                <button type="submit" class="btn btn-primary w-100">
-                  <i class="fas fa-search me-2"></i>Tìm kiếm
-                </button>
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle me-2"></i><span th:text="${successMessage}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i><span th:text="${errorMessage}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Edit Form -->
+        <form th:action="@{/candidate/profile/update}" th:object="${candidate}" method="post">
+          <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6 mb-4">
+              <div class="card form-card">
+                <div class="card-header bg-primary text-white">
+                  <h5 class="mb-0"><i class="fas fa-user me-2"></i>Thông tin cơ bản</h5>
+                </div>
+                <div class="card-body">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="name"
+                           th:field="*{name}" placeholder="Họ và tên">
+                    <label for="name">Họ và tên *</label>
+                    <div th:if="${#fields.hasErrors('name')}" class="text-danger small mt-1">
+                      <span th:errors="*{name}"></span>
+                    </div>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="email"
+                           th:field="*{email}" readonly placeholder="Email">
+                    <label for="email">Email (không thể thay đổi)</label>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <input type="tel" class="form-control" id="phone"
+                           th:field="*{phone}" placeholder="Số điện thoại">
+                    <label for="phone">Số điện thoại</label>
+                    <div th:if="${#fields.hasErrors('phone')}" class="text-danger small mt-1">
+                      <span th:errors="*{phone}"></span>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="gender" class="form-label">Giới tính</label>
+                    <select class="form-select" id="gender" th:field="*{gender}">
+                      <option value="">-- Chọn giới tính --</option>
+                      <option value="Nam">Nam</option>
+                      <option value="Nữ">Nữ</option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('gender')}" class="text-danger small mt-1">
+                      <span th:errors="*{gender}"></span>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="dob" class="form-label">Ngày sinh</label>
+                    <input type="date" class="form-control" id="dob" th:field="*{dob}">
+                    <div th:if="${#fields.hasErrors('dob')}" class="text-danger small mt-1">
+                      <span th:errors="*{dob}"></span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </form>
 
-          <!-- Advanced Filters -->
-          <div class="filter-section mt-3">
-            <h6 class="mb-3"><i class="fas fa-filter me-2"></i>Bộ lọc nâng cao</h6>
+            <!-- Professional Information -->
+            <div class="col-md-6 mb-4">
+              <div class="card form-card">
+                <div class="card-header bg-success text-white">
+                  <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Thông tin nghề nghiệp</h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="experience" class="form-label">Số năm kinh nghiệm</label>
+                    <input type="number" class="form-control" id="experience"
+                           th:field="*{experience}" min="0" max="50" placeholder="Ví dụ: 2">
+                    <div class="form-text">Nhập số năm kinh nghiệm làm việc</div>
+                    <div th:if="${#fields.hasErrors('experience')}" class="text-danger small mt-1">
+                      <span th:errors="*{experience}"></span>
+                    </div>
+                  </div>
 
-            <!-- Salary Range -->
-            <div class="mb-3">
-              <label class="form-label">Mức lương (triệu VND)</label>
-              <div class="btn-group" role="group">
-                <input type="radio" class="btn-check" name="salary" id="salary1" value="0-10">
-                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary1">Dưới 10
-                  triệu</label>
-
-                <input type="radio" class="btn-check" name="salary" id="salary2" value="10-20">
-                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary2">10-20
-                  triệu</label>
-
-                <input type="radio" class="btn-check" name="salary" id="salary3" value="20-30">
-                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary3">20-30
-                  triệu</label>
-
-                <input type="radio" class="btn-check" name="salary" id="salary4" value="30+">
-                <label class="btn btn-outline-secondary btn-sm filter-badge" for="salary4">Trên 30
-                  triệu</label>
+                  <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả bản thân</label>
+                    <textarea class="form-control" id="description" rows="8"
+                              th:field="*{description}"
+                              placeholder="Hãy viết một vài dòng giới thiệu về bản thân, kỹ năng, sở thích và mục tiêu nghề nghiệp của bạn..."></textarea>
+                    <div class="form-text">Mô tả chi tiết sẽ giúp nhà tuyển dụng hiểu rõ hơn về bạn</div>
+                    <div th:if="${#fields.hasErrors('description')}" class="text-danger small mt-1">
+                      <span th:errors="*{description}"></span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <!-- Experience Level -->
-            <div class="mb-3">
-              <label class="form-label">Kinh nghiệm</label>
-              <div class="btn-group" role="group">
-                <input type="radio" class="btn-check" name="experience" id="exp1" value="0">
-                <label class="btn btn-outline-info btn-sm filter-badge" for="exp1">Chưa có kinh
-                  nghiệm</label>
-
-                <input type="radio" class="btn-check" name="experience" id="exp2" value="1-2">
-                <label class="btn btn-outline-info btn-sm filter-badge" for="exp2">1-2 năm</label>
-
-                <input type="radio" class="btn-check" name="experience" id="exp3" value="3-5">
-                <label class="btn btn-outline-info btn-sm filter-badge" for="exp3">3-5 năm</label>
-
-                <input type="radio" class="btn-check" name="experience" id="exp4" value="5+">
-                <label class="btn btn-outline-info btn-sm filter-badge" for="exp4">Trên 5 năm</label>
-              </div>
-            </div>
-
-            <div class="text-end">
-              <button type="button" class="btn btn-outline-secondary btn-sm me-2"
-                      onclick="clearFilters()">
-                <i class="fas fa-times me-1"></i>Xóa bộ lọc
+          <!-- Action Buttons -->
+          <div class="card form-card">
+            <div class="card-body text-center">
+              <button type="submit" class="btn btn-save btn-lg me-3">
+                <i class="fas fa-save me-2"></i>Lưu thay đổi
               </button>
-              <button type="button" class="btn btn-primary btn-sm" onclick="applyFilters()">
-                <i class="fas fa-check me-1"></i>Áp dụng
-              </button>
+              <a th:href="@{/candidate/profile}" class="btn btn-cancel btn-lg">
+                <i class="fas fa-times me-2"></i>Hủy bỏ
+              </a>
             </div>
           </div>
-        </div>
-
-        <!-- Sort and View Options -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-                        <span class="text-muted">Hiển thị <strong id="showingCount" th:text="${jobs != null ? jobs.size() : 0}">0</strong> trong <strong
-                                id="totalCount" th:text="${totalElements ?: 0}">0</strong> kết quả</span>
-          </div>
-          <div class="d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Sắp xếp:</label>
-            <select class="form-select form-select-sm" id="sortBy" style="width: auto;">
-              <option value="newest">Mới nhất</option>
-              <option value="salary-high">Lương cao nhất</option>
-              <option value="salary-low">Lương thấp nhất</option>
-              <option value="deadline">Gần hết hạn</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Job List -->
-        <div class="row" th:if="${jobs != null and !jobs.empty}">
-          <div th:each="job : ${jobs}" class="col-md-6 col-lg-4">
-            <div class="card job-card h-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="card-title job-title" th:text="${job.name}">Job Title</h5>
-                  <div>
-                    <!-- Hiển thị trạng thái active/expired -->
-                    <span th:if="${job.active}" class="badge active-badge">Đang tuyển</span>
-                    <span th:unless="${job.active}" class="badge expired-badge">Hết hạn</span>
+          <!-- Technology Management -->
+          <div class="row">
+            <div class="col-12 mb-4">
+              <div class="card form-card">
+                <div class="card-header bg-info text-white">
+                  <h5 class="mb-0"><i class="fas fa-code me-2"></i>Quản lý công nghệ</h5>
+                </div>
+                <div class="card-body">
+                  <!-- Current Technologies -->
+                  <div class="mb-4">
+                    <h6 class="mb-3"><i class="fas fa-star me-2"></i>Công nghệ hiện tại của bạn:</h6>
+                    <div th:if="${candidateTechnologies != null and !candidateTechnologies.isEmpty()}">
+                      <div th:each="tech : ${candidateTechnologies}" class="tech-badge">
+                        <span th:text="${tech.name}">Technology Name</span>
+                        <form th:action="@{/candidate/profile/technologies/remove}" method="post" style="display: inline;">
+                          <input type="hidden" name="technologyId" th:value="${tech.id}">
+                          <button type="submit" class="btn-remove"
+                                  onclick="return confirm('Bạn có chắc muốn xóa công nghệ này?')"
+                                  title="Xóa công nghệ">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                    <div th:if="${candidateTechnologies == null or candidateTechnologies.isEmpty()}" class="empty-tech-message">
+                      <i class="fas fa-info-circle me-2"></i>
+                      Bạn chưa thêm công nghệ nào. Hãy thêm các công nghệ bạn biết để tăng cơ hội được tuyển dụng!
+                    </div>
                   </div>
-                </div>
 
-                <!-- Mô tả công việc -->
-                <p class="text-muted small mb-2" th:text="${#strings.abbreviate(job.description, 100)}">Job Description</p>
-
-                <!-- Mức lương -->
-                <div class="mb-2" th:if="${job.minSalary != null or job.maxSalary != null}">
-                  <span class="text-muted"><i class="fas fa-money-bill-wave me-1"></i></span>
-                  <span class="salary-badge">
-                                        <span th:if="${job.minSalary != null and job.maxSalary != null}"
-                                              th:text="${job.minSalary + ' - ' + job.maxSalary + ' triệu'}">Salary Range</span>
-                                        <span th:if="${job.minSalary != null and job.maxSalary == null}"
-                                              th:text="'Từ ' + ${job.minSalary} + ' triệu'">Min Salary</span>
-                                        <span th:if="${job.minSalary == null and job.maxSalary != null}"
-                                              th:text="'Tối đa ' + ${job.maxSalary} + ' triệu'">Max Salary</span>
-                                    </span>
-                </div>
-                <div class="mb-2" th:if="${job.minSalary == null and job.maxSalary == null}">
-                  <span class="text-muted"><i class="fas fa-money-bill-wave me-1"></i></span>
-                  <span class="badge bg-secondary">Thỏa thuận</span>
-                </div>
-
-                <!-- Kinh nghiệm yêu cầu -->
-                <div class="mb-2" th:if="${job.minExperience != null}">
-                  <span class="text-muted"><i class="fas fa-briefcase me-1"></i></span>
-                  <span class="experience-badge" th:text="${job.minExperience == 0 ? 'Chưa cần kinh nghiệm' : job.minExperience + '+ năm kinh nghiệm'}">Experience</span>
-                </div>
-
-                <!-- Công nghệ yêu cầu -->
-                <div class="mb-3" th:if="${job.technologies != null and !job.technologies.empty}">
-                                    <span th:each="tech : ${job.technologies}"
-                                          class="badge bg-light text-dark me-1 mb-1"
-                                          th:text="${tech.name}">Tech</span>
-                </div>
-
-                <!-- Ngày đăng và ngày hết hạn -->
-                <div class="job-meta mb-3">
-                  <div th:if="${job.createdDate != null}">
-                    <small class="text-muted">
-                      <i class="fas fa-calendar-plus me-1"></i>
-                      Đăng: <span th:text="${#dates.format(job.createdDate, 'dd/MM/yyyy')}">Posted Date</span>
-                    </small>
-                  </div>
-                  <div th:if="${job.expiredDate != null}">
-                    <small class="text-muted">
-                      <i class="fas fa-calendar-times me-1"></i>
-                      Hết hạn: <span th:text="${#dates.format(job.expiredDate, 'dd/MM/yyyy')}">Expired Date</span>
-                    </small>
-                  </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <button type="button" class="btn btn-sm btn-outline-warning me-1"
-                            th:onclick="'saveJob(' + ${job.id} + ')'">
-                      <i class="fas fa-heart"></i>
-                    </button>
-                  </div>
-                  <div>
-                    <a th:href="@{'/candidate/jobs/' + ${job.id}}" class="btn btn-sm btn-outline-primary me-1">
-                      <i class="fas fa-eye"></i> Chi tiết
-                    </a>
-                    <button type="button" class="btn btn-sm btn-primary"
-                            th:onclick="'quickApply(' + ${job.id} + ', \'' + ${job.name} + '\')'">
-                      <i class="fas fa-paper-plane"></i> Ứng tuyển
-                    </button>
+                  <!-- Add New Technology -->
+                  <div class="tech-select-container">
+                    <h6 class="mb-3"><i class="fas fa-plus-circle me-2"></i>Thêm công nghệ mới:</h6>
+                    <form th:action="@{/candidate/profile/technologies/add}" method="post" class="d-flex align-items-center gap-3">
+                      <div class="flex-grow-1">
+                        <select name="technologyId" class="form-select" required>
+                          <option value="">-- Chọn công nghệ để thêm --</option>
+                          <option th:each="tech : ${allTechnologies}"
+                                  th:if="${candidateTechnologies == null or !candidateTechnologies.contains(tech)}"
+                                  th:value="${tech.id}"
+                                  th:text="${tech.name}">
+                            Technology Name
+                          </option>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-add-tech">
+                        <i class="fas fa-plus me-1"></i>Thêm
+                      </button>
+                    </form>
+                    <div class="form-text mt-2">
+                      <i class="fas fa-lightbulb me-1"></i>
+                      Tip: Thêm những công nghệ bạn thành thạo để nhà tuyển dụng dễ dàng tìm thấy bạn
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- No jobs found message -->
-        <div th:if="${jobs == null or jobs.empty}" class="text-center py-5">
-          <div class="card">
-            <div class="card-body">
-              <i class="fas fa-search fa-3x text-muted mb-3"></i>
-              <h5 class="text-muted">Không tìm thấy việc làm nào</h5>
-              <p class="text-muted">Hãy thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc</p>
-            </div>
+          <!-- Error Messages -->
+          <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+            <h6><i class="fas fa-exclamation-circle me-2"></i>Vui lòng kiểm tra lại thông tin:</h6>
+            <ul class="mb-0">
+              <li th:each="error : ${#fields.allErrors()}" th:text="${error}">Error message</li>
+            </ul>
           </div>
-        </div>
 
-        <!-- Pagination -->
-        <nav th:if="${totalPages > 1}" aria-label="Page navigation" class="mt-4">
-          <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-              <a class="page-link" th:href="@{/candidate/jobs(keyword=${keyword}, page=${currentPage - 1})}">Previous</a>
-            </li>
-
-            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                class="page-item" th:classappend="${i == currentPage} ? 'active'">
-              <a class="page-link" th:href="@{/candidate/jobs(keyword=${keyword}, page=${i})}" th:text="${i + 1}">1</a>
-            </li>
-
-            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-              <a class="page-link" th:href="@{/candidate/jobs(keyword=${keyword}, page=${currentPage + 1})}">Next</a>
-            </li>
-          </ul>
-        </nav>
-
+        </form>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-
 <script>
-  // JavaScript functions for interactivity
-  function clearFilters() {
-    // Clear all filter inputs
-    document.querySelectorAll('input[name="salary"]').forEach(input => input.checked = false);
-    document.querySelectorAll('input[name="experience"]').forEach(input => input.checked = false);
-    document.getElementById('keyword').value = '';
-
-    // Reload page without filters
-    window.location.href = '/candidate/jobs';
-  }
-
-  function applyFilters() {
-    // Get current form and submit
-    document.getElementById('jobSearchForm').submit();
-  }
-
-  function saveJob(jobId) {
-    // Make AJAX request to save job
-    fetch(`/candidate/jobs/${jobId}/save`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-            .then(response => response.json())
-            .then(data => {
-              if (data.status === 'success') {
-                alert('Đã lưu việc làm thành công!');
-              } else {
-                alert(data.message || 'Có lỗi xảy ra!');
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('Có lỗi xảy ra khi lưu việc làm!');
-            });
-  }
-
-  function quickApply(jobId, jobName) {
-    if (confirm(`Bạn có muốn ứng tuyển vào vị trí "${jobName}"?`)) {
-      // Make AJAX request to apply for job
-      fetch(`/candidate/jobs/${jobId}/apply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          'applicantName': 'Candidate Name', // Should get from session or form
-          'applicantEmail': 'candidate@email.com', // Should get from session or form
-          'applicantPhone': '0123456789', // Should get from form
-          'coverLetter': 'Tôi quan tâm đến vị trí này.'
-        })
-      })
-              .then(response => response.json())
-              .then(data => {
-                if (data.status === 'success') {
-                  alert('Ứng tuyển thành công!');
-                } else {
-                  alert(data.message || 'Có lỗi xảy ra!');
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra khi ứng tuyển!');
-              });
+  // Form validation
+  document.querySelector('form[th\\:action="/candidate/profile/update"]').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    if (!name) {
+      e.preventDefault();
+      alert('Vui lòng nhập họ và tên');
+      document.getElementById('name').focus();
+      return false;
     }
+  });
+
+  // Character counter for description
+  const description = document.getElementById('description');
+  if (description) {
+    description.addEventListener('input', function() {
+      const maxLength = 1000;
+      const currentLength = this.value.length;
+
+      let counter = document.getElementById('char-counter');
+      if (!counter) {
+        counter = document.createElement('div');
+        counter.id = 'char-counter';
+        counter.className = 'form-text text-end';
+        this.parentNode.appendChild(counter);
+      }
+
+      counter.textContent = currentLength + '/' + maxLength + ' ký tự';
+      counter.style.color = currentLength > maxLength ? '#dc3545' : '#6c757d';
+    });
   }
 
-  // Sort functionality
-  document.getElementById('sortBy').addEventListener('change', function() {
-    const sortValue = this.value;
-    const url = new URL(window.location);
-    url.searchParams.set('sortBy', sortValue);
-    window.location.href = url.toString();
+  // Technology management animations
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to tech badges
+    const techBadges = document.querySelectorAll('.tech-badge');
+    techBadges.forEach(badge => {
+      badge.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px) scale(1.05)';
+      });
+      badge.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+
+    // Smooth scroll to technology section if there's a success message about technology
+    const successMessage = document.querySelector('.alert-success');
+    if (successMessage && (successMessage.textContent.includes('công nghệ') || successMessage.textContent.includes('technology'))) {
+      setTimeout(() => {
+        document.querySelector('.card-header .fa-code').closest('.card').scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 1000);
+    }
+  });
+
+  // Confirm before removing technology
+  document.querySelectorAll('form[action*="/technologies/remove"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      const techName = this.closest('.tech-badge').querySelector('span').textContent;
+      if (!confirm(`Bạn có chắc muốn xóa công nghệ "${techName}" khỏi hồ sơ của mình?`)) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  // Add technology form validation
+  document.querySelector('form[action*="/technologies/add"]').addEventListener('submit', function(e) {
+    const select = this.querySelector('select[name="technologyId"]');
+    if (!select.value) {
+      e.preventDefault();
+      alert('Vui lòng chọn một công nghệ để thêm');
+      select.focus();
+    }
   });
 </script>
-
 </body>
 </html>

@@ -1,8 +1,10 @@
 package bk.controller;
 
 import bk.dto.CandidateProfileUpdateDTO;
+import bk.entity.Application;
 import bk.entity.Candidate;
 import bk.entity.Technology;
+import bk.service.ApplicationService;
 import bk.service.CandidateService;
 import bk.service.TechnologyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class CandidateController {
     @Autowired
     private TechnologyService technologyService;
 
+    @Autowired
+    private ApplicationService applicationService;
     /**
      * Kiểm tra đăng nhập
      */
@@ -53,10 +57,14 @@ public class CandidateController {
         Candidate candidate = getCurrentCandidate(session);
         model.addAttribute("candidate", candidate);
 
+        long totalCount = applicationService.countByCandidateId(Math.toIntExact(candidate.getId()));
+        long pendingCount = applicationService.countByCandidateIdAndStatus(Math.toIntExact(candidate.getId()), Application.Status.PENDING);
+        long approvedCount = applicationService.countByCandidateIdAndStatus(Math.toIntExact(candidate.getId()), Application.Status.APPROVED);
+
         // Thống kê cơ bản
-        model.addAttribute("totalApplications", 0); // Sẽ cập nhật sau khi có bảng applications
-        model.addAttribute("pendingApplications", 0);
-        model.addAttribute("acceptedApplications", 0);
+        model.addAttribute("totalApplications", totalCount);
+        model.addAttribute("pendingApplications", pendingCount);
+        model.addAttribute("acceptedApplications", approvedCount);
 
         return "candidate/dashboard";
     }
@@ -303,42 +311,6 @@ public class CandidateController {
 
         return "redirect:/candidate/technologies";
     }
-
-    /**
-     * Hiển thị danh sách đơn ứng tuyển
-     */
-    @GetMapping("/applications")
-    public String showApplications(HttpSession session, Model model) {
-        if (!isLoggedIn(session)) {
-            return "redirect:/auth/login";
-        }
-
-        Candidate candidate = getCurrentCandidate(session);
-        model.addAttribute("candidate", candidate);
-
-        // TODO: Lấy danh sách đơn ứng tuyển khi có bảng applications
-        model.addAttribute("applications", java.util.Collections.emptyList());
-
-        return "candidate/applications";
-    }
-
-    /**
-     * Hiển thị danh sách việc làm
-     */
-//    @GetMapping("/jobs")
-//    public String showJobs(HttpSession session, Model model) {
-//        if (!isLoggedIn(session)) {
-//            return "redirect:/auth/login";
-//        }
-//
-//        Candidate candidate = getCurrentCandidate(session);
-//        model.addAttribute("candidate", candidate);
-//
-//        // TODO: Lấy danh sách việc làm khi có bảng recruitment_position
-//        model.addAttribute("jobs", java.util.Collections.emptyList());
-//
-//        return "candidate/jobs";
-//    }
 
     /**
      * Đổi mật khẩu - hiển thị form

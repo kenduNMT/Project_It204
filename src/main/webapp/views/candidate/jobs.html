@@ -173,8 +173,6 @@
         <div class="col-md-3 col-lg-2 px-0">
             <div class="sidebar">
                 <div class="p-3 text-center">
-                    <img src="https://via.placeholder.com/80x80/ffffff/667eea?text=Avatar"
-                         class="rounded-circle mb-2" alt="Avatar">
                     <h6 class="text-white" th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</h6>
                     <small class="text-white-50" th:text="${session.candidateEmail ?: 'email@example.com'}">email@example.com</small>
                 </div>
@@ -267,19 +265,6 @@
                                        placeholder="Số năm kinh nghiệm">
                             </div>
 
-                            <!-- Location -->
-                            <div class="mb-3">
-                                <label class="form-label">Địa điểm</label>
-                                <input type="text" class="form-control" name="location" th:value="${location}"
-                                       placeholder="Thành phố, tỉnh...">
-                            </div>
-
-                            <!-- Category -->
-                            <div class="mb-3">
-                                <label class="form-label">Lĩnh vực</label>
-                                <input type="text" class="form-control" name="category" th:value="${category}"
-                                       placeholder="IT, Marketing, Sales...">
-                            </div>
                         </div>
 
                         <div class="text-end">
