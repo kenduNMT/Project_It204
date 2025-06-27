@@ -20,21 +20,26 @@
             width: 250px;
             z-index: 1000;
         }
-
         .sidebar .nav-link {
             color: #333;
             font-weight: 500;
-            padding: 12px 20px;
-        }
-
-        .sidebar .nav-link.active {
-            background: #e9ecef;
+            padding: 0.75rem 1rem;
+            margin: 0.2rem 0;
             border-radius: 0.5rem;
-            color: #007bff;
+            transition: all 0.2s ease;
+        }
+        .sidebar .nav-link.active {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
         }
         .sidebar .nav-link:hover {
             background: #f8f9fa;
-            border-radius: 0.5rem;
+            color: #1976d2;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
         }
 
         .profile-section {
@@ -82,31 +87,11 @@
             font-weight: 500;
         }
 
-        .status-active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
         .gender-badge {
             padding: 4px 8px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 500;
-        }
-
-        .gender-male {
-            background: #cce5ff;
-            color: #0056b3;
-        }
-
-        .gender-female {
-            background: #ffe6f0;
-            color: #d63384;
         }
 
         .action-buttons .btn {
@@ -129,11 +114,6 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 20px;
-        }
-
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
         }
 
         .tech-container {
@@ -234,7 +214,7 @@
         <div class="text-center mb-4">
             <h5 class="fw-bold text-primary">My Company</h5>
         </div>
-        <ul class="nav flex-column">
+        <ul class="nav flex-column px-3">
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/dashboard}">
                     <i class="fas fa-chart-line me-2"></i> Dashboard
@@ -257,7 +237,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/admin/application}">
-                    <i class="fas fa-file-alt me-2"></i> Applications
+                    <i class="fas fa-file-alt me-2"></i> Application
                 </a>
             </li>
         </ul>

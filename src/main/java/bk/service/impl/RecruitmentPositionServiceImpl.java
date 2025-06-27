@@ -92,8 +92,6 @@ public class RecruitmentPositionServiceImpl implements RecruitmentPositionServic
         if (existingPosition != null) {
             existingPosition.setName(recruitmentPosition.getName());
             existingPosition.setDescription(recruitmentPosition.getDescription());
-            existingPosition.setLocation(recruitmentPosition.getLocation());
-            existingPosition.setCategory(recruitmentPosition.getCategory());
             existingPosition.setMinSalary(recruitmentPosition.getMinSalary());
             existingPosition.setMaxSalary(recruitmentPosition.getMaxSalary());
             existingPosition.setMinExperience(recruitmentPosition.getMinExperience());
@@ -116,26 +114,6 @@ public class RecruitmentPositionServiceImpl implements RecruitmentPositionServic
     @Override
     public void delete(Integer id) {
         recruitmentPositionDAO.delete(id);
-    }
-
-    @Override
-    public void hardDelete(Integer id) {
-        recruitmentPositionDAO.hardDelete(id);
-    }
-
-    @Override
-    public List<RecruitmentPosition> findByName(String name) {
-        return recruitmentPositionDAO.findByName(name);
-    }
-
-    @Override
-    public List<RecruitmentPosition> findActivePositions() {
-        return recruitmentPositionDAO.findActivePositions();
-    }
-
-    @Override
-    public List<RecruitmentPosition> findExpiredPositions() {
-        return recruitmentPositionDAO.findExpiredPositions();
     }
 
     @Override
@@ -180,26 +158,6 @@ public class RecruitmentPositionServiceImpl implements RecruitmentPositionServic
     }
 
     @Override
-    public List<String> getAvailableLocations() {
-        try {
-            return recruitmentPositionDAO.getAvailableLocations();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Arrays.asList("Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ");
-        }
-    }
-
-    @Override
-    public List<String> getAvailableCategories() {
-        try {
-            return recruitmentPositionDAO.getAvailableCategories();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Arrays.asList("IT", "Marketing", "Sales", "HR", "Finance", "Design");
-        }
-    }
-
-    @Override
     public Map<String, Object> getSalaryRange() {
         try {
             return recruitmentPositionDAO.getSalaryRange();
@@ -211,5 +169,10 @@ public class RecruitmentPositionServiceImpl implements RecruitmentPositionServic
             defaultRange.put("average", 25.0);
             return defaultRange;
         }
+    }
+
+    @Override
+    public long getTotalCount() {
+        return recruitmentPositionDAO.count();
     }
 }

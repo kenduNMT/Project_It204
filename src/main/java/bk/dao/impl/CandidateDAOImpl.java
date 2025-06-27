@@ -2,7 +2,6 @@ package bk.dao.impl;
 
 import bk.dao.CandidateDAO;
 import bk.entity.Candidate;
-import bk.entity.Technology;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -97,45 +96,9 @@ public class CandidateDAOImpl implements CandidateDAO {
     }
 
     @Override
-    public List<Candidate> findAllActive() {
-        try {
-            String hql = "FROM Candidate c WHERE c.isDeleted = false ORDER BY c.createdAt DESC";
-            Query<Candidate> query = getCurrentSession().createQuery(hql, Candidate.class);
-            return query.list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public List<Candidate> findAllForExport() {
-        try {
-            String hql = "FROM Candidate c ORDER BY c.createdAt DESC";
-            Query<Candidate> query = getCurrentSession().createQuery(hql, Candidate.class);
-            return query.list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
     public void deleteById(Long id) {
         try {
             String hql = "UPDATE Candidate c SET c.isDeleted = true WHERE c.id = :id";
-            Query query = getCurrentSession().createQuery(hql);
-            query.setParameter("id", id);
-            query.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void hardDeleteById(Long id) {
-        try {
-            String hql = "DELETE FROM Candidate c WHERE c.id = :id";
             Query query = getCurrentSession().createQuery(hql);
             query.setParameter("id", id);
             query.executeUpdate();
@@ -168,13 +131,11 @@ public class CandidateDAOImpl implements CandidateDAO {
             // Data query
             StringBuilder hql = new StringBuilder("FROM Candidate c ORDER BY ");
             if (pageable.getSort().isSorted()) {
-                pageable.getSort().forEach(order -> {
-                    hql.append("c.")
-                            .append(order.getProperty())
-                            .append(" ")
-                            .append(order.getDirection().name())
-                            .append(", ");
-                });
+                pageable.getSort().forEach(order -> hql.append("c.")
+                        .append(order.getProperty())
+                        .append(" ")
+                        .append(order.getDirection().name())
+                        .append(", "));
                 hql.setLength(hql.length() - 2); // Remove last comma
             } else {
                 hql.append("c.createdAt DESC");
@@ -267,127 +228,7 @@ public class CandidateDAOImpl implements CandidateDAO {
         }
     }
 
-    @Override
-    public long countByFilter(String search, String status, String gender) {
-        try {
-            StringBuilder whereClause = new StringBuilder("WHERE 1=1 ");
-
-            if (search != null && !search.trim().isEmpty()) {
-                whereClause.append("AND (LOWER(c.name) LIKE LOWER(:search) ")
-                        .append("OR LOWER(c.email) LIKE LOWER(:search) ")
-                        .append("OR LOWER(c.phone) LIKE LOWER(:search)) ");
-            }
-
-            if (status != null && !status.isEmpty()) {
-                whereClause.append("AND c.status = :status ");
-            }
-
-            if (gender != null && !gender.isEmpty()) {
-                whereClause.append("AND c.gender = :gender ");
-            }
-
-            String countHql = "SELECT COUNT(c) FROM Candidate c " + whereClause;
-            Query<Long> countQuery = getCurrentSession().createQuery(countHql, Long.class);
-
-            setQueryParameters(countQuery, search, status, gender);
-            Long count = countQuery.uniqueResult();
-            return count != null ? count : 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public void updateCandidateStatus(Long id, String status) {
-        try {
-            String hql = "UPDATE Candidate c SET c.status = :status WHERE c.id = :id";
-            Query query = getCurrentSession().createQuery(hql);
-            query.setParameter("status", status);
-            query.setParameter("id", id);
-            query.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     // ===== Technology Management Methods =====
-
-    @Override
-    public List<Technology> getCandidateTechnologies(Long candidateId) {
-        try {
-            String hql = "SELECT t FROM Candidate c JOIN c.technologies t WHERE c.id = :candidateId AND c.isDeleted = false";
-            Query<Technology> query = getCurrentSession().createQuery(hql, Technology.class);
-            query.setParameter("candidateId", candidateId);
-            return query.list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
-    // In addTechnologyToCandidate method - ensure parameter names match
-    @Override
-    public void addTechnologyToCandidate(Long candidateId, Integer technologyId) {
-        try {
-            // Check if relationship already exists
-            if (!candidateHasTechnology(candidateId, technologyId)) {
-                String sql = "INSERT INTO candidate_technology (candidate_id, technology_id) VALUES (:candidateId, :technologyId)";
-                Query query = getCurrentSession().createNativeQuery(sql);
-                query.setParameter("candidateId", candidateId);
-                query.setParameter("technologyId", technologyId);
-                query.executeUpdate();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // In removeTechnologyFromCandidate method
-    @Override
-    public void removeTechnologyFromCandidate(Long candidateId, Integer technologyId) {
-        try {
-            String sql = "DELETE FROM candidate_technology WHERE candidate_id = :candidateId AND technology_id = :technologyId";
-            Query query = getCurrentSession().createNativeQuery(sql);
-            query.setParameter("candidateId", candidateId);
-            query.setParameter("technologyId", technologyId);
-            query.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // In candidateHasTechnology method
-    @Override
-    public boolean candidateHasTechnology(Long candidateId, Integer technologyId) {
-        try {
-            String sql = "SELECT COUNT(*) FROM candidate_technology WHERE candidate_id = :candidateId AND technology_id = :technologyId";
-            Query query = getCurrentSession().createNativeQuery(sql);
-            query.setParameter("candidateId", candidateId);
-            query.setParameter("technologyId", technologyId);
-
-            Object result = query.uniqueResult();
-            if (result instanceof Number) {
-                return ((Number) result).intValue() > 0;
-            }
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
-    public void removeAllTechnologiesFromCandidate(Long candidateId) {
-        try {
-            String sql = "DELETE FROM candidate_technology WHERE candidate_id = :candidateId";
-            Query query = getCurrentSession().createNativeQuery(sql);
-            query.setParameter("candidateId", candidateId);
-            query.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void updatePassword(Long candidateId, String encodedPassword) {
@@ -470,138 +311,11 @@ public class CandidateDAOImpl implements CandidateDAO {
         }
     }
 
-    @Override
-    public long countSearchResults(String search, String status, String gender) {
-        try {
-            StringBuilder whereClause = new StringBuilder("WHERE c.isDeleted = false ");
-
-            if (search != null && !search.trim().isEmpty()) {
-                whereClause.append("AND (LOWER(c.name) LIKE LOWER(:search) ")
-                        .append("OR LOWER(c.email) LIKE LOWER(:search) ")
-                        .append("OR LOWER(c.phone) LIKE LOWER(:search)) ");
-            }
-
-            if (status != null && !status.isEmpty()) {
-                whereClause.append("AND c.status = :status ");
-            }
-
-            if (gender != null && !gender.isEmpty()) {
-                whereClause.append("AND c.gender = :gender ");
-            }
-
-            String countHql = "SELECT COUNT(c) FROM Candidate c " + whereClause;
-            Query<Long> countQuery = getCurrentSession().createQuery(countHql, Long.class);
-
-            setQueryParameters(countQuery, search, status, gender);
-            Long count = countQuery.uniqueResult();
-            return count != null ? count : 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public List<Candidate> findAllWithFilter(String status, String gender, Pageable pageable) {
-        try {
-            StringBuilder whereClause = new StringBuilder("WHERE c.isDeleted = false ");
-
-            if (status != null && !status.isEmpty()) {
-                whereClause.append("AND c.status = :status ");
-            }
-
-            if (gender != null && !gender.isEmpty()) {
-                whereClause.append("AND c.gender = :gender ");
-            }
-
-            String hql = "FROM Candidate c " + whereClause + " ORDER BY c.createdAt DESC";
-            Query<Candidate> query = getCurrentSession().createQuery(hql, Candidate.class);
-
-            if (status != null && !status.isEmpty()) {
-                query.setParameter("status", status);
-            }
-
-            if (gender != null && !gender.isEmpty()) {
-                query.setParameter("gender", gender);
-            }
-
-            // Apply pagination
-            if (pageable != null) {
-                query.setFirstResult((int) pageable.getOffset());
-                query.setMaxResults(pageable.getPageSize());
-            }
-
-            return query.list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public long countWithFilter(String status, String gender) {
-        try {
-            StringBuilder whereClause = new StringBuilder("WHERE c.isDeleted = false ");
-
-            if (status != null && !status.isEmpty()) {
-                whereClause.append("AND c.status = :status ");
-            }
-
-            if (gender != null && !gender.isEmpty()) {
-                whereClause.append("AND c.gender = :gender ");
-            }
-
-            String countHql = "SELECT COUNT(c) FROM Candidate c " + whereClause;
-            Query<Long> countQuery = getCurrentSession().createQuery(countHql, Long.class);
-
-            if (status != null && !status.isEmpty()) {
-                countQuery.setParameter("status", status);
-            }
-
-            if (gender != null && !gender.isEmpty()) {
-                countQuery.setParameter("gender", gender);
-            }
-
-            Long count = countQuery.uniqueResult();
-            return count != null ? count : 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public List<Candidate> findAllWithPagination(Pageable pageable) {
-        try {
-            String hql = "FROM Candidate c WHERE c.isDeleted = false ORDER BY c.createdAt DESC";
-            Query<Candidate> query = getCurrentSession().createQuery(hql, Candidate.class);
-
-            // Apply pagination
-            if (pageable != null) {
-                query.setFirstResult((int) pageable.getOffset());
-                query.setMaxResults(pageable.getPageSize());
-            }
-
-            return query.list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
     // ===== Helper Methods =====
 
-    private void setQueryParameters(Query query, String search, String status, String gender) {
-        if (search != null && !search.trim().isEmpty()) {
-            query.setParameter("search", "%" + search.trim() + "%");
-        }
-
-        if (status != null && !status.isEmpty()) {
-            query.setParameter("status", status);
-        }
-
-        if (gender != null && !gender.isEmpty()) {
-            query.setParameter("gender", gender);
-        }
+    public long count() {
+        Session session = sessionFactory.getCurrentSession();
+        Query<Long> query = session.createQuery("SELECT COUNT(c) FROM Candidate c", Long.class);
+        return query.getSingleResult();
     }
 }

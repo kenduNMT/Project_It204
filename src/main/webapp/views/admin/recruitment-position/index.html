@@ -24,15 +24,21 @@
             font-weight: 500;
             padding: 0.75rem 1rem;
             margin: 0.2rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
         }
         .sidebar .nav-link.active {
-            background: #e9ecef;
-            border-radius: 0.5rem;
-            color: #007bff;
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
         }
         .sidebar .nav-link:hover {
             background: #f8f9fa;
-            border-radius: 0.5rem;
+            color: #1976d2;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
         }
         .content-card {
             background: white;
@@ -120,7 +126,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-2 d-md-block sidebar">
+        <nav class="sidebar">
             <div class="text-center mb-4">
                 <h5 class="fw-bold text-primary">My Company</h5>
             </div>
@@ -147,7 +153,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/admin/application}">
-                        <i class="fas fa-file-alt me-2"></i> Applications
+                        <i class="fas fa-file-alt me-2"></i> Application
                     </a>
                 </li>
             </ul>

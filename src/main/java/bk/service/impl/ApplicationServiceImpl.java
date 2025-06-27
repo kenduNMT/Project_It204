@@ -41,12 +41,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationDAO.delete(id);
     }
 
-    @Override
-    public List<Application> findByStatus(Application.Status status) {
-        return applicationDAO.findByStatus(status);
-    }
-
-    // New methods for pagination, filter and search
+    // methods for pagination, filter and search
     @Override
     public List<Application> findAllWithPagination(int page, int size) {
         return applicationDAO.findAllWithPagination(page, size);
@@ -117,5 +112,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public List<Application> findByCandidateIdAndStatus(Integer candidateId, Application.Status status, int page, int size) {
         return applicationDAO.findByCandidateIdAndStatus(candidateId, status, page, size);
+    }
+
+    @Override
+    public long getTotalCount() {
+        return applicationDAO.count();
     }
 }

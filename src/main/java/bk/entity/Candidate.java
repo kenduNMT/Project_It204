@@ -38,7 +38,7 @@ public class Candidate {
 
     @NotBlank(message = "Mật khẩu không được để trống")
     @Size(min = 6, max = 255, message = "Mật khẩu phải từ 6-255 ký tự")
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Size(max = 20, message = "Số điện thoại không được vượt quá 20 ký tự")
@@ -91,17 +91,6 @@ public class Candidate {
         this.email = email;
         this.name = name;
         this.password = password;
-    }
-
-    // Helper methods for technologies
-    public void addTechnology(Technology technology) {
-        this.technologies.add(technology);
-        technology.getCandidates().add(this);
-    }
-
-    public void removeTechnology(Technology technology) {
-        this.technologies.remove(technology);
-        technology.getCandidates().remove(this);
     }
 
     @Override

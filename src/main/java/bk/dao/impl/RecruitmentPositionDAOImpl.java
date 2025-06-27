@@ -122,32 +122,10 @@ public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
     }
 
     @Override
-    public void hardDelete(Integer id) {
-        RecruitmentPosition recruitmentPosition = getCurrentSession().get(RecruitmentPosition.class, id);
-        if (recruitmentPosition != null) {
-            getCurrentSession().delete(recruitmentPosition);
-        }
-    }
-
-    @Override
     public List<RecruitmentPosition> findByName(String name) {
         String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.name LIKE :name AND rp.isDeleted = false ORDER BY rp.createdDate DESC";
         Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql, RecruitmentPosition.class);
         query.setParameter("name", "%" + name + "%");
-        return query.getResultList();
-    }
-
-    @Override
-    public List<RecruitmentPosition> findActivePositions() {
-        String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.isDeleted = false AND (rp.expiredDate IS NULL OR rp.expiredDate >= CURRENT_DATE) ORDER BY rp.createdDate DESC";
-        Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql, RecruitmentPosition.class);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<RecruitmentPosition> findExpiredPositions() {
-        String hql = "FROM RecruitmentPosition rp LEFT JOIN FETCH rp.technologies WHERE rp.isDeleted = false AND rp.expiredDate < CURRENT_DATE ORDER BY rp.expiredDate DESC";
-        Query<RecruitmentPosition> query = getCurrentSession().createQuery(hql, RecruitmentPosition.class);
         return query.getResultList();
     }
 
@@ -305,30 +283,6 @@ public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
     }
 
     @Override
-    public List<String> getAvailableLocations() {
-        try {
-            String hql = "SELECT DISTINCT rp.location FROM RecruitmentPosition rp WHERE rp.isDeleted = false AND rp.location IS NOT NULL AND rp.location != '' ORDER BY rp.location";
-            Query<String> query = getCurrentSession().createQuery(hql, String.class);
-            return query.getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Arrays.asList("Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ");
-        }
-    }
-
-    @Override
-    public List<String> getAvailableCategories() {
-        try {
-            String hql = "SELECT DISTINCT rp.category FROM RecruitmentPosition rp WHERE rp.isDeleted = false AND rp.category IS NOT NULL AND rp.category != '' ORDER BY rp.category";
-            Query<String> query = getCurrentSession().createQuery(hql, String.class);
-            return query.getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Arrays.asList("IT", "Marketing", "Sales", "HR", "Finance", "Design");
-        }
-    }
-
-    @Override
     public Map<String, Object> getSalaryRange() {
         try {
             String hql = "SELECT MIN(rp.minSalary), MAX(rp.maxSalary), AVG((rp.minSalary + rp.maxSalary) / 2) FROM RecruitmentPosition rp WHERE rp.isDeleted = false AND rp.minSalary IS NOT NULL AND rp.maxSalary IS NOT NULL";
@@ -336,9 +290,9 @@ public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
             Object[] result = query.getSingleResult();
 
             Map<String, Object> salaryRange = new HashMap<>();
-            salaryRange.put("min", result[0] != null ? (Double) result[0] : 5.0);
-            salaryRange.put("max", result[1] != null ? (Double) result[1] : 100.0);
-            salaryRange.put("average", result[2] != null ? (Double) result[2] : 25.0);
+            salaryRange.put("min", result[0] != null ? result[0] : 5.0);
+            salaryRange.put("max", result[1] != null ? result[1] : 100.0);
+            salaryRange.put("average", result[2] != null ? result[2] : 25.0);
 
             return salaryRange;
         } catch (Exception e) {
@@ -349,5 +303,10 @@ public class RecruitmentPositionDAOImpl implements RecruitmentPositionDAO {
             defaultRange.put("average", 25.0);
             return defaultRange;
         }
+    }
+    public long count() {
+        Session session = sessionFactory.getCurrentSession();
+        Query<Long> query = session.createQuery("SELECT COUNT(r) FROM RecruitmentPosition r", Long.class);
+        return query.getSingleResult();
     }
 }

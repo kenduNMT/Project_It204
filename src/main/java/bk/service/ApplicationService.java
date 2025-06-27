@@ -9,8 +9,7 @@ public interface ApplicationService {
     Application save(Application application);
     void update(Application application);
     void delete(Long id);
-    List<Application> findByStatus(Application.Status status);
-    
+
     // New methods for pagination, filter and search
     List<Application> findAllWithPagination(int page, int size);
     List<Application> findByStatusWithPagination(Application.Status status, int page, int size);
@@ -25,4 +24,6 @@ public interface ApplicationService {
     long countByCandidateId(Integer candidateId);
     long countByCandidateIdAndStatus(Integer candidateId, Application.Status status);
     List<Application> findByCandidateIdAndStatus(Integer candidateId, Application.Status status, int page, int size);
+
+    long getTotalCount();
 }

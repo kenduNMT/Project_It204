@@ -21,9 +21,6 @@ public class RecruitmentPosition {
 
     private String name;
     private String description;
-    
-    private String location;
-    private String category;
 
     @Column(name = "min_salary")
     private Double minSalary;

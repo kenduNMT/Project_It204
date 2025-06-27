@@ -91,20 +91,6 @@ public class TechnologyDAOImpl implements TechnologyDAO {
     }
 
     @Override
-    public Optional<Technology> findByNameAndActive(String name) {
-        try {
-            String hql = "FROM Technology t WHERE t.name = :name AND t.isDeleted = false";
-            Query<Technology> query = getCurrentSession().createQuery(hql, Technology.class);
-            query.setParameter("name", name);
-            query.setMaxResults(1);
-            return query.uniqueResultOptional();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty();
-        }
-    }
-
-    @Override
     public boolean existsByNameAndNotId(String name, Integer id) {
         try {
             String hql = "SELECT COUNT(t) FROM Technology t WHERE t.name = :name AND t.id != :id AND t.isDeleted = false";
@@ -161,19 +147,6 @@ public class TechnologyDAOImpl implements TechnologyDAO {
     public long countActive() {
         try {
             String hql = "SELECT COUNT(t) FROM Technology t WHERE t.isDeleted = false";
-            Query<Long> query = getCurrentSession().createQuery(hql, Long.class);
-            Long count = query.uniqueResult();
-            return count != null ? count : 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public long countDeleted() {
-        try {
-            String hql = "SELECT COUNT(t) FROM Technology t WHERE t.isDeleted = true";
             Query<Long> query = getCurrentSession().createQuery(hql, Long.class);
             Long count = query.uniqueResult();
             return count != null ? count : 0;
@@ -262,5 +235,10 @@ public class TechnologyDAOImpl implements TechnologyDAO {
             e.printStackTrace();
             return Collections.emptyList();
         }
+    }
+    public long count() {
+        Session session = sessionFactory.getCurrentSession();
+        Query<Long> query = session.createQuery("SELECT COUNT(t) FROM Technology t", Long.class);
+        return query.getSingleResult();
     }
 }

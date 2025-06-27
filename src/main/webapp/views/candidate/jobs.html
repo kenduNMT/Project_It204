@@ -174,7 +174,7 @@
             <div class="sidebar">
                 <div class="p-3 text-center">
                     <h6 class="text-white" th:text="${session.candidateName ?: 'Ứng viên'}">Ứng viên</h6>
-                    <small class="text-white-50" th:text="${session.candidateEmail ?: 'email@example.com'}">email@example.com</small>
+                    <small class="text-white-50" th:text="${session.currentCandidate.email ?: 'email@example.com'}">email@example.com</small>
                 </div>
 
                 <nav class="nav nav-pills flex-column">

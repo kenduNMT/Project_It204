@@ -101,17 +101,6 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Candidate> findAllActive() {
-        return candidateDAO.findAllActive();
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        candidateDAO.deleteById(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public long countActive() {
         return candidateDAO.countActive();
     }
@@ -124,10 +113,7 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public boolean checkPassword(Long candidateId, String rawPassword) {
         Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
-        if (candidateOpt.isPresent()) {
-            return checkPassword(rawPassword, candidateOpt.get().getPassword());
-        }
-        return false;
+        return candidateOpt.filter(candidate -> checkPassword(rawPassword, candidate.getPassword())).isPresent();
     }
 
     @Override
@@ -141,19 +127,7 @@ public class CandidateServiceImpl implements CandidateService {
         return passwordEncoder.encode(rawPassword);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existsByEmail(String email) {
-        return candidateDAO.existsByEmail(email);
-    }
-
     // ===== Management Controller Methods =====
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Candidate> getAllCandidates(Pageable pageable) {
-        return candidateDAO.findAll(pageable);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -169,9 +143,9 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    public Candidate updateCandidate(Candidate candidate) {
+    public void updateCandidate(Candidate candidate) {
         candidate.setUpdatedAt(LocalDateTime.now());
-        return candidateDAO.update(candidate);
+        candidateDAO.update(candidate);
     }
 
     @Override
@@ -222,40 +196,6 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public boolean hasTechnology(Long candidateId, Integer technologyId) {
-        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
-        Optional<Technology> technologyOpt = technologyService.findById(technologyId);
-
-        if (candidateOpt.isPresent() && technologyOpt.isPresent()) {
-            return candidateOpt.get().getTechnologies().contains(technologyOpt.get());
-        }
-        return false;
-    }
-
-    @Override
-    public void updateCandidateTechnologies(Long candidateId, List<Integer> technologyIds) {
-        Optional<Candidate> candidateOpt = candidateDAO.findById(candidateId);
-
-        if (candidateOpt.isPresent()) {
-            Candidate candidate = candidateOpt.get();
-
-            // Xóa tất cả technologies hiện tại
-            candidate.getTechnologies().clear();
-
-            // Thêm technologies mới
-            for (Integer techId : technologyIds) {
-                Optional<Technology> technologyOpt = technologyService.findById(techId);
-                if (technologyOpt.isPresent()) {
-                    candidate.getTechnologies().add(technologyOpt.get());
-                }
-            }
-
-            candidateDAO.update(candidate);
-        }
-    }
-
-    @Override
     public boolean addTechnologyToCandidate(Long candidateId, Integer techId) {
         try {
             addTechnology(candidateId, techId);
@@ -285,26 +225,7 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public long countSearchResults(String search, String status, String gender) {
-        return candidateDAO.countSearchResults(search, status, gender);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Candidate> findAllWithFilter(String status, String gender, Pageable pageable) {
-        return candidateDAO.findAllWithFilter(status, gender, pageable);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public long countWithFilter(String status, String gender) {
-        return candidateDAO.countWithFilter(status, gender);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Candidate> findAllWithPagination(Pageable pageable) {
-        return candidateDAO.findAllWithPagination(pageable);
+    public long getTotalCount() {
+        return candidateDAO.count();
     }
 }

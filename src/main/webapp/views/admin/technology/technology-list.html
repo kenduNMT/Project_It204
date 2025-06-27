@@ -22,15 +22,23 @@
         .sidebar .nav-link {
             color: #333;
             font-weight: 500;
+            padding: 0.75rem 1rem;
+            margin: 0.2rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
         }
         .sidebar .nav-link.active {
-            background: #e9ecef;
-            border-radius: 0.5rem;
-            color: #007bff;
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
         }
         .sidebar .nav-link:hover {
             background: #f8f9fa;
-            border-radius: 0.5rem;
+            color: #1976d2;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
         }
         .content-card {
             background: white;
@@ -66,16 +74,36 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-2 d-md-block sidebar">
+        <nav class="sidebar">
             <div class="text-center mb-4">
                 <h5 class="fw-bold text-primary">My Company</h5>
             </div>
             <ul class="nav flex-column px-3">
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/candidate-list}"><i class="fas fa-user me-2"></i> Candidate</a></li>
-                <li class="nav-item"><a class="nav-link active" th:href="@{/admin/technology}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/recruitment-position}"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/application}"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-chart-line me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/candidate-list}">
+                        <i class="fas fa-user me-2"></i> Candidate
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/technology}">
+                        <i class="fas fa-microchip me-2"></i> Technology
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/recruitment-position}">
+                        <i class="fas fa-briefcase me-2"></i> Recruitment
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/application}">
+                        <i class="fas fa-file-alt me-2"></i> Application
+                    </a>
+                </li>
             </ul>
             <div class="profile-section text-center">
                 <div class="fw-semibold">Admin</div>

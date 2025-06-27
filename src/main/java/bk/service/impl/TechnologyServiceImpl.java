@@ -16,7 +16,7 @@ import java.util.Optional;
 public class TechnologyServiceImpl implements TechnologyService {
 
     @Autowired
-    private TechnologyDAO technologyDao; // Đã đổi từ TechnologyDaoImpl sang TechnologyDAO
+    private TechnologyDAO technologyDao;
 
     @Override
     public List<Technology> getAllActiveTechnologies() {
@@ -36,21 +36,16 @@ public class TechnologyServiceImpl implements TechnologyService {
     }
 
     @Override
-    public Optional<Technology> findByName(String name) {
-        return technologyDao.findByNameAndActive(name);
-    }
-
-    @Override
-    public Technology createTechnology(Technology technology) {
+    public void createTechnology(Technology technology) {
         if (technologyDao.existsByNameAndActive(technology.getName())) {
             throw new RuntimeException("Tên công nghệ đã tồn tại: " + technology.getName());
         }
         technology.setIsDeleted(false); // Đảm bảo khi tạo mới là chưa xóa
-        return technologyDao.save(technology);
+        technologyDao.save(technology);
     }
 
     @Override
-    public Technology updateTechnology(Integer id, Technology updatedTechnology) {
+    public void updateTechnology(Integer id, Technology updatedTechnology) {
         // Tìm công nghệ hiện có, chỉ tìm những cái chưa bị xóa mềm
         Technology existingTechnology = technologyDao.findByIdAndActive(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy công nghệ với ID: " + id));
@@ -66,7 +61,7 @@ public class TechnologyServiceImpl implements TechnologyService {
         // existingTechnology.setDescription(updatedTechnology.getDescription());
         // ...
 
-        return technologyDao.update(existingTechnology); // Sử dụng phương thức update của DAO
+        technologyDao.update(existingTechnology);
     }
 
     @Override
@@ -103,16 +98,6 @@ public class TechnologyServiceImpl implements TechnologyService {
     }
 
     @Override
-    public long countActiveTechnologies() {
-        return technologyDao.countActive();
-    }
-
-    @Override
-    public long countDeletedTechnologies() {
-        return technologyDao.countDeleted();
-    }
-
-    @Override
     public Page<Technology> getDeletedTechnologies(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         return technologyDao.findAllDeleted(pageable);
@@ -129,13 +114,13 @@ public class TechnologyServiceImpl implements TechnologyService {
     }
 
     @Override
-    public List<Technology> getAllTechnologies() {
-        // Lấy tất cả công nghệ, bao gồm cả đã xóa mềm
-        return technologyDao.findAll();
-    }
-
-    @Override
     public List<Technology> findAllActive() {
         return technologyDao.findAllActive();
     }
+
+    @Override
+    public long getTotalCount() {
+        return technologyDao.count();
+    }
+
 }

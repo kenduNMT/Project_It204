@@ -59,6 +59,7 @@ public class AuthController {
             session.setAttribute("candidateId", candidate.getId());
             session.setAttribute("candidateName", candidate.getName());
             session.setAttribute("role", candidate.getRole().toString());
+            session.setAttribute("candidateEmail", candidate.getEmail());
 
             redirectAttributes.addFlashAttribute("successMessage",
                     "Đăng nhập thành công! Chào mừng " + candidate.getName());

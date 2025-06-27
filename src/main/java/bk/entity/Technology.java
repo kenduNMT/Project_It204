@@ -46,16 +46,6 @@ public class Technology {
         return !isDeleted;
     }
 
-    public void softDelete() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
-
-    public void restore() {
-        this.isDeleted = false;
-        this.deletedAt = null;
-    }
-
     @Override
     public String toString() {
         return "Technology{" +

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
@@ -22,15 +22,23 @@
         .sidebar .nav-link {
             color: #333;
             font-weight: 500;
+            padding: 0.75rem 1rem;
+            margin: 0.2rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
         }
         .sidebar .nav-link.active {
-            background: #e9ecef;
-            border-radius: 0.5rem;
-            color: #007bff;
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
         }
         .sidebar .nav-link:hover {
             background: #f8f9fa;
-            border-radius: 0.5rem;
+            color: #1976d2;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
         }
 
         .profile-section {
@@ -70,21 +78,43 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-2 d-md-block sidebar">
+        <nav class="sidebar">
             <div class="text-center mb-4">
                 <h5 class="fw-bold text-primary">My Company</h5>
             </div>
             <ul class="nav flex-column px-3">
-                <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/candidate-list}"><i class="fas fa-user me-2"></i> Candidate</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/technology}"><i class="fas fa-microchip me-2"></i> Technology</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/recruitment-position}"><i class="fas fa-briefcase me-2"></i> Recruitment</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/application}"><i class="fas fa-file-alt me-2"></i> Applications</a></li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-chart-line me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/candidate-list}">
+                        <i class="fas fa-user me-2"></i> Candidate
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/technology}">
+                        <i class="fas fa-microchip me-2"></i> Technology
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/recruitment-position}">
+                        <i class="fas fa-briefcase me-2"></i> Recruitment
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/application}">
+                        <i class="fas fa-file-alt me-2"></i> Application
+                    </a>
+                </li>
             </ul>
-            <div class="text-center mt-5 profile-section">
-                <div>Admin</div>
-                <div class="text-muted">admin@gmail.com</div>
-                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            <div class="profile-section text-center">
+                <div class="fw-semibold">Admin</div>
+                <div class="text-muted small">admin@gmail.com</div>
+                <a th:href="@{/auth/logout}" class="btn btn-outline-danger btn-sm mt-2">
+                    <i class="fas fa-sign-out-alt me-1"></i> Log out
+                </a>
             </div>
         </nav>
 
@@ -92,10 +122,58 @@
         <main class="col-md-10 ms-sm-auto px-md-4 py-4">
             <!-- Stats -->
             <div class="row g-3 mb-4">
-                <div class="col-md-3"><div class="stat-card"><div>Total Revenue</div><div class="stat-value text-success">$12,426 <small>+36%</small></div></div></div>
-                <div class="col-md-3"><div class="stat-card"><div>Total Product</div><div class="stat-value text-danger">1,500 <small>-14%</small></div></div></div>
-                <div class="col-md-3"><div class="stat-card"><div>Total Invoice</div><div class="stat-value text-success">84,382 <small>+36%</small></div></div></div>
-                <div class="col-md-3"><div class="stat-card"><div>Total Users</div><div class="stat-value text-success">33,493 <small>+36%</small></div></div></div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-secondary">Total Candidates</div>
+                                <div class="stat-value text-primary" th:text="${totalCandidates}">0</div>
+                            </div>
+                            <div class="text-primary">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-secondary">Total Technologies</div>
+                                <div class="stat-value text-info" th:text="${totalTechnologies}">0</div>
+                            </div>
+                            <div class="text-info">
+                                <i class="fas fa-microchip fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-secondary">Total Positions</div>
+                                <div class="stat-value text-success" th:text="${totalRecruitmentPositions}">0</div>
+                            </div>
+                            <div class="text-success">
+                                <i class="fas fa-briefcase fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-secondary">Total Applications</div>
+                                <div class="stat-value text-warning" th:text="${totalApplications}">0</div>
+                            </div>
+                            <div class="text-warning">
+                                <i class="fas fa-file-alt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Graph + Sources -->
@@ -103,68 +181,72 @@
                 <div class="col-md-8">
                     <div class="chart-box">
                         <div class="d-flex justify-content-between mb-2">
-                            <h6>Sales Report</h6>
+                            <h6>Recruitment Report</h6>
                             <div><button class="btn btn-sm btn-outline-secondary">Export PDF</button></div>
                         </div>
-                        <img src="https://via.placeholder.com/700x200?text=Sales+Chart" class="img-fluid">
+                        <img src="https://via.placeholder.com/700x200?text=Recruitment+Chart" class="img-fluid">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="chart-box">
-                        <h6>Traffic Sources (7 days)</h6>
+                        <h6>Application Sources (7 days)</h6>
                         <ul class="list-unstyled mt-3">
-                            <li class="mb-2">Direct <span class="float-end fw-bold">1,432,382</span></li>
-                            <li class="mb-2">Referral <span class="float-end fw-bold">87,974</span></li>
-                            <li class="mb-2">Social Media <span class="float-end fw-bold">45,211</span></li>
-                            <li>Twitter <span class="float-end fw-bold">21,893</span></li>
+                            <li class="mb-2">Direct Apply <span class="float-end fw-bold">1,432</span></li>
+                            <li class="mb-2">Job Boards <span class="float-end fw-bold">874</span></li>
+                            <li class="mb-2">Social Media <span class="float-end fw-bold">452</span></li>
+                            <li>Referrals <span class="float-end fw-bold">218</span></li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <!-- Transactions + Customers -->
+            <!-- Recent Activities + Quick Stats -->
             <div class="row g-3">
                 <div class="col-md-8">
                     <div class="transactions">
                         <div class="d-flex justify-content-between mb-3">
-                            <h6>Transactions</h6>
-                            <a href="#" class="text-primary">See All</a>
+                            <h6>Recent Applications</h6>
+                            <a th:href="@{/admin/application}" class="text-primary">See All</a>
                         </div>
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between">
-                                <span><span class="badge bg-success me-2">Completed</span>Visa card **** 4831</span>
-                                <span>$182.94</span>
+                                <span><span class="badge bg-success me-2">Approved</span>Java Developer Position</span>
+                                <span class="text-muted">2 hours ago</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
-                                <span><span class="badge bg-success me-2">Completed</span>Mastercard **** 6442</span>
-                                <span>$99.00</span>
+                                <span><span class="badge bg-warning text-dark me-2">Pending</span>Frontend Developer</span>
+                                <span class="text-muted">5 hours ago</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
-                                <span><span class="badge bg-warning text-dark me-2">Pending</span>Account **** 882</span>
-                                <span>$249.94</span>
+                                <span><span class="badge bg-info me-2">Interview</span>Backend Developer</span>
+                                <span class="text-muted">1 day ago</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
-                                <span><span class="badge bg-danger me-2">Canceled</span>Amex card **** 6664</span>
-                                <span>$199.24</span>
+                                <span><span class="badge bg-danger me-2">Rejected</span>Data Analyst</span>
+                                <span class="text-muted">2 days ago</span>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="customers">
-                        <h6>Recent Customers</h6>
+                        <h6>Quick Stats</h6>
                         <ul class="list-unstyled mt-3">
                             <li class="d-flex justify-content-between mb-2">
-                                <span>Jenny Wilson</span><span>$11,234</span>
+                                <span>Active Positions</span>
+                                <span class="badge bg-success">6</span>
                             </li>
                             <li class="d-flex justify-content-between mb-2">
-                                <span>Devon Lane</span><span>$11,159</span>
+                                <span>Pending Applications</span>
+                                <span class="badge bg-warning">1</span>
                             </li>
                             <li class="d-flex justify-content-between mb-2">
-                                <span>Jane Cooper</span><span>$10,483</span>
+                                <span>Interviews Scheduled</span>
+                                <span class="badge bg-info">2</span>
                             </li>
                             <li class="d-flex justify-content-between">
-                                <span>Dianne Russell</span><span>$9,804</span>
+                                <span>New Candidates</span>
+                                <span class="badge bg-primary">2</span>
                             </li>
                         </ul>
                     </div>

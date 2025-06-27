@@ -4,6 +4,7 @@ import bk.dao.ApplicationDAO;
 import bk.entity.Application;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -52,13 +53,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     public void delete(Long id) {
         Application app = findById(id);
         if (app != null) getSession().delete(app);
-    }
-
-    @Override
-    public List<Application> findByStatus(Application.Status status) {
-        return getSession().createQuery("FROM Application a WHERE a.status = :status", Application.class)
-                .setParameter("status", status)
-                .list();
     }
 
     // New methods for pagination, filter and search
@@ -227,5 +221,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 .setFirstResult((page - 1) * size)
                 .setMaxResults(size)
                 .list();
+    }
+    public long count() {
+        Session session = sessionFactory.getCurrentSession();
+        Query<Long> query = session.createQuery("SELECT COUNT(a) FROM Application a", Long.class);
+        return query.getSingleResult();
     }
 }

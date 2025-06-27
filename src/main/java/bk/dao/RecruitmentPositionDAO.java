@@ -15,11 +15,8 @@ public interface RecruitmentPositionDAO {
     void save(RecruitmentPosition recruitmentPosition);
     void update(RecruitmentPosition recruitmentPosition);
     void delete(Integer id);
-    void hardDelete(Integer id);
 
     List<RecruitmentPosition> findByName(String name);
-    List<RecruitmentPosition> findActivePositions();
-    List<RecruitmentPosition> findExpiredPositions();
 
     Long countAll();
     Long countActive();
@@ -31,9 +28,8 @@ public interface RecruitmentPositionDAO {
                                              String sortBy, int page, int size);
     Long countSearchAndFilter(String keyword, String location, String category,
                              Double minSalary, Double maxSalary, Integer minExperience);
-    
-    // API methods for filters
-    List<String> getAvailableLocations();
-    List<String> getAvailableCategories();
+
     Map<String, Object> getSalaryRange();
+
+    long count();
 }

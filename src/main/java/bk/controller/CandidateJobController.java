@@ -163,7 +163,7 @@ public class CandidateJobController {
             }
 
             // Kiểm tra việc làm có tồn tại không
-            RecruitmentPosition job = null;
+            RecruitmentPosition job;
             try {
                 job = recruitmentPositionService.findById(id);
             } catch (Exception e) {
@@ -199,7 +199,7 @@ public class CandidateJobController {
             }
 
             // Lấy thông tin ứng viên
-            Optional<Candidate> candidateOpt = null;
+            Optional<Candidate> candidateOpt;
             try {
                 candidateOpt = candidateService.findById(candidateIdLong);
             } catch (Exception e) {
@@ -431,8 +431,9 @@ public class CandidateJobController {
     private String saveUploadedFile(MultipartFile file) throws IOException {
         // Generate unique filename
         String originalFilename = file.getOriginalFilename();
+        assert originalFilename != null;
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID().toString() + extension;
+        String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + extension;
 
         // Create upload directory if not exists
         Path uploadPath = Paths.get("uploads/cv");
@@ -445,34 +446,6 @@ public class CandidateJobController {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return fileName;
-    }
-
-    /**
-     * Get all available locations for filter
-     */
-    @GetMapping("/api/locations")
-    @ResponseBody
-    public ResponseEntity<List<String>> getAvailableLocations() {
-        try {
-            List<String> locations = recruitmentPositionService.getAvailableLocations();
-            return ResponseEntity.ok(locations);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(new ArrayList<>());
-        }
-    }
-
-    /**
-     * Get all available categories for filter
-     */
-    @GetMapping("/api/categories")
-    @ResponseBody
-    public ResponseEntity<List<String>> getAvailableCategories() {
-        try {
-            List<String> categories = recruitmentPositionService.getAvailableCategories();
-            return ResponseEntity.ok(categories);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(new ArrayList<>());
-        }
     }
 
     /**

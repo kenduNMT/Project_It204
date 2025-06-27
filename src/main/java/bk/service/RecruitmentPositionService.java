@@ -19,11 +19,6 @@ public interface RecruitmentPositionService {
     void save(RecruitmentPosition recruitmentPosition, List<Integer> technologyIds);
     void update(RecruitmentPosition recruitmentPosition, List<Integer> technologyIds);
     void delete(Integer id);
-    void hardDelete(Integer id);
-
-    List<RecruitmentPosition> findByName(String name);
-    List<RecruitmentPosition> findActivePositions();
-    List<RecruitmentPosition> findExpiredPositions();
 
     Long countAll();
     Long countActive();
@@ -35,9 +30,8 @@ public interface RecruitmentPositionService {
     PageResponse<RecruitmentPosition> searchAndFilter(String keyword, String location, String category,
                                                      Double minSalary, Double maxSalary, Integer minExperience,
                                                      String sortBy, int page, int size);
-    
-    // API methods for filters
-    List<String> getAvailableLocations();
-    List<String> getAvailableCategories();
+
     Map<String, Object> getSalaryRange();
+
+    long getTotalCount();
 }
