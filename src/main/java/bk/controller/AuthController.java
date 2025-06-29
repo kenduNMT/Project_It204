@@ -54,6 +54,12 @@ public class AuthController {
         try {
             Candidate candidate = candidateService.login(loginDTO);
 
+            // Kiểm tra trạng thái tài khoản
+            if (candidate.getStatus() == Candidate.Status.INACTIVE) {
+                model.addAttribute("errorMessage", "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.");
+                return "auth/login";
+            }
+
             // Lưu thông tin vào session
             session.setAttribute("currentCandidate", candidate);
             session.setAttribute("candidateId", candidate.getId());
