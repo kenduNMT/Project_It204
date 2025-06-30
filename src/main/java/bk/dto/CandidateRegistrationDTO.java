@@ -12,14 +12,13 @@ import java.time.LocalDate;
 @Setter
 @Getter
 public class CandidateRegistrationDTO {
-
-    // Getters and Setters
     @NotBlank(message = "Tên không được để trống")
     @Size(max = 100, message = "Tên không được vượt quá 100 ký tự")
     private String name;
 
     @NotBlank(message = "Email không được để trống")
-    @Email(message = "Email không đúng định dạng")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+            message = "Email phải có định dạng hợp lệ (ví dụ: user@example.com)")
     @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
     private String email;
 
@@ -30,6 +29,8 @@ public class CandidateRegistrationDTO {
     @NotBlank(message = "Xác nhận mật khẩu không được để trống")
     private String confirmPassword;
 
+    @Pattern(regexp = "^(\\+84|0)(3[2-9]|5[689]|7[06-9]|8[1-689]|9[0-46-9])[0-9]{7}$",
+            message = "Số điện thoại phải đúng định dạng Việt Nam (10-11 chữ số, bắt đầu bằng 0 hoặc +84)")
     @Size(max = 20, message = "Số điện thoại không được vượt quá 20 ký tự")
     private String phone;
 
